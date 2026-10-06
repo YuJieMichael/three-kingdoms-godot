@@ -1,5 +1,62 @@
 # Godot 验证记录
 
+## 0.3.1 大地图测量与路线裁剪（发布验证进行中）
+
+2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。697 项本地检查、原生性能比较及最终原生／Web 观察已完成；故事 004 仍为 IN PROGRESS，等待发布资产校验与正式 Windows 包运行。本节记录当前版本；以下 0.3.0、0.2.0 与更早结果均为历史证据。
+
+### 实现与自动检查
+
+长虚线按整条线与扩展视窗的交集生成可见 dash，从原起点计算相位，取消旧 600 段／约 9000 屏幕像素上限；内部双精度比例避免两百万像素线的端点误差。两端屏外仍可穿屏显示。行军每 50 ms 检查可见动态标记，屏外／筛选隐藏部队避免无用刷新；未来到达引用支持短行程或卡顿越过移动区间后的单次最终刷新，驻扎、采集和返回语义不变。
+
+低于 46% 的远景使用原 y/x 顺序的城池／任务／主城稀疏索引，46% 及以上保持逐格细节；地形／森林／山峰颜色保持原值。纯坐标几何缓存每类上限 2048，缩放采用当前 pixels；河流保留原采样格、邻点、宽度与支流 `W/(3H)` 间距。山峰乘法顺序调整仅有极小浮点舍入差异，没有意图形状变化。
+
+| 范围 | 通过数量 | 本轮证据 |
+|---|---:|---|
+| 桥接、地图、城池/战斗、客户端、事务与输入 | 482 | 根代理最终重新执行确认 |
+| 新增几何、真实绘制、到达边沿与缓存 | 215 | 根代理独立复跑 `MAP_RENDER_TEST_CHECKS=215 failures=0`，无 ERROR |
+| 合计 | 697 | 本地全部通过；本轮 Windows CI 尚待完成 |
+
+新增检查使用隔离 DTO 与实际 SceneTree draw，覆盖长线几何、相位、可见候选量、连续动画、筛选、驻扎／采集、现有标签 margin、首次扫描前抵达、卡顿跨过到达、单次完成刷新、稀疏索引阈值／顺序／替换和缓存有界／坐标／缩放等价。根代理日志为 `.local/map-031-final-render.log`。独立源码复核无阻塞发现；源码导入无 ERROR。它们不连接规则服务或读写玩家存档，数学与 headless 回归不能代替性能捕获。
+
+### 原生性能证据
+
+三个原生非 headless 捕获均 valid，两份 comparison 均 matched，原始逐帧数据归档在 `production/polish/data/`。相同 Apple M1、macOS 27.0.1、Godot 4.7.2 debug、OpenGL compatibility、1280×800、VSync、限帧 60；各组热身 30／采样 150 帧。最终地图 SHA256 为 `4d0fbb443343438e77d6a9b9194a019dec0562fb0c88b0d0673cf0c21cc90179`，基准三次相同。完整数值与复现见 [报告](../production/polish/world-map-report-2026-10-06.md) 和 [说明](MAP-PERFORMANCE.zh.md)。
+
+最终每次重绘 CPU p95：64_pan 17.543→16.626 ms、总览 72.376→37.163 ms、200 pan 22.133→19.645 ms、200 idle 23.175→18.710 ms。200 pan 每采样帧仍是两次重绘，其 CPU p95 为 43.986→39.144 ms。64_pan 帧间隔 p95 67.432→67.678 ms 略升，CANVAS calls 完全相同；单次 set_world 更贵，行军 process CPU 与引擎内存略增。第一轮三个 CPU 尾部回退的数据独立保留，随后代码优化得到 final 捕获，没有拼各轮最佳数据。
+
+CPU draw 是插桩命令准备，分层时间属于其总量；帧间隔包含 VSync、渲染和调度，不是 GPU、完整 FPS 或输入延迟。引擎 static memory 不等于 RSS；GPU timing UNAVAILABLE。四项预算未设定、默认 enforce warn，符合性为 NOT ASSESSED — NO BUDGET。合成 256²／200 行军不是已扩州或 200 在线玩家，开发机捕获不是 Windows/Web 性能验证。
+
+### 最终实际原生与 Web 观察
+
+根代理在最终源码的 macOS 原生窗口保留原 userdata，拖动镜头 (32,32)→(40,36)，minus 缩到 41% 显示中原分区，H 回到 32，KP_Add 恢复 80%；选中河畔荒田后侧栏坐标 29,35、配兵出征按钮可见。此处只查看，未下达出征或经济命令。截图为 `map-performance-overview-native.jpg`、`map-performance-near-native.jpg`。
+
+最终 `build/web` 在独立 17341 QA 服务完成 1280×800 桌面拖动、71% 近景、41% 总览、H 与 KP_Add 恢复 80%、同任务侧栏；截图为 `map-performance-near-web.jpg`、`map-performance-overview-web.jpg`。390×844 完成拖动、minus、H，镜头回到 32、缩放 71%，截图为 `map-performance-390-web.jpg`。浏览器 warn/error 日志为空。临时 QA tab 已关闭，viewport 已 reset；用户 17339 重新载入最终资产，原 `.local/play` 保留，原生客户端继续运行。未使用旧版截图代替本轮观察，窄屏不等于真实手机触控测试。
+
+![0.3.1 最终原生总览](screenshots/map-performance-overview-native.jpg)
+
+![0.3.1 最终原生近景与任务侧栏](screenshots/map-performance-near-native.jpg)
+
+![0.3.1 最终网页总览](screenshots/map-performance-overview-web.jpg)
+
+![0.3.1 最终网页近景与任务侧栏](screenshots/map-performance-near-web.jpg)
+
+![0.3.1 最终网页窄屏地图](screenshots/map-performance-390-web.jpg)
+
+### 导出、范围与待发布验证
+
+Windows/Web 最终导出成功；本地四项资产摘要如下。GitHub digest、发布源码标签与正式 Windows ZIP 下载／校验／实际启动 CI 待完成，不以旧 0.3.0 结果替代。
+
+| 文件 | 字节数 | 本地 SHA256 |
+|---|---:|---|
+| ThreeKingdoms-Godot-v0.3.1-Windows-x64.zip | 86869201 | `84d15f246bb440e2fb895960adc198464c293cf8aefea4fe62b827f3be7913c6` |
+| ThreeKingdoms-Godot-v0.3.1-Web-preview.zip | 59029064 | `78659bb2f6c634124afc214333aec5b7a6422e95a7c3fec79e8ecef587fb3e91` |
+| build-manifest.json | 629 | `ac796ae78746148f0357889dffe011d326146bbd6ab4fa3c721ad8c6df26c19a` |
+| SHA256SUMS.txt | 218 | `0f005505c0974d5a1022edc747fe915ba76e8c5f90cb4701e52e689219a04736` |
+
+规则来源仍为 c7674df，runtime hash 为 `432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4`；vendor/legacy 与 bridge 无差异，原仓库工作区干净、HEAD 仍 c7674df，原 Pages 未部署。Graphify 按原 code-only 排除 flags 与 `cluster-only . --no-label` 刷新，为 573 节点、1712 边、30 社区；`.gd` 仍未覆盖，只有本地图谱更新，没有外部语义后端、watcher、hook 或上传。
+
+动态 Canvas 分层、图集、正式美术、规则扩州和极长标签实际字体边界裁剪不在本轮，目前仍沿用左右 120、上下 35 px 标记 margin。缓存整体清空与定期快照的长局尾部、Windows 人工长局、真实手机、手柄、Steam Deck、Steamworks、公网多人及其压力表现未验证。
+
 ## 0.3.0 可配置电脑输入更新
 
 2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。以下为根代理已执行与观察的本轮证据；0.2.0 与 0.1.1 记录保持为历史版本。0.3.0 实现、本地检查、macOS 原生操作、实际 Web 桌面/390 窄屏、最终 Windows/Web 导出与发布、正式 Windows 发布包启动 CI 均已完成，故事 003 为 DONE。

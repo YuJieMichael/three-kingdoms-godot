@@ -1,6 +1,6 @@
 # 三国城志 · Godot
 
-Godot 4.7.2＋GDScript 的独立迁移试玩，当前版本 **0.3.0**，新增可配置电脑输入与地图键盘导航。面向 Windows 和网页，Steamworks 在客户端验证后接入。
+Godot 4.7.2＋GDScript 的独立迁移试玩，**0.3.1 大地图更新正在开发与验证**，修复超长行军路线并建立可复现的原生绘制基线。最新已发布版本为 0.3.0，包含可配置电脑输入与地图键盘导航。面向 Windows 和网页，Steamworks 在客户端验证后接入。
 
 原 [three-kingdoms 仓库](https://github.com/YuJieMichael/three-kingdoms) 与 [网页版](https://yujiemichael.github.io/three-kingdoms/) 保持不变。本仓库从 `c7674df45b9595405e57907524e737e633b0ff63` 保存规则快照，不直接同步或部署原仓库。
 
@@ -18,6 +18,7 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，当前版本 **0.3.0**，新增�
 - 可配置电脑输入：WASD / 方向键移动大地图，`=` / 小键盘 `+` 放大，`-` / 小键盘 `-` 缩小，H / Home 定位主城；1–5 分别切换城池、大地图、军队、将领和战报，T 打开事务、O 存档、K 按键设置。打开弹窗或编辑文字时暂停游戏快捷键；Tab、Enter、Esc 保留原生界面操作。
 - 按键设置允许改键、显示冲突并恢复默认，单独在本机保存；配置损坏回退默认，保存失败保留原绑定，游戏进度不受影响。设置按钮和事务入口仍可用鼠标与触屏打开。
 - 原生连续地图：64×64 规则世界、鼠标拖动、锚点缩放、触屏手势、城池旗帜、行军路线和到达时间。后续各州扩容需要迁移规则坐标与存档；地图分区目前是可替换的试玩配置。
+- 0.3.1 开发内容：长行军虚线按视口裁剪，保留两端屏外但穿过屏幕的路线与原始虚线相位；屏外部队及隐藏行军的筛选减少无效动画刷新，短行程在卡顿后仍更新最终抵达位置。远景只遍历城池与任务特征，河流保留原采样格并缩小准备范围，地形样式不变。
 - 原生城池、建筑建设和升级、城外资源、训练、研究、宝物和加速、当前任务及十阶礼包领取。
 - 市场交易、城守与税率管理、客栈招募：显示既有规则的费用与限制，超额交易数量按实际可交易数量收敛，满仓仍可买入并预览超仓入库；任命与调税显示真实生产、建设和民心影响；免费打听游士后按黄金和招贤容量招募。操作回执后刷新实际余额与人员状态。
 - 实际部队的行军、驻扎与召回；原生战场、全军/单队命令、每回合移动与伤亡反馈、战报。
@@ -26,7 +27,11 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，当前版本 **0.3.0**，新增�
 
 当前客户端仍处于迁移试玩阶段。原游戏的联盟、计谋、完整名将/招降、安抚祭祀等其余城池管理界面仍需继续迁移。当前界面采用程序绘制的场景和图标，后续可以换成正式美术资源；各州扩容、账号共享世界与 Steamworks 也尚未接入。
 
-本轮原有 227 项检查与新增输入 255 项检查全部通过，共 482 项。macOS 原生窗口已实际验证按键冲突、重绑后重启仍生效、恢复默认、地图方向键移动、小键盘缩放和回城。最终网页导出已验证文字编辑隔离、弹窗关闭后立即按键切页、地图平移/缩放/回城及 390×844 窄屏设置入口与滚动；控制台 warn/error 为空。Windows/Web 0.3.0 已发布，Windows CI 下载正式 ZIP、核对 SHA256、解压并启动导出的客户端，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`：[运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37472454474)。0.2.0 的经营操作及 Windows 启动 CI 作为历史记录保留。尚未进行 Windows 人工长局、真实 iPhone 多点触控、手柄、性能 FPS 或 Steamworks 验证。详细证据见 [验证记录](docs/QA.zh.md)。
+0.3.1 的 **697 项本地检查已通过**（原有 482＋新增地图 215）。最终原生与 Web 桌面/390 窄屏已观察地图拖动、远景、缩放、回城及当前任务点侧栏；浏览器 warn/error 日志为空。Windows/Web 最终导出已完成，发布资产校验及正式 Windows 包启动 CI 尚待完成。
+
+同条件原生捕获中，总览每次重绘 CPU p95 为 72.376→37.163 ms，正常 64² 地图为 17.543→16.626 ms。CPU 绘制准备减少，但 64² 拖动帧间隔 p95 略升、引擎 draw calls 未下降，快照索引准备更贵；GPU 时间及 Windows/Web 性能未测，四项预算未设定。合成 256²／200 行军不是已扩州或 200 名玩家。完整数值、第一轮回退与原始数据见 [性能报告](production/polish/world-map-report-2026-10-06.md) 和 [复现说明](docs/MAP-PERFORMANCE.zh.md)。
+
+0.3.0 的正式 ZIP 启动属于历史证据：[运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37472454474)，不代替 0.3.1 Windows 包验证。尚未验证 Windows 人工长局、真实手机多点触控、手柄或 Steamworks。详细观察与构建证据见 [验证记录](docs/QA.zh.md)。
 
 ## 开发
 
@@ -40,6 +45,7 @@ godot --headless --path . --script tests/battle_view_test.gd
 godot --headless --path . --script tests/client_test.gd
 godot --headless --path . --script tests/management_test.gd
 godot --headless --path . --script tests/input_test.gd
+godot --headless --path . --script tests/map_render_test.gd
 godot --headless --path . -- --smoke
 ```
 
@@ -56,4 +62,4 @@ node bridge/server.mjs --port 17339 --data-dir .local/web --web-dir build/web
 python3 scripts/build.py --godot /path/to/godot --node-win-zip /path/to/node-v24.21.0-win-x64.zip
 ```
 
-[架构](docs/ARCHITECTURE.zh.md)、[桥接协议](bridge/README.md)、[验证记录](docs/QA.zh.md)、[PC 开发工作流](docs/PC-GAMES.zh.md)、[第三方许可证](THIRD_PARTY_NOTICES.md)。GitHub Actions 验证 Windows 上的规则、原生脚本和启动；发布工作流还可验证导出的 Windows 可执行文件。
+[架构](docs/ARCHITECTURE.zh.md)、[桥接协议](bridge/README.md)、[验证记录](docs/QA.zh.md)、[PC 开发工作流](docs/PC-GAMES.zh.md)、[地图性能复现](docs/MAP-PERFORMANCE.zh.md)、[第三方许可证](THIRD_PARTY_NOTICES.md)。GitHub Actions 验证 Windows 上的规则、原生脚本和启动；发布工作流还可验证导出的 Windows 可执行文件。

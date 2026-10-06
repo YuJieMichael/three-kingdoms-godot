@@ -1,0 +1,648 @@
+{
+  "schema_version": 1,
+  "matched": true,
+  "harness_sha256": "0222249719b1845686dc012adbbb1b62aa9f054f6110593ea04e60fd7542d461",
+  "source_sha256": {
+    "before": "6fde79b3ad1a42a292297288dabb535a61ac1eb5edd21f9c4cfac6238682e3ea",
+    "after": "759e68ae86e30493f6f0c40c7f20b8833cc09fc57709dc6e935462576e12b425"
+  },
+  "parameters": {
+    "frame_cap": 60,
+    "march_relative_arrive_ms": 86400000,
+    "march_relative_start_ms": -86400000,
+    "sample_frames": 150,
+    "seed": 439903,
+    "viewport_size": [
+      1280,
+      800
+    ],
+    "warmup_frames": 30
+  },
+  "environment": {
+    "debug_build": true,
+    "display_server": "macOS",
+    "godot": {
+      "build": "official",
+      "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+      "hex": 263938,
+      "major": 4,
+      "minor": 7,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.7.2-stable (official)",
+      "timestamp": 0
+    },
+    "headless": false,
+    "os": "macOS",
+    "os_version": "27.0.1",
+    "player_data_accessed": false,
+    "processor": "Apple M1",
+    "processor_count": 8,
+    "rendering_driver": "opengl3",
+    "rendering_method": "gl_compatibility",
+    "screen_refresh_rate_hz": 60.0,
+    "screen_scale": 2.0,
+    "video_adapter": "Apple M1",
+    "video_api": "4.1 Metal - 91.7",
+    "video_vendor": "Apple",
+    "viewport_size": [
+      1280.0,
+      800.0
+    ],
+    "vsync_mode": 1,
+    "window_size": [
+      1280,
+      800
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "64_static",
+      "sample_frames": 150,
+      "cpu_draw_per_redraw_ms": {
+        "before": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "min": null,
+          "p50": null,
+          "p95": null
+        },
+        "after": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "min": null,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "cpu_draw_per_sample_frame_ms": {
+        "before": {
+          "count": 150,
+          "max": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "after": {
+          "count": 150,
+          "max": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
+        }
+      },
+      "redraw_count": {
+        "before": 0,
+        "after": 0
+      },
+      "frame_interval_ms": {
+        "before": {
+          "count": 150,
+          "max": 18.95,
+          "mean": 16.6625733333333,
+          "min": 14.857,
+          "p50": 16.754,
+          "p95": 18.033
+        },
+        "after": {
+          "count": 150,
+          "max": 20.5,
+          "mean": 16.6572,
+          "min": 15.181,
+          "p50": 16.725,
+          "p95": 17.661
+        }
+      },
+      "canvas_draw_calls": {
+        "before": {
+          "count": 150,
+          "max": 3795.0,
+          "mean": 3795.0,
+          "min": 3795.0,
+          "p50": 3795.0,
+          "p95": 3795.0
+        },
+        "after": {
+          "count": 150,
+          "max": 3795.0,
+          "mean": 3795.0,
+          "min": 3795.0,
+          "p50": 3795.0,
+          "p95": 3795.0
+        }
+      },
+      "process_cpu_ms": {
+        "before": {
+          "count": 150,
+          "max": 0.017,
+          "mean": 0.00443333333333334,
+          "min": 0.003,
+          "p50": 0.004,
+          "p95": 0.006
+        },
+        "after": {
+          "count": 150,
+          "max": 0.016,
+          "mean": 0.00430666666666667,
+          "min": 0.001,
+          "p50": 0.003,
+          "p95": 0.009
+        }
+      },
+      "static_memory_bytes": {
+        "before": {
+          "count": 150,
+          "max": 64842641.0,
+          "mean": 64718501.88,
+          "min": 64595005.0,
+          "p50": 64717733.0,
+          "p95": 64831245.0
+        },
+        "after": {
+          "count": 150,
+          "max": 64894331.0,
+          "mean": 64770191.88,
+          "min": 64646695.0,
+          "p50": 64769423.0,
+          "p95": 64882935.0
+        }
+      }
+    },
+    {
+      "id": "64_pan",
+      "sample_frames": 150,
+      "cpu_draw_per_redraw_ms": {
+        "before": {
+          "count": 150,
+          "max": 18.647,
+          "mean": 16.0098133333333,
+          "min": 14.537,
+          "p50": 15.917,
+          "p95": 17.543
+        },
+        "after": {
+          "count": 150,
+          "max": 29.465,
+          "mean": 17.0852066666667,
+          "min": 15.12,
+          "p50": 16.768,
+          "p95": 19.729
+        }
+      },
+      "cpu_draw_per_sample_frame_ms": {
+        "before": {
+          "count": 150,
+          "max": 18.647,
+          "mean": 16.0098133333333,
+          "min": 14.537,
+          "p50": 15.917,
+          "p95": 17.543
+        },
+        "after": {
+          "count": 150,
+          "max": 29.465,
+          "mean": 17.0852066666667,
+          "min": 15.12,
+          "p50": 16.768,
+          "p95": 19.729
+        }
+      },
+      "redraw_count": {
+        "before": 150,
+        "after": 150
+      },
+      "frame_interval_ms": {
+        "before": {
+          "count": 150,
+          "max": 73.989,
+          "mean": 61.6442133333333,
+          "min": 56.868,
+          "p50": 60.947,
+          "p95": 67.432
+        },
+        "after": {
+          "count": 150,
+          "max": 79.857,
+          "mean": 62.4321533333334,
+          "min": 56.63,
+          "p50": 61.973,
+          "p95": 67.562
+        }
+      },
+      "canvas_draw_calls": {
+        "before": {
+          "count": 150,
+          "max": 3606.0,
+          "mean": 3380.22,
+          "min": 3205.0,
+          "p50": 3412.0,
+          "p95": 3584.0
+        },
+        "after": {
+          "count": 150,
+          "max": 3606.0,
+          "mean": 3380.22,
+          "min": 3205.0,
+          "p50": 3412.0,
+          "p95": 3584.0
+        }
+      },
+      "process_cpu_ms": {
+        "before": {
+          "count": 150,
+          "max": 0.005,
+          "mean": 0.00216666666666667,
+          "min": 0.001,
+          "p50": 0.002,
+          "p95": 0.003
+        },
+        "after": {
+          "count": 150,
+          "max": 0.006,
+          "mean": 0.0034,
+          "min": 0.002,
+          "p50": 0.003,
+          "p95": 0.005
+        }
+      },
+      "static_memory_bytes": {
+        "before": {
+          "count": 150,
+          "max": 65334131.0,
+          "mean": 65100100.4133333,
+          "min": 64885811.0,
+          "p50": 65100141.0,
+          "p95": 65308759.0
+        },
+        "after": {
+          "count": 150,
+          "max": 65385821.0,
+          "mean": 65151790.4133333,
+          "min": 64937501.0,
+          "p50": 65151831.0,
+          "p95": 65360449.0
+        }
+      }
+    },
+    {
+      "id": "256_overview_pan",
+      "sample_frames": 150,
+      "cpu_draw_per_redraw_ms": {
+        "before": {
+          "count": 150,
+          "max": 83.685,
+          "mean": 67.2063133333333,
+          "min": 63.989,
+          "p50": 66.311,
+          "p95": 72.376
+        },
+        "after": {
+          "count": 150,
+          "max": 61.925,
+          "mean": 38.82082,
+          "min": 35.973,
+          "p50": 37.737,
+          "p95": 46.527
+        }
+      },
+      "cpu_draw_per_sample_frame_ms": {
+        "before": {
+          "count": 150,
+          "max": 83.685,
+          "mean": 67.2063133333333,
+          "min": 63.989,
+          "p50": 66.311,
+          "p95": 72.376
+        },
+        "after": {
+          "count": 150,
+          "max": 61.925,
+          "mean": 38.82082,
+          "min": 35.973,
+          "p50": 37.737,
+          "p95": 46.527
+        }
+      },
+      "redraw_count": {
+        "before": 150,
+        "after": 150
+      },
+      "frame_interval_ms": {
+        "before": {
+          "count": 150,
+          "max": 197.361,
+          "mean": 151.83884,
+          "min": 141.566,
+          "p50": 150.135,
+          "p95": 166.077
+        },
+        "after": {
+          "count": 150,
+          "max": 155.39,
+          "mean": 122.735966666667,
+          "min": 115.047,
+          "p50": 121.557,
+          "p95": 132.684
+        }
+      },
+      "canvas_draw_calls": {
+        "before": {
+          "count": 150,
+          "max": 8298.0,
+          "mean": 7930.9,
+          "min": 7684.0,
+          "p50": 7913.0,
+          "p95": 8207.0
+        },
+        "after": {
+          "count": 150,
+          "max": 8298.0,
+          "mean": 7930.9,
+          "min": 7684.0,
+          "p50": 7913.0,
+          "p95": 8207.0
+        }
+      },
+      "process_cpu_ms": {
+        "before": {
+          "count": 150,
+          "max": 0.007,
+          "mean": 0.00232,
+          "min": 0.001,
+          "p50": 0.002,
+          "p95": 0.003
+        },
+        "after": {
+          "count": 150,
+          "max": 0.014,
+          "mean": 0.00335333333333334,
+          "min": 0.002,
+          "p50": 0.003,
+          "p95": 0.005
+        }
+      },
+      "static_memory_bytes": {
+        "before": {
+          "count": 150,
+          "max": 243030135.0,
+          "mean": 242805258.946667,
+          "min": 242539373.0,
+          "p50": 242803863.0,
+          "p95": 243005855.0
+        },
+        "after": {
+          "count": 150,
+          "max": 243086577.0,
+          "mean": 242861700.946667,
+          "min": 242595815.0,
+          "p50": 242860305.0,
+          "p95": 243062297.0
+        }
+      }
+    },
+    {
+      "id": "256_marches_pan",
+      "sample_frames": 150,
+      "cpu_draw_per_redraw_ms": {
+        "before": {
+          "count": 300,
+          "max": 24.577,
+          "mean": 18.79222,
+          "min": 16.767,
+          "p50": 18.341,
+          "p95": 22.133
+        },
+        "after": {
+          "count": 300,
+          "max": 42.008,
+          "mean": 18.83925,
+          "min": 15.486,
+          "p50": 18.104,
+          "p95": 23.467
+        }
+      },
+      "cpu_draw_per_sample_frame_ms": {
+        "before": {
+          "count": 150,
+          "max": 47.334,
+          "mean": 37.58444,
+          "min": 33.805,
+          "p50": 36.845,
+          "p95": 43.986
+        },
+        "after": {
+          "count": 150,
+          "max": 65.859,
+          "mean": 37.6785,
+          "min": 31.761,
+          "p50": 36.393,
+          "p95": 50.724
+        }
+      },
+      "redraw_count": {
+        "before": 300,
+        "after": 300
+      },
+      "frame_interval_ms": {
+        "before": {
+          "count": 150,
+          "max": 133.164,
+          "mean": 103.1977,
+          "min": 90.352,
+          "p50": 100.128,
+          "p95": 125.707
+        },
+        "after": {
+          "count": 150,
+          "max": 167.235,
+          "mean": 103.931873333333,
+          "min": 88.267,
+          "p50": 100.725,
+          "p95": 123.408
+        }
+      },
+      "canvas_draw_calls": {
+        "before": {
+          "count": 150,
+          "max": 4204.0,
+          "mean": 3510.26,
+          "min": 3172.0,
+          "p50": 3431.0,
+          "p95": 4173.0
+        },
+        "after": {
+          "count": 150,
+          "max": 4204.0,
+          "mean": 3510.26,
+          "min": 3172.0,
+          "p50": 3431.0,
+          "p95": 4173.0
+        }
+      },
+      "process_cpu_ms": {
+        "before": {
+          "count": 150,
+          "max": 0.016,
+          "mean": 0.00500666666666667,
+          "min": 0.003,
+          "p50": 0.004,
+          "p95": 0.007
+        },
+        "after": {
+          "count": 150,
+          "max": 0.089,
+          "mean": 0.0564866666666666,
+          "min": 0.052,
+          "p50": 0.055,
+          "p95": 0.065
+        }
+      },
+      "static_memory_bytes": {
+        "before": {
+          "count": 150,
+          "max": 244074923.0,
+          "mean": 243718142.786667,
+          "min": 243434151.0,
+          "p50": 243703873.0,
+          "p95": 244024499.0
+        },
+        "after": {
+          "count": 150,
+          "max": 244134749.0,
+          "mean": 243778171.133333,
+          "min": 243493977.0,
+          "p50": 243763699.0,
+          "p95": 244084325.0
+        }
+      }
+    },
+    {
+      "id": "256_marches_idle",
+      "sample_frames": 150,
+      "cpu_draw_per_redraw_ms": {
+        "before": {
+          "count": 150,
+          "max": 30.871,
+          "mean": 21.2667,
+          "min": 19.743,
+          "p50": 20.895,
+          "p95": 23.175
+        },
+        "after": {
+          "count": 150,
+          "max": 40.575,
+          "mean": 20.54106,
+          "min": 18.569,
+          "p50": 19.599,
+          "p95": 25.263
+        }
+      },
+      "cpu_draw_per_sample_frame_ms": {
+        "before": {
+          "count": 150,
+          "max": 30.871,
+          "mean": 21.2667,
+          "min": 19.743,
+          "p50": 20.895,
+          "p95": 23.175
+        },
+        "after": {
+          "count": 150,
+          "max": 40.575,
+          "mean": 20.54106,
+          "min": 18.569,
+          "p50": 19.599,
+          "p95": 25.263
+        }
+      },
+      "redraw_count": {
+        "before": 150,
+        "after": 150
+      },
+      "frame_interval_ms": {
+        "before": {
+          "count": 150,
+          "max": 94.449,
+          "mean": 76.11548,
+          "min": 70.859,
+          "p50": 74.951,
+          "p95": 83.001
+        },
+        "after": {
+          "count": 150,
+          "max": 98.557,
+          "mean": 72.8437933333333,
+          "min": 67.976,
+          "p50": 71.37,
+          "p95": 83.336
+        }
+      },
+      "canvas_draw_calls": {
+        "before": {
+          "count": 150,
+          "max": 3837.0,
+          "mean": 3837.0,
+          "min": 3837.0,
+          "p50": 3837.0,
+          "p95": 3837.0
+        },
+        "after": {
+          "count": 150,
+          "max": 3837.0,
+          "mean": 3837.0,
+          "min": 3837.0,
+          "p50": 3837.0,
+          "p95": 3837.0
+        }
+      },
+      "process_cpu_ms": {
+        "before": {
+          "count": 150,
+          "max": 0.032,
+          "mean": 0.01116,
+          "min": 0.007,
+          "p50": 0.01,
+          "p95": 0.017
+        },
+        "after": {
+          "count": 150,
+          "max": 0.181,
+          "mean": 0.10098,
+          "min": 0.078,
+          "p50": 0.09,
+          "p95": 0.156
+        }
+      },
+      "static_memory_bytes": {
+        "before": {
+          "count": 150,
+          "max": 244053177.0,
+          "mean": 243862576.84,
+          "min": 243673241.0,
+          "p50": 243861417.0,
+          "p95": 244035745.0
+        },
+        "after": {
+          "count": 150,
+          "max": 244117027.0,
+          "mean": 243926493.08,
+          "min": 243737163.0,
+          "p50": 243925339.0,
+          "p95": 244099667.0
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "CPU draw metrics measure instrumented drawing-command construction, not FPS or GPU time.",
+    "Observed frame intervals include VSync, OS scheduling and rendering; they are reported separately.",
+    "A single matched before/after run is a local sample, not a Windows/Web or general hardware guarantee.",
+    "Per-redraw null statistics are retained when a static map does not redraw after warm-up.",
+    "set_world is a single snapshot and is intentionally excluded from percentage speedup claims.",
+    "GPU frame timing remains unavailable; no performance-budget pass/fail verdict is produced."
+  ]
+}

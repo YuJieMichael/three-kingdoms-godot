@@ -19,13 +19,15 @@ Windows 包包含游戏资源、规则服务和 Node 运行时；Web 包通过�
 
 0.3.0 将常用页面、事务、存档、按键设置及地图移动/缩放抽象为 InputMap 动作。默认 1–5 切换城池/大地图/军队/将领/战报，H / Home 回城，T 事务，O 存档，K 按键设置；WASD / 方向键移动地图，`=` / 小键盘 `+` 放大，`-` / 小键盘 `-` 缩小。设置中的每个动作可更改为一个按键组合，重复或保留键有明确反馈；Tab、Enter、Esc 继续由 Godot 原生控件处理。绑定保存至单独的 `user://input-settings.cfg`，失败不会更改当前有效映射，损坏配置完整回退默认。
 
-本轮原有 227 项及新增输入 255 项检查通过，共 482 项，覆盖持久化、失败回滚、配置损坏、真实输入事件、地图边界、同帧短按、反向键抵消、按钮焦点与文本/弹窗隔离、失去窗口焦点及窄屏设置布局。实际 macOS 原生窗口完成冲突拒绝、F9 重绑并重启生效、恢复默认、方向键移动、小键盘缩放与 H 回城。最终 Web 实际验证存档文字输入隔离、Esc 关闭后立即 2 切舆图、地图平移/缩放/回城、390×844 事务入口和设置滚动/恢复默认，浏览器 warn/error 日志为空。[0.3.0 Windows/Web 包](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.0) 已发布，四项资产 digest 与本地一致；[正式 Windows 包启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37472454474) 全绿，下载校验 ZIP 后执行导出客户端，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。完整结果见 [验证记录](QA.zh.md)。
+0.3.0 原有 227 项及新增输入 255 项检查通过，共 482 项，覆盖持久化、失败回滚、配置损坏、真实输入事件、地图边界、同帧短按、反向键抵消、按钮焦点与文本/弹窗隔离、失去窗口焦点及窄屏设置布局。实际 macOS 原生窗口完成冲突拒绝、F9 重绑并重启生效、恢复默认、方向键移动、小键盘缩放与 H 回城。最终 Web 实际验证存档文字输入隔离、Esc 关闭后立即 2 切舆图、地图平移/缩放/回城、390×844 事务入口和设置滚动/恢复默认，浏览器 warn/error 日志为空。[0.3.0 Windows/Web 包](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.0) 已发布，四项资产 digest 与本地一致；[正式 Windows 包启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37472454474) 全绿，下载校验 ZIP 后执行导出客户端，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。完整结果见 [验证记录](QA.zh.md)。
+
+0.3.1 继续该工作流的性能路线：原生非 headless before、first after、final after 已捕获并保存原始逐帧数据，最终比较 matched。最终总览每次重绘 CPU p95 72.376→37.163 ms；正常地图 17.543→16.626 ms，但该组帧间隔 p95 略升，CANVAS calls 未下降，set_world 索引准备及可见行军／到达扫描更贵。第一轮的三个 CPU 尾部回退完整保留审计。基线用于指导稀疏特征、局部河流准备、纯坐标有界缓存与超长路线裁剪，未拆动态 Canvas 层。697 项本地检查由根代理确认，实际原生与最终 Web 桌面/390 地图观察已通过；发布资产校验和正式 Windows 包启动 CI 待完成。复现与限制见 [地图性能说明](MAP-PERFORMANCE.zh.md)、[报告](../production/polish/world-map-report-2026-10-06.md) 和 [验证记录](QA.zh.md)。四项预算未设定、默认 enforce warn，预算符合性仍为 NOT ASSESSED；GPU timing unavailable，开发机结果不代替 Windows/Web/手机性能。
 
 0.2.0 的 227 项检查、浏览器经营链路及正式 Windows 包启动 CI 属于历史证据：[运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37467149603)。Windows 导出、headless 启动、人工桌面试玩和长期游戏体验分别记录；Windows 人工长局、真实 iPhone 多点触控、控制器与 Steam Deck 尚未验证。
 
 ## 桌面端后续顺序
 
-1. **建立性能基线。** 用 Godot Profiler 在约定窗口大小、地图缩放、行军数量及拖动路径下记录帧耗时、绘制开销和内存，再据结果调整可见范围、批量绘制或细节层级。当前没有测得可报告的 FPS 基线，不能以导出成功代替顺滑度验证。
+1. **补平台采样与快照长局。** 原生同场比较及原始数据已保存；下一步在 Windows/Web 及目标设备取得单独数据，并测定期世界快照刷新和缓存清空的长局尾部。CPU 绘制与实际帧间隔分别报告，不能以导出成功或 CPU 微基准代替顺滑度验证；动态 Canvas 分层与地形图集待后续证据和架构决定。
 2. **补充桌面长局与输入体验。** 当前键盘输入、窄屏入口和正式 Windows 包启动已验证，下一轮用 Windows 人工试玩记录长期焦点、存档与地图体验；手柄和 Steam Deck 单独规划与验证。
 3. **再接 Steam。** 确定 Steam App ID、接入方式与账号后端后，设计少量可验证的成就和云存档策略。云存档需明确进度归属、版本冲突及跨端恢复；公网多人进度由账号与服务器权威结算管理。排行榜、创意工坊和在线状态按玩法需求逐步加入。
 

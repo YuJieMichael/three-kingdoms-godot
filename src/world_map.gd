@@ -14,6 +14,17 @@ const KEYBOARD_PIXELS_PER_SECOND: float = 480.0
 const GOLD: Color = Color("cfb579")
 const TEXT: Color = Color("eee4cd")
 const BORDER: Color = Color("444e48")
+const CITY_KINDS: Dictionary = {"home": true, "city": true, "county": true, "prefecture": true, "province": true, "capital": true, "yellow_city": true, "named_city": true, "town": true}
+const TASK_KINDS: Dictionary = {"task": true, "quest": true, "mission": true, "chapter": true, "landmark": true}
+const DECORATION_CACHE_LIMIT: int = 2048
+const TREE_TRUNK: Color = Color("554b35")
+const TREE_SHADOW: Color = Color(0.09, 0.18, 0.15, 0.32)
+const TREE_CROWN: Color = Color("314c3a")
+const TREE_HIGHLIGHT: Color = Color("48604a")
+const MOUNTAIN_SHADOW: Color = Color(0.11, 0.13, 0.13, 0.25)
+const MOUNTAIN_FACE: Color = Color("696e62")
+const MOUNTAIN_SHADE: Color = Color("4d574e")
+const MOUNTAIN_EDGE: Color = Color(0.83, 0.81, 0.66, 0.42)
 
 var world: Dictionary = {"width": 64, "height": 64, "home": {"x": 32, "y": 32}, "tiles": [], "marches": []}
 var camera_center: Vector2 = Vector2(32.5, 32.5)
@@ -22,6 +33,10 @@ var selected_tile: Dictionary = {}
 var filter_kind: String = "all"
 var regions: Array = []
 var _tile_index: Dictionary = {}
+var _feature_coordinates: Array[Vector2i] = []
+var _pending_arrival_marches: Array[Dictionary] = []
+var _forest_offset_cache: Dictionary = {}
+var _mountain_shift_cache: Dictionary = {}
 var _font: Font
 var _pointer_down: bool = false
 var _pointer_start: Vector2 = Vector2.ZERO
@@ -61,10 +76,25 @@ func set_world(next_world: Dictionary) -> void:
 	world["width"] = maxi(1, int(world.get("width", 64)))
 	world["height"] = maxi(1, int(world.get("height", 64)))
 	_tile_index.clear()
+	var features: Dictionary = {}
 	for item: Variant in world.get("tiles", []):
 		if item is Dictionary:
 			var tile: Dictionary = item
-			_tile_index[Vector2i(int(tile.get("x", 0)), int(tile.get("y", 0)))] = tile
+			var coordinates: Vector2i = Vector2i(int(tile.get("x", 0)), int(tile.get("y", 0)))
+			_tile_index[coordinates] = tile
+			if CITY_KINDS.has(str(tile.get("kind", "wild"))) or str(tile.get("id", "")).begins_with("city-") or TASK_KINDS.has(str(tile.get("kind", "wild"))) or bool(tile.get("task", false)):
+				features[coordinates] = true
+			else:
+				features.erase(coordinates)
+	var home: Dictionary = world.get("home", {})
+	features[Vector2i(int(home.get("x", -1)), int(home.get("y", -1)))] = true
+	_feature_coordinates.assign(features.keys())
+	_feature_coordinates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
+	_pending_arrival_marches.clear()
+	var now_ms: float = Time.get_unix_time_from_system() * 1000.0
+	for item: Variant in world.get("marches", []):
+		if item is Dictionary and march_fraction(item, now_ms) < 1.0:
+			_pending_arrival_marches.append(item)
 	if not selected_tile.is_empty():
 		selected_tile = _tile_at(Vector2i(int(selected_tile.get("x", 0)), int(selected_tile.get("y", 0))))
 	camera_center = clamp_camera(camera_center, size, world_size(), cell_pixels())
@@ -177,14 +207,27 @@ func _process(delta: float) -> void:
 			_velocity.y = 0.0
 		queue_redraw()
 	_march_redraw_elapsed += delta
+	if _march_redraw_elapsed < 0.05:
+		return
+	_march_redraw_elapsed = 0.0
 	var moving_now: bool = false
+	var arrival_visible: bool = false
+	var show_marches: bool = filter_kind in ["all", "marches"]
 	var now_ms: float = Time.get_unix_time_from_system() * 1000.0
-	for item: Variant in world.get("marches", []):
-		if item is Dictionary and march_fraction(item, now_ms) < 1.0:
-			moving_now = true
-			break
-	if (moving_now and _march_redraw_elapsed >= 0.05) or (_march_animated and not moving_now):
-		_march_redraw_elapsed = 0.0
+	var marker_bounds: Rect2 = Rect2(Vector2(-120, -35), size + Vector2(240, 70))
+	# A long frame can skip the entire visible portion of a short trip. Remember
+	# pending arrivals so the destination still appears without waiting for /world.
+	for index: int in range(_pending_arrival_marches.size() - 1, -1, -1):
+		var march: Dictionary = _pending_arrival_marches[index]
+		if march_fraction(march, now_ms) >= 1.0:
+			arrival_visible = arrival_visible or (show_marches and marker_bounds.has_point(world_to_screen(march_world_position(march, now_ms))))
+			_pending_arrival_marches.remove_at(index)
+	if show_marches:
+		for item: Variant in world.get("marches", []):
+			if item is Dictionary and march_fraction(item, now_ms) < 1.0 and marker_bounds.has_point(world_to_screen(march_world_position(item, now_ms))):
+				moving_now = true
+				break
+	if moving_now or _march_animated or arrival_visible:
 		queue_redraw()
 	_march_animated = moving_now
 
@@ -373,11 +416,17 @@ func _draw() -> void:
 	_draw_rivers()
 	if zoom < 0.46:
 		_draw_regions()
-	for y: int in range(min_y, max_y + 1):
-		for x: int in range(min_x, max_x + 1):
-			var coordinates: Vector2i = Vector2i(x, y)
-			var tile: Dictionary = _tile_at(coordinates)
-			_draw_tile_features(tile, coordinates)
+	if zoom < 0.46:
+		# At overview scale wilderness decorations are already hidden. Visit only
+		# landmarks, retaining the same row order and current snapshot contents.
+		for coordinates: Vector2i in _feature_coordinates:
+			if coordinates.x >= min_x and coordinates.x <= max_x and coordinates.y >= min_y and coordinates.y <= max_y:
+				_draw_tile_features(_tile_at(coordinates), coordinates)
+	else:
+		for y: int in range(min_y, max_y + 1):
+			for x: int in range(min_x, max_x + 1):
+				var coordinates: Vector2i = Vector2i(x, y)
+				_draw_tile_features(_tile_at(coordinates), coordinates)
 	if zoom >= 1.05:
 		_draw_grid(min_x, max_x, min_y, max_y)
 	if not selected_tile.is_empty():
@@ -392,26 +441,34 @@ func _draw() -> void:
 
 
 func _draw_landform(min_x: int, max_x: int, min_y: int, max_y: int) -> void:
+	var pixels: float = cell_pixels()
+	var tile_size: Vector2 = Vector2.ONE * (pixels + 1.0)
+	var half_viewport: Vector2 = size * 0.5
 	for y: int in range(min_y, max_y + 1):
 		for x: int in range(min_x, max_x + 1):
-			var position: Vector2 = world_to_screen(Vector2(x, y))
+			var position: Vector2 = (Vector2(x, y) - camera_center) * pixels + half_viewport
 			var terrain: String = _terrain_at(Vector2i(x, y))
 			var wave: float = sin(float(x) * 0.16 + float(y) * 0.10) * 0.026
 			var color: Color = Color(0.43 + wave, 0.46 + wave, 0.33 + wave)
-			if terrain in ["forest", "wood", "woods"]:
-				color = Color(0.29 + wave, 0.38 + wave, 0.29 + wave)
-			elif terrain in ["mountain", "stone", "iron", "hill"]:
-				color = Color(0.43 + wave, 0.44 + wave, 0.39 + wave)
-			elif terrain in ["water", "lake", "river"]:
-				color = Color("4f7173")
-			elif terrain in ["desert", "wasteland"]:
-				color = Color(0.56 + wave, 0.49 + wave, 0.35 + wave)
-			draw_rect(Rect2(position, Vector2.ONE * (cell_pixels() + 1.0)), color)
+			var shadow_radius: float = 0.0
+			var shadow_color: Color
+			match terrain:
+				"forest", "wood", "woods":
+					color = Color(0.29 + wave, 0.38 + wave, 0.29 + wave)
+					shadow_radius = pixels * 0.72
+					shadow_color = Color(0.20, 0.30, 0.24, 0.16)
+				"mountain", "stone", "iron", "hill":
+					color = Color(0.43 + wave, 0.44 + wave, 0.39 + wave)
+					shadow_radius = pixels * 0.70
+					shadow_color = Color(0.27, 0.28, 0.27, 0.10)
+				"water", "lake", "river":
+					color = Color("4f7173")
+				"desert", "wasteland":
+					color = Color(0.56 + wave, 0.49 + wave, 0.35 + wave)
+			draw_rect(Rect2(position, tile_size), color)
 			# Rounded overlapping shadows connect terrain across tile boundaries.
-			if terrain in ["forest", "wood", "woods"]:
-				draw_circle(position + Vector2.ONE * cell_pixels() * 0.5, cell_pixels() * 0.72, Color(0.20, 0.30, 0.24, 0.16))
-			elif terrain in ["mountain", "stone", "iron", "hill"]:
-				draw_circle(position + Vector2.ONE * cell_pixels() * 0.5, cell_pixels() * 0.70, Color(0.27, 0.28, 0.27, 0.10))
+			if shadow_radius > 0.0:
+				draw_circle(position + Vector2.ONE * pixels * 0.5, shadow_radius, shadow_color)
 
 
 func _river_world_x(y: float) -> float:
@@ -422,21 +479,38 @@ func _river_world_x(y: float) -> float:
 func _draw_rivers() -> void:
 	var river: PackedVector2Array = PackedVector2Array()
 	var tributary: PackedVector2Array = PackedVector2Array()
-	for step: int in range(int(world["height"]) * 3 + 1):
+	var top_left: Vector2 = screen_to_world(Vector2.ZERO)
+	var bottom_right: Vector2 = screen_to_world(size)
+	var height: int = int(world["height"])
+	var last_step: int = height * 3
+	# Retain neighbouring samples and the original sampling grid. Widths and
+	# anti-aliased ends fit inside the extra world-cell margin.
+	var first_y: int = clampi(floori((top_left.y - 1.0) * 3.0) - 1, 0, last_step)
+	var last_y: int = clampi(ceili((bottom_right.y + 1.0) * 3.0) + 1, 0, last_step)
+	for step: int in range(first_y, last_y + 1):
 		var y: float = float(step) / 3.0
 		river.append(world_to_screen(Vector2(_river_world_x(y), y)))
-		var x: float = float(step) / float(int(world["height"]) * 3) * world_size().x
+	var x_spacing: float = world_size().x / float(last_step)
+	var first_x: int = clampi(floori((top_left.x - 1.0) / x_spacing) - 1, 0, last_step)
+	var last_x: int = clampi(ceili((bottom_right.x + 1.0) / x_spacing) + 1, 0, last_step)
+	for step: int in range(first_x, last_x + 1):
+		var x: float = float(step) / float(last_step) * world_size().x
 		tributary.append(world_to_screen(Vector2(x, 41.0 + sin(x * 0.10) * 3.5)))
-	draw_polyline(river, Color("566c60"), maxf(3.0, cell_pixels() * 0.56), true)
-	draw_polyline(river, Color("527b82"), maxf(2.0, cell_pixels() * 0.36), true)
-	draw_polyline(river, Color(0.58, 0.73, 0.72, 0.22), maxf(1.0, cell_pixels() * 0.07), true)
-	draw_polyline(tributary, Color("527477"), maxf(2.0, cell_pixels() * 0.24), true)
+	if river.size() >= 2:
+		draw_polyline(river, Color("566c60"), maxf(3.0, cell_pixels() * 0.56), true)
+		draw_polyline(river, Color("527b82"), maxf(2.0, cell_pixels() * 0.36), true)
+		draw_polyline(river, Color(0.58, 0.73, 0.72, 0.22), maxf(1.0, cell_pixels() * 0.07), true)
+	if tributary.size() >= 2:
+		draw_polyline(tributary, Color("527477"), maxf(2.0, cell_pixels() * 0.24), true)
 	# A dry road follows the principal valley; all routes remain visual overlays.
 	var road: PackedVector2Array = PackedVector2Array()
-	for step: int in range(int(world["height"]) + 1):
+	var first_road: int = clampi(floori(top_left.y - 1.0) - 1, 0, height)
+	var last_road: int = clampi(ceili(bottom_right.y + 1.0) + 1, 0, height)
+	for step: int in range(first_road, last_road + 1):
 		var y: float = float(step)
 		road.append(world_to_screen(Vector2(_river_world_x(y) + 2.2, y)))
-	draw_polyline(road, Color(0.75, 0.65, 0.43, 0.44), maxf(1.0, cell_pixels() * 0.055), true)
+	if road.size() >= 2:
+		draw_polyline(road, Color(0.75, 0.65, 0.43, 0.44), maxf(1.0, cell_pixels() * 0.055), true)
 
 
 func _draw_regions() -> void:
@@ -460,20 +534,22 @@ func _draw_regions() -> void:
 
 func _draw_tile_features(tile: Dictionary, coordinates: Vector2i) -> void:
 	var center: Vector2 = world_to_screen(Vector2(coordinates) + Vector2.ONE * 0.5)
-	var terrain: String = str(tile.get("terrain", _terrain_at(coordinates)))
+	var terrain: String = str(tile["terrain"]) if tile.has("terrain") else _terrain_at(coordinates)
 	var tile_kind: String = str(tile.get("kind", "wild"))
 	var tile_id: String = str(tile.get("id", ""))
 	var home: Dictionary = world.get("home", {})
 	var is_home: bool = coordinates.x == int(home.get("x", -1)) and coordinates.y == int(home.get("y", -1))
-	var is_city: bool = is_home or tile_kind in ["home", "city", "county", "prefecture", "province", "capital", "yellow_city", "named_city", "town"] or tile_id.begins_with("city-")
-	var is_task: bool = tile_kind in ["task", "quest", "mission", "chapter", "landmark"] or bool(tile.get("task", false))
+	var is_city: bool = is_home or CITY_KINDS.has(tile_kind) or tile_id.begins_with("city-")
+	var is_task: bool = TASK_KINDS.has(tile_kind) or bool(tile.get("task", false))
 	if zoom >= 0.46 and not is_city:
-		if terrain in ["forest", "wood", "woods"]:
-			_draw_forest(center, coordinates)
-		elif terrain in ["mountain", "stone", "iron", "hill"]:
-			_draw_mountain(center, coordinates)
-		elif zoom >= 0.75 and terrain in ["plain", "farm", "food", "grass"]:
-			_draw_fields(center, coordinates)
+		match terrain:
+			"forest", "wood", "woods":
+				_draw_forest(center, coordinates)
+			"mountain", "stone", "iron", "hill":
+				_draw_mountain(center, coordinates)
+			"plain", "farm", "food", "grass":
+				if zoom >= 0.75:
+					_draw_fields(center, coordinates)
 	if is_city:
 		if filter_kind in ["all", "cities", "marches"] or is_home:
 			_draw_city(center, tile, is_home)
@@ -481,37 +557,63 @@ func _draw_tile_features(tile: Dictionary, coordinates: Vector2i) -> void:
 		_draw_task(center, tile)
 	elif zoom >= 0.80 and filter_kind == "resources":
 		var short_label: String = "粮"
-		if terrain in ["forest", "wood", "woods"]:
-			short_label = "木"
-		elif terrain in ["mountain", "stone", "hill"]:
-			short_label = "石"
-		elif terrain == "iron":
-			short_label = "铁"
+		match terrain:
+			"forest", "wood", "woods":
+				short_label = "木"
+			"mountain", "stone", "hill":
+				short_label = "石"
+			"iron":
+				short_label = "铁"
 		_draw_badge(center + Vector2(0, -3), short_label, Color("394a40"))
 
 
 func _draw_forest(center: Vector2, coordinates: Vector2i) -> void:
-	var radius: float = cell_pixels() * 0.075
+	var pixels: float = cell_pixels()
+	var radius: float = pixels * 0.075
+	for normalized_offset: Vector2 in _forest_offsets(coordinates):
+		var offset: Vector2 = normalized_offset * pixels
+		var point: Vector2 = center + offset
+		draw_line(point + Vector2(0, radius), point + Vector2(0, radius * 2.0), TREE_TRUNK, maxf(1.0, zoom))
+		draw_circle(point + Vector2(1, 2), radius * 1.22, TREE_SHADOW)
+		draw_circle(point, radius, TREE_CROWN)
+		draw_circle(point + Vector2(-radius * 0.3, -radius * 0.3), radius * 0.62, TREE_HIGHLIGHT)
+
+
+func _forest_offsets(coordinates: Vector2i) -> PackedVector2Array:
+	if _forest_offset_cache.has(coordinates):
+		return _forest_offset_cache[coordinates]
+	var offsets: PackedVector2Array = PackedVector2Array()
 	for tree: int in range(5):
 		var seed_value: float = float(coordinates.x * 37 + coordinates.y * 17 + tree * 29)
-		var offset: Vector2 = Vector2(sin(seed_value) * 0.34, cos(seed_value * 1.7) * 0.27) * cell_pixels()
-		var point: Vector2 = center + offset
-		draw_line(point + Vector2(0, radius), point + Vector2(0, radius * 2.0), Color("554b35"), maxf(1.0, zoom))
-		draw_circle(point + Vector2(1, 2), radius * 1.22, Color(0.09, 0.18, 0.15, 0.32))
-		draw_circle(point, radius, Color("314c3a"))
-		draw_circle(point + Vector2(-radius * 0.3, -radius * 0.3), radius * 0.62, Color("48604a"))
+		offsets.append(Vector2(sin(seed_value) * 0.34, cos(seed_value * 1.7) * 0.27))
+	# Pure coordinate geometry survives world snapshots and zoom changes. Bound
+	# the lazy cache so visiting additional provinces cannot grow it forever.
+	if _forest_offset_cache.size() >= DECORATION_CACHE_LIMIT:
+		_forest_offset_cache.clear()
+	_forest_offset_cache[coordinates] = offsets
+	return offsets
+
+
+func _mountain_shift(coordinates: Vector2i) -> float:
+	if _mountain_shift_cache.has(coordinates):
+		return _mountain_shift_cache[coordinates]
+	var shift: float = sin(float(coordinates.x * 11 + coordinates.y * 3)) * 0.35
+	if _mountain_shift_cache.size() >= DECORATION_CACHE_LIMIT:
+		_mountain_shift_cache.clear()
+	_mountain_shift_cache[coordinates] = shift
+	return shift
 
 
 func _draw_mountain(center: Vector2, coordinates: Vector2i) -> void:
 	var unit: float = cell_pixels() * 0.25
-	var shift: float = sin(float(coordinates.x * 11 + coordinates.y * 3)) * unit * 0.35
+	var shift: float = _mountain_shift(coordinates) * unit
 	var left: Vector2 = center + Vector2(-unit, unit * 0.45)
 	var peak: Vector2 = center + Vector2(shift, -unit * 0.70)
 	var right: Vector2 = center + Vector2(unit, unit * 0.45)
-	draw_colored_polygon(PackedVector2Array([left + Vector2(2, 2), peak + Vector2(2, 2), right + Vector2(2, 2)]), Color(0.11, 0.13, 0.13, 0.25))
-	draw_colored_polygon(PackedVector2Array([left, peak, right]), Color("696e62"))
-	draw_colored_polygon(PackedVector2Array([peak, center + Vector2(shift * 0.3, unit * 0.45), right]), Color("4d574e"))
-	draw_line(left, peak, Color(0.83, 0.81, 0.66, 0.42), maxf(1.0, zoom))
+	draw_colored_polygon(PackedVector2Array([left + Vector2(2, 2), peak + Vector2(2, 2), right + Vector2(2, 2)]), MOUNTAIN_SHADOW)
+	draw_colored_polygon(PackedVector2Array([left, peak, right]), MOUNTAIN_FACE)
+	draw_colored_polygon(PackedVector2Array([peak, center + Vector2(shift * 0.3, unit * 0.45), right]), MOUNTAIN_SHADE)
+	draw_line(left, peak, MOUNTAIN_EDGE, maxf(1.0, zoom))
 
 
 func _draw_fields(center: Vector2, coordinates: Vector2i) -> void:
@@ -606,12 +708,54 @@ func _draw_dashed_line(start: Vector2, target: Vector2, color: Color, width: flo
 	if length < 1.0:
 		return
 	direction /= length
-	# Clip iteration to the visible portion even for long routes offscreen.
-	var steps: int = mini(600, ceili(length / 15.0))
-	for step: int in range(steps):
+	var bounds: Rect2 = Rect2(Vector2(-16, -16), size + Vector2(32, 32))
+	var steps: Vector2i = visible_dash_range(start, target, bounds)
+	for step: int in range(steps.x, steps.y):
 		var point: Vector2 = start + direction * float(step) * 15.0
-		if Rect2(Vector2(-16, -16), size + Vector2(32, 32)).has_point(point):
-			draw_line(point, start + direction * minf(length, float(step) * 15.0 + 8.0), color, width, true)
+		draw_line(point, start + direction * minf(length, float(step) * 15.0 + 8.0), color, width, true)
+
+
+static func segment_visible_interval(start: Vector2, target: Vector2, bounds: Rect2) -> Vector2:
+	var fractions: PackedFloat64Array = _segment_visible_fractions(start, target, bounds)
+	return Vector2(fractions[0], fractions[1]) if not fractions.is_empty() else Vector2(-1, -1)
+
+
+static func _segment_visible_fractions(start: Vector2, target: Vector2, bounds: Rect2) -> PackedFloat64Array:
+	var direction: Vector2 = target - start
+	var entry: float = 0.0
+	var exit: float = 1.0
+	for axis: int in range(2):
+		if is_zero_approx(direction[axis]):
+			if start[axis] < bounds.position[axis] or start[axis] > bounds.end[axis]:
+				return PackedFloat64Array()
+			continue
+		var near: float = (bounds.position[axis] - start[axis]) / direction[axis]
+		var far: float = (bounds.end[axis] - start[axis]) / direction[axis]
+		if near > far:
+			var swap: float = near
+			near = far
+			far = swap
+		entry = maxf(entry, near)
+		exit = minf(exit, far)
+		if entry > exit:
+			return PackedFloat64Array()
+	return PackedFloat64Array([entry, exit])
+
+
+static func visible_dash_range(start: Vector2, target: Vector2, bounds: Rect2) -> Vector2i:
+	var length: float = start.distance_to(target)
+	if length < 1.0:
+		return Vector2i.ZERO
+	# Keep clipping fractions in doubles: storing them in a standard Vector2
+	# rounds enough on very long routes to lose a dash touching the viewport edge.
+	var interval: PackedFloat64Array = _segment_visible_fractions(start, target, bounds)
+	if interval.is_empty():
+		return Vector2i.ZERO
+	# Indices are relative to the original route, so camera motion does not
+	# restart the pattern. Include a dash whose tail touches the clipped entry.
+	var first: int = maxi(0, ceili((interval[0] * length - 8.0 - 0.00001) / 15.0))
+	var end: int = mini(ceili(length / 15.0), floori((interval[1] * length + 0.00001) / 15.0) + 1)
+	return Vector2i(first, end) if first < end else Vector2i.ZERO
 
 
 func _draw_compass() -> void:
