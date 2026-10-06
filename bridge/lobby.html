@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>三国城志 · 联机大厅</title>
+  <style>
+    :root{color-scheme:dark;--bg:#141e1d;--panel:#202c28;--line:#536052;--gold:#d3bd7c;--text:#e5e5d7;--muted:#acb8aa}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#2c3a31,var(--bg) 65%);color:var(--text);font:16px/1.6 system-ui,-apple-system,sans-serif;min-height:100vh}
+    main{max-width:940px;margin:auto;padding:38px 22px 54px}header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}h1{font-size:28px;letter-spacing:.12em;margin:0}h2{font-size:22px;margin:0 0 6px;color:var(--gold)}p{margin:8px 0;color:var(--muted)}.badge{border:1px solid var(--line);border-radius:20px;padding:4px 13px;color:var(--gold);white-space:nowrap;font-size:14px}
+    .layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;box-shadow:0 15px 40px #0002}.tabs{display:flex;gap:8px;margin:20px 0}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:6px;background:#2b3b31;color:var(--text);padding:10px 14px;min-height:44px}button[aria-selected=true],button.primary{border-color:var(--gold);background:#a18b50;color:#111c18;font-weight:650}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+    label{display:block;margin:15px 0 5px;color:var(--text)}input,select{width:100%;min-width:0;background:#14221d;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px}.row{display:flex;gap:8px;align-items:center}.row input{flex:1}.row button{flex:none}.submit{width:100%;margin-top:22px}.hint{font-size:14px;color:var(--muted)}#status{min-height:30px;margin:15px 0 0;color:var(--gold)}#status.error{color:#efa78b}.retry{display:flex;gap:10px;margin-top:10px}.roster{list-style:none;margin:14px 0 0;padding:0}.roster li{border-top:1px solid var(--line);padding:9px 0;display:flex;justify-content:space-between;gap:10px}.blue{color:#9cbfd3}.red{color:#dfab98}.summary{font-size:14px}.summary p{margin:14px 0}.summary strong{color:var(--gold);font-weight:600}.secrets{margin:20px 0;padding-top:4px;border-top:1px solid var(--line)}[hidden]{display:none!important}
+    @media(max-width:650px){main{padding:22px 14px 32px}.layout{grid-template-columns:1fr}header{align-items:flex-start}h1{font-size:23px}.panel{padding:20px}.tabs{gap:6px}.tabs button{padding:10px 8px;flex:1;font-size:15px}.summary{font-size:15px}}
+  </style>
+</head>
+<body><main>
+  <header><h1>三国城志</h1><span class="badge">本机房间演练 · 1–8人</span></header>
+  <div class="layout">
+    <section class="panel" aria-label="房间大厅">
+      <h2>联机大厅</h2><p id="intro">建立一座城，与同一房间的城主攻守协作。</p>
+      <nav class="tabs" aria-label="进入方式">
+        <button id="tab-create" type="button" aria-selected="true">创建房间</button>
+        <button id="tab-join" type="button" aria-selected="false">邀请码加入</button>
+        <button id="tab-resume" type="button" aria-selected="false">恢复城池</button>
+      </nav>
+      <form id="create-form">
+        <label for="room-name">房间名称</label><input id="room-name" maxlength="40" value="群雄演练" required>
+        <label for="capacity">人数上限</label><select id="capacity"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+        <label for="host-name">城主名称</label><input id="host-name" maxlength="20" placeholder="你的城主名" required>
+        <button class="primary submit" type="submit">创建并成为房主</button>
+      </form>
+      <form id="join-form" hidden>
+        <label for="join-code">邀请码</label><input id="join-code" autocomplete="off" spellcheck="false" required>
+        <label for="player-name">城主名称</label><input id="player-name" maxlength="20" placeholder="你的城主名" required>
+        <button class="primary submit" type="submit">加入空席位</button>
+      </form>
+      <form id="resume-form" hidden>
+        <label for="resume-room">房间编号</label><input id="resume-room" autocomplete="off" spellcheck="false" required>
+        <label for="resume-key">自己的恢复密钥</label><input id="resume-key" type="password" autocomplete="off" spellcheck="false" required>
+        <button class="primary submit" type="submit">恢复我的城池</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <div id="retry" class="retry" hidden><button id="retry-button" type="button">核对并重试原请求</button><button id="cancel-button" type="button">放弃本次重试</button></div>
+      <p id="uncertain-hint" class="hint" hidden>未确认时请保持此窗口开启。关闭或刷新会失去重试信息，可能无法取回已创建的席位。</p>
+      <section id="session" hidden aria-label="我的房间">
+        <h2 id="welcome"></h2><p id="room-description"></p>
+        <div class="secrets">
+          <label for="my-room">房间编号</label><div class="row"><input id="my-room" readonly><button type="button" data-copy="my-room">复制</button></div>
+          <label for="my-invite">邀请码</label><div class="row"><input id="my-invite" readonly><button type="button" data-copy="my-invite">复制</button></div>
+          <p class="hint">邀请码可以加入空席位，不能登录其他城主。</p>
+          <label for="my-key">自己的恢复密钥</label><div class="row"><input id="my-key" type="password" readonly autocomplete="off"><button type="button" data-copy="my-key">复制</button></div>
+          <p class="hint">请自行保存这份密钥。网页刷新后，用房间编号和密钥恢复自己的城池。</p>
+        </div>
+        <button id="enter-game" class="primary submit" type="button">进入游戏</button>
+        <ul id="members" class="roster" aria-label="房间成员"></ul>
+      </section>
+    </section>
+    <aside class="panel summary">
+      <h2>备战演练</h2>
+      <p><strong>同等起点</strong><br>每位城主使用同一套备战资源与兵力，加入时由服务器建立城池。</p>
+      <p><strong>初始分组</strong><br>加入时按席位交替分入两盟。之后的支援和出征，以游戏内当前联盟关系为准。</p>
+      <p><strong>离线也会行军</strong><br>部队抵达后自动交战，返城后缴获入库，重新加入即可查看结果。</p>
+      <p><strong>独立进度</strong><br>房间之间互不影响，私人试玩和四账号演练继续使用各自进度。</p>
+      <p class="hint">当前服务仅接受本机连接。跨电脑加入需要配置游戏服务器地址和正式账号后台。</p>
+    </aside>
+  </div>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),modes=['create','join','resume'];
+let mode='create',pending=null,busy=false,session=null;
+const secret=()=>Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
+const message=(text,error=false)=>{$('status').textContent=text;$('status').classList.toggle('error',error);};
+function controls(){document.querySelectorAll('form button,form input,form select,.tabs button').forEach(e=>e.disabled=busy||pending!==null);$('retry').hidden=pending===null||busy;$('uncertain-hint').hidden=pending===null;$('retry-button').disabled=busy;}
+function choose(next){if(busy||pending)return;mode=next;for(const name of modes){$(name+'-form').hidden=name!==next; $('tab-'+name).setAttribute('aria-selected',String(name===next));} $('session').hidden=true;session=null;for(const id of ['my-room','my-invite','my-key'])$(id).value='';$('members').replaceChildren();message('');}
+for(const name of modes)$('tab-'+name).addEventListener('click',()=>choose(name));
+function validSession(p){const members=p?.room?.members;return p?.ok===true&&p.protocol===1&&/^room_[a-f0-9]{32}$/.test(p.room?.id)&&typeof p.room.name==='string'&&Number.isInteger(p.room.capacity)&&p.room.capacity>=1&&p.room.capacity<=8&&Array.isArray(members)&&members.length>0&&members.length<=p.room.capacity&&members.every(m=>/^member_[a-f0-9]{32}$/.test(m.id)&&typeof m.name==='string'&&Number.isInteger(m.seat)&&m.seat>=1&&m.seat<=p.room.capacity&&['blue','red'].includes(m.team))&&new Set(members.map(m=>m.id)).size===members.length&&new Set(members.map(m=>m.seat)).size===members.length&&/^member_[a-f0-9]{32}$/.test(p.actor?.id)&&typeof p.actor.name==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(p.authorityId)&&/^[a-f0-9]{64}$/.test(p.accessToken)&&/^[a-f0-9]{64}$/.test(p.recoveryKey)&&/^[a-f0-9]{64}$/.test(p.inviteCode)&&members.some(m=>m.id===p.actor.id&&m.name===p.actor.name);}
+function showSession(p){session=p;for(const name of modes)$(name+'-form').hidden=true;$('session').hidden=false;$('welcome').textContent=p.actor.name+' · '+p.room.name;$('room-description').textContent=p.room.members.length+' / '+p.room.capacity+' 人 · 备战演练';$('my-room').value=p.room.id;$('my-invite').value=p.inviteCode;$('my-key').value=p.recoveryKey;$('members').replaceChildren();for(const member of p.room.members){const li=document.createElement('li'),name=document.createElement('span'),team=document.createElement('span');name.textContent=member.name+(member.id===p.actor.id?' · 我':'');team.textContent=member.team==='blue'?'初始青组':'初始赤组';team.className=member.team==='blue'?'blue':'red';li.append(name,team);$('members').append(li);}message('城池已准备好，请保存自己的恢复密钥。');}
+async function send(){if(!pending||busy)return;busy=true;controls();message('正在核对房间…');const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);try{const result=await fetch('/lobby/'+pending.action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pending.body),signal:controller.signal,cache:'no-store'});const payload=await result.json();if(!result.ok){if(result.status<500){pending=null;message(payload.error?.message||'操作未完成，请核对填写内容。',true);}else message('尚未收到可靠确认，请重试原请求。',true);return;}if(!validSession(payload)){message('房间确认信息不完整，请重试原请求。',true);return;}pending=null;showSession(payload);}catch{message('连接中断，保留了本次请求。重试不会重复创建城池。',true);}finally{clearTimeout(timeout);busy=false;controls();}}
+for(const name of modes)$(name+'-form').addEventListener('submit',event=>{event.preventDefault();if(busy||pending)return;let body;if(name==='create')body={requestId:secret(),roomName:$('room-name').value.trim(),capacity:Number($('capacity').value),playerName:$('host-name').value.trim()};else if(name==='join')body={requestId:secret(),inviteCode:$('join-code').value.trim(),playerName:$('player-name').value.trim()};else body={roomId:$('resume-room').value.trim(),recoveryKey:$('resume-key').value.trim()};pending={action:name,body};send();});
+$('retry-button').addEventListener('click',send);$('cancel-button').addEventListener('click',()=>{if(busy)return;pending=null;controls();message('已停止重试。放弃不会撤销服务器可能已创建的席位。');});
+document.querySelectorAll('[data-copy]').forEach(button=>button.addEventListener('click',async()=>{const input=$(button.dataset.copy);try{await navigator.clipboard.writeText(input.value);message(button.dataset.copy==='my-key'?'自己的恢复密钥已复制，请妥善保存。':'已复制。');}catch{input.focus();input.select();message('请使用复制快捷键保存选中的内容。');}}));
+$('enter-game').addEventListener('click',async()=>{if(!session||busy)return;const expected=session;busy=true;controls();$('enter-game').disabled=true;message('正在确认自己的城主身份…');const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);try{const result=await fetch('/api/health',{headers:{Authorization:'Bearer '+expected.accessToken},signal:controller.signal,cache:'no-store'}),health=await result.json();if(!result.ok||health.ok!==true||health.protocol!==1||health.mode!=='shared'||health.actor?.id!==expected.actor.id||health.authorityId!==expected.authorityId||health.room?.id!==expected.room.id)throw new Error();const url=new URL('/',location.origin);url.hash='pvp-token='+encodeURIComponent(expected.accessToken);location.replace(url.href);}catch{message('城主身份尚未确认，请核对服务后再次进入。自己的恢复信息仍保留。',true);}finally{clearTimeout(timeout);busy=false;controls();$('enter-game').disabled=false;}});
+if(location.hash.startsWith('#invite=')){try{$('join-code').value=decodeURIComponent(location.hash.slice(8));choose('join');}catch{}history.replaceState(history.state,'',location.pathname+location.search);}
+controls();
+window.addEventListener('beforeunload',event=>{if(pending){event.preventDefault();event.returnValue='';}});
+</script></body></html>

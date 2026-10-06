@@ -1,20 +1,30 @@
 # 三国城志 · Godot
 
-Godot 4.7.2＋GDScript 的独立迁移试玩，**0.3.1 大地图更新已发布**，修复超长行军路线并建立可复现的原生绘制基线，保留可配置电脑输入与地图键盘导航。面向 Windows 和网页，Steamworks 在客户端验证后接入。
+Godot 4.7.2＋GDScript 的独立迁移试玩，当前本地版本为 **0.5.0 1–8人房间演练**：创建房间、邀请码加入、自己的席位恢复，以及玩家城池、盟友援军、服务器自动战斗与返程入库。0.3.1 大地图更新继续保留。面向 Windows 和网页，Steamworks 与正式公网账号服务在后续接入。
 
 原 [three-kingdoms 仓库](https://github.com/YuJieMichael/three-kingdoms) 与 [网页版](https://yujiemichael.github.io/three-kingdoms/) 保持不变。本仓库从 `c7674df45b9595405e57907524e737e633b0ff63` 保存规则快照，不直接同步或部署原仓库。
 
 ## 试玩
 
-从 [v0.3.1 预览发布](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.1) 下载独立 Windows/Web 包。实际原生与网页地图已验证，四项发布资产的大小及 digest 与本地一致；本轮正式 Windows 发布包下载、校验与启动 CI 已通过。独立包使用方式：
+当前公开版本仍为 [v0.3.1 预览发布](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.1) 下载独立 Windows/Web 包。实际原生与网页地图已验证，四项发布资产的大小及 digest 与本地一致；0.3.1 正式 Windows 发布包下载、校验与启动 CI 已通过；这些历史结果不代表 0.4.0/0.5.0 的 Windows 实机运行。独立包使用方式：
 
 - **Windows-x64**：完整解压，双击 `ThreeKingdoms.exe`。引擎资源和本地规则服务均已包含，无需另装 Godot 或 Node。
 - **Web-preview**：完整解压，Windows 双击 `StartWeb.cmd`；看到服务就绪后打开 `http://127.0.0.1:17338/`。macOS/Linux 安装 Node 后运行 `./start-web.sh`。不能直接双击 HTML，也没有替换原 GitHub Pages。
 
-进度自动保存。点击“存档”可导入原网页版导出的 JSON，也可导出用于备份。Windows 客户端和网页试玩各有独立进度目录；同时体验同一份进度需连接同一个正在运行的规则服务。该桥接服务仅用于本地试玩，尚未提供账号、公开共享世界或跨设备云同步。
+进度自动保存。点击“存档”可导入原网页版导出的 JSON，也可导出用于备份。Windows 客户端和网页试玩各有独立进度目录；同时体验同一份进度需连接同一个正在运行的规则服务。私人桥接服务仅用于本地试玩。0.4.0 另有独立的本机四账号共享演练，不能将私人存档导入共享世界；公开共享世界和跨设备账号同步尚未接入。
+
+本地 0.4.0 包的共享入口：Windows 完整解压后先运行 `StartPvP.cmd`，再运行 `PlayPvP1.cmd`～`PlayPvP4.cmd`；网页包运行 `StartPvP.cmd` / `start-pvp.sh`，从私有邀请页面选择账号。详情见 [共享演练说明](docs/PVP-REHEARSAL.zh.md)。
+
+0.4.0 的 **1040 项本地检查通过**，实际 macOS/Web 攻防、援军驻扎与召回、战报及返程入库已观察；最终 Windows/Web 包导出和包内规则服务验证通过。此版本尚未公开发布，Windows 可执行文件尚未运行。详见 [共享 PvP 验证报告](production/polish/shared-pvp-report-2026-10-06.md)。
+
+本地0.5.0房间入口：Windows先运行 `StartRooms.cmd`，再运行 `PlayRooms.cmd`；网页包运行 `StartRooms.cmd` / `start-rooms.sh`，打开本机联机大厅。邀请只能申请空席位，自己的恢复密钥才可返回已有城池。请自行保存密钥；未确认登记时保持窗口开启并重试原请求。详见 [房间说明](docs/ROOMS.zh.md)。
+
+0.5.0已完成 **1187项核心本地检查和365项独立包审计**，真实Web/macOS房间、390大厅及战报实际交付已观察；Windows/Web本地包已导出。尚未公开发布或在Windows执行0.5.0 EXE，正式跨电脑后台待配置。见 [房间验证报告](production/polish/room-lobby-report-2026-10-06.md)。
 
 ## 当前内容
 
+- 本机1–8人房间：服务器生成城主与独立世界，创建、邀请与满员恢复，重复登记去重、容量并发保护及原子存档。网页与桌面大厅均可使用；正式跨电脑服务尚未配置。
+- 本机四账号共享攻防：两组联盟与四座各自保存的城池；派兵掠夺、盟友援军、驻扎召回和行军倒计时。到时由服务器自动交战，战报显示双方幸存、永久损失、伤兵与缴获，返城后显示实际入库。演练兵力与战争状态为虚构预置，沿用原作规则。
 - 可配置电脑输入：WASD / 方向键移动大地图，`=` / 小键盘 `+` 放大，`-` / 小键盘 `-` 缩小，H / Home 定位主城；1–5 分别切换城池、大地图、军队、将领和战报，T 打开事务、O 存档、K 按键设置。打开弹窗或编辑文字时暂停游戏快捷键；Tab、Enter、Esc 保留原生界面操作。
 - 按键设置允许改键、显示冲突并恢复默认，单独在本机保存；配置损坏回退默认，保存失败保留原绑定，游戏进度不受影响。设置按钮和事务入口仍可用鼠标与触屏打开。
 - 原生连续地图：64×64 规则世界、鼠标拖动、锚点缩放、触屏手势、城池旗帜、行军路线和到达时间。后续各州扩容需要迁移规则坐标与存档；地图分区目前是可替换的试玩配置。
@@ -25,7 +35,7 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，**0.3.1 大地图更新已发布*
 - 同一套既有规则负责费用、解锁、队列、行军和结算；回执持久化、重连核对、重复操作去重及版本冲突处理。
 - 电脑与窄屏布局；网页高分屏按逻辑像素适配。
 
-当前客户端仍处于迁移试玩阶段。原游戏的联盟、计谋、完整名将/招降、安抚祭祀等其余城池管理界面仍需继续迁移。当前界面采用程序绘制的场景和图标，后续可以换成正式美术资源；各州扩容、账号共享世界与 Steamworks 也尚未接入。
+当前客户端仍处于迁移试玩阶段。原游戏的联盟、计谋、完整名将/招降、安抚祭祀等其余城池管理界面仍需继续迁移。当前界面采用程序绘制的场景和图标，后续可以换成正式美术资源；各州扩容、正式跨电脑账号服务与 Steamworks 也尚未接入。
 
 0.3.1 的 **697 项本地与 Windows CI 检查已通过**（原有 482＋新增地图 215），[源码推送 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479201825) 已成功。最终原生与 Web 桌面/390 窄屏已观察地图拖动、远景、缩放、回城及当前任务点侧栏；浏览器 warn/error 日志为空。Windows/Web 已导出并发布，四项资产校验通过；[标签 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479270820) 与 [正式 Windows 包启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934) 均成功，故事 004 已完成。
 
@@ -38,7 +48,7 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，**0.3.1 大地图更新已发布*
 安装标准版 **Godot 4.7.2 stable**（GDScript）和 Node。用 Godot 导入 `project.godot`。通过环境变量 `TK_NODE` 指定 Node 完整路径，运行项目即可自动启动本地规则服务；也可在连接窗口填写服务地址。
 
 ```sh
-node --test tests/bridge.test.cjs
+node --test tests/bridge.test.cjs tests/shared-bridge.test.cjs tests/room-bridge.test.cjs
 godot --headless --path . --editor --import
 godot --headless --path . --script tests/world_map_test.gd
 godot --headless --path . --script tests/battle_view_test.gd
@@ -46,6 +56,10 @@ godot --headless --path . --script tests/client_test.gd
 godot --headless --path . --script tests/management_test.gd
 godot --headless --path . --script tests/input_test.gd
 godot --headless --path . --script tests/map_render_test.gd
+godot --headless --path . --script tests/pvp_api_test.gd
+godot --headless --path . --script tests/pvp_ui_test.gd
+godot --headless --path . --script tests/lobby_api_test.gd
+godot --headless --path . --script tests/lobby_ui_test.gd
 godot --headless --path . -- --smoke
 ```
 

@@ -1,18 +1,26 @@
 extends Node
 class_name KingdomApi
 
+const LobbyApiScript: Script = preload("res://src/lobby_api.gd")
+
 signal snapshot_received(payload: Dictionary)
 signal world_received(payload: Dictionary)
 signal status_changed(message: String, connected: bool)
 signal request_failed(message: String)
 signal export_received(snapshot: Dictionary)
 signal command_completed(type: String, payload: Dictionary)
+signal mode_changed(mode: String)
 
 var base_url: String = "http://127.0.0.1:17337"
 var token: String = ""
 var revision: int = 0
 var connected: bool = false
 var last_snapshot: Dictionary = {}
+var mode: String = "local"
+var actor: Dictionary = {}
+var room: Dictionary = {}
+var shared_world: Dictionary = {}
+var _expected_identity: Dictionary = {}
 var _http: HTTPRequest
 var _queue: Array[Dictionary] = []
 var _current: Dictionary = {}
@@ -24,7 +32,18 @@ var _ready_file: String = ""
 var _boot_wait: float = 0.0
 var _authority: String = ""
 var _pending_authority: String = ""
+var _pending_mode: String = "local"
+var _pending_actor_id: String = ""
+var _pending_command_id: String = ""
 const PENDING_PATH: String = "user://pending-command.json"
+var _pending_path: String = PENDING_PATH
+var _pending_storage_error: String = ""
+var _pending_namespace: String = ""
+var _pending_replays: Array[Dictionary] = []
+var _last_world_time: float = 0.0
+# Shared arrival/battle settlement belongs to the server, even while players
+# are offline. Prepared army tactics remain available through setTactic.
+const SHARED_FORBIDDEN_COMMANDS: PackedStringArray = ["dispatch", "scout", "dispatchScout", "shared.settle", "startBattle", "battleRound", "setBattleOrder", "setBattleOrders", "dismissBattle", "submitBattleTactic", "cancelBattleTactic", "startCityDefense", "cityDefenseRound", "resolveCityDefense", "endDefenseDrill"]
 
 func _ready() -> void:
 	_load_pending()
@@ -37,9 +56,10 @@ func _ready() -> void:
 	_poll.timeout.connect(_poll_state)
 	add_child(_poll)
 
-func connect_to(url: String, access_token: String = "") -> void:
+func connect_to(url: String, access_token: String = "", expected_identity: Dictionary = {}) -> void:
 	base_url = url.trim_suffix("/")
 	token = access_token
+	_expected_identity = expected_identity.duplicate(true)
 	_stash_unconfirmed()
 	_queue.clear()
 	_poll.stop()
@@ -53,7 +73,7 @@ func connect_to(url: String, access_token: String = "") -> void:
 func start_local() -> void:
 	if OS.has_feature("web"):
 		var origin: Variant = JavaScriptBridge.eval("window.location.origin", true)
-		connect_to(str(origin) + "/api")
+		connect_to(str(origin) + "/api", _web_access_token())
 		return
 	var root: String = ProjectSettings.globalize_path("res://")
 	var bundle_root: String = OS.get_executable_path().get_base_dir()
@@ -102,6 +122,9 @@ func command(type: String, args: Array = [], source_city: String = "") -> void:
 	if not connected:
 		request_failed.emit("请先连接规则服务")
 		return
+	if mode == "shared" and type in SHARED_FORBIDDEN_COMMANDS:
+		request_failed.emit("共享演练请向玩家城池派兵；抵达和战斗由服务器自动结算")
+		return
 	if _has_mutation():
 		request_failed.emit("上一项操作正在结算，请稍候")
 		return
@@ -113,12 +136,18 @@ func command(type: String, args: Array = [], source_city: String = "") -> void:
 	_enqueue("command", HTTPClient.METHOD_POST, data)
 
 func import_snapshot(snapshot: Dictionary) -> void:
+	if mode == "shared":
+		request_failed.emit("共享演练不能导入个人存档")
+		return
 	if _has_mutation():
 		request_failed.emit("请等待当前操作完成")
 		return
 	_enqueue("import", HTTPClient.METHOD_POST, {"commandId": "gd_" + Crypto.new().generate_random_bytes(12).hex_encode(), "expectedRevision": revision, "state": snapshot})
 
 func fetch_export() -> void:
+	if mode == "shared":
+		request_failed.emit("共享演练进度由服务器保存，不能导出个人存档")
+		return
 	_enqueue("export", HTTPClient.METHOD_GET)
 
 func refresh() -> void:
@@ -127,33 +156,240 @@ func refresh() -> void:
 
 func retry_last() -> void:
 	# Re-check authority before replaying the exact original operation.
-	connect_to(base_url, token)
+	connect_to(base_url, token, _expected_identity)
 
 func _load_pending() -> void:
-	if not FileAccess.file_exists(PENDING_PATH):
+	if mode == "shared" and not _pending_namespace.is_empty():
+		_reset_pending_memory()
+		var paths: Array[String] = _journal_paths()
+		var legacy_path: String = _legacy_shared_path()
+		if _pending_exists_at(legacy_path):
+			paths.append(legacy_path)
+		var seen: Dictionary = {}
+		for path: String in paths:
+			var value: Variant = JSON.parse_string(_read_pending_at(path))
+			if not _valid_pending_record(value):
+				continue
+			if str(value.get("mode", "local")) != "shared" or str(value.get("authority", "")) != _authority or str(value.get("actorId", "")) != str(actor.get("id", "")):
+				continue
+			var id: String = str(value.request.body.get("commandId", ""))
+			if seen.has(id):
+				continue
+			seen[id] = true
+			_pending_replays.append(value.request.duplicate(true))
+			if _retry.is_empty():
+				_adopt_pending(value, path)
 		return
-	var value: Variant = JSON.parse_string(FileAccess.get_file_as_string(PENDING_PATH))
-	if value is Dictionary and value.get("request") is Dictionary:
-		var request: Dictionary = value.request
-		if str(request.get("path", "")) in ["command", "import"] and request.get("body") is Dictionary:
-			_retry = request
-			_pending_authority = str(value.get("authority", ""))
+	if not _pending_exists():
+		return
+	var value: Variant = JSON.parse_string(_read_pending())
+	if _valid_pending_record(value):
+		_adopt_pending(value, _pending_path)
+
+func _valid_pending_record(value: Variant) -> bool:
+	return value is Dictionary and value.get("request") is Dictionary and str(value.request.get("path", "")) in ["command", "import"] and value.request.get("body") is Dictionary and value.request.body.get("commandId") is String and not str(value.request.body.commandId).is_empty() and str(value.request.body.commandId).is_valid_filename()
+
+func _adopt_pending(value: Dictionary, path: String) -> void:
+	_retry = value.request.duplicate(true)
+	_pending_authority = str(value.get("authority", ""))
+	_pending_mode = str(value.get("mode", "local"))
+	_pending_actor_id = str(value.get("actorId", ""))
+	_pending_command_id = str(value.request.body.get("commandId", ""))
+	_pending_path = path
 
 func _save_pending(request: Dictionary) -> bool:
-	var file: FileAccess = FileAccess.open(PENDING_PATH, FileAccess.WRITE)
-	if file == null:
-		request_failed.emit("无法保存操作回执，操作未发送")
+	var command_id: String = str(request.get("body", {}).get("commandId", ""))
+	if mode == "shared":
+		# Every original operation has a distinct immutable journal entry. Two
+		# windows can write concurrently without replacing each other's IDs.
+		if _pending_namespace.is_empty() or command_id.is_empty() or not command_id.is_valid_filename():
+			request_failed.emit("操作身份未确认，操作未发送")
+			return false
+		_pending_path = _journal_path(command_id)
+	if _pending_exists():
+		var stored: Variant = JSON.parse_string(_read_pending())
+		if not _valid_pending_record(stored) or str(stored.request.body.get("commandId", "")) != command_id or (mode == "shared" and JSON.parse_string(JSON.stringify(stored.request)) != JSON.parse_string(JSON.stringify(request))):
+			_load_pending()
+			request_failed.emit("未确认操作已存在，请重连原账号核对")
+			return false
+		if mode == "shared":
+			# Journal entries are immutable; a replay need not rewrite its entry.
+			_pending_authority = _authority
+			_pending_mode = mode
+			_pending_actor_id = str(actor.get("id", ""))
+			_pending_command_id = command_id
+			return true
+	var contents: String = JSON.stringify({"authority": _authority, "mode": mode, "actorId": str(actor.get("id", "")), "request": request})
+	if not _write_pending(contents):
+		request_failed.emit("无法保存操作回执，操作未发送" + ("（" + _pending_storage_error + "）" if not _pending_storage_error.is_empty() else ""))
 		return false
-	file.store_string(JSON.stringify({"authority": _authority, "request": request}))
-	file.close()
 	_pending_authority = _authority
+	_pending_mode = mode
+	_pending_actor_id = str(actor.get("id", ""))
+	_pending_command_id = command_id
 	return true
 
-func _clear_pending() -> void:
+func _reset_pending_memory() -> void:
 	_retry.clear()
+	_pending_replays.clear()
 	_pending_authority = ""
-	if FileAccess.file_exists(PENDING_PATH):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(PENDING_PATH))
+	_pending_mode = "local"
+	_pending_actor_id = ""
+	_pending_command_id = ""
+
+func _clear_pending(expected_id: String = "") -> void:
+	if expected_id.is_empty():
+		expected_id = _pending_command_id
+	if mode == "shared" and not _pending_namespace.is_empty():
+		if not expected_id.is_empty() and expected_id.is_valid_filename():
+			_delete_pending_at(_journal_path(expected_id), expected_id)
+			# Previous builds wrote one actor-scoped receipt. New builds never
+			# write that legacy key/file, but recover and acknowledge it safely.
+			_delete_pending_at(_legacy_shared_path(), expected_id)
+		_reset_pending_memory()
+		_pending_path = _legacy_shared_path()
+		_load_pending()
+		return
+	_reset_pending_memory()
+	if _pending_exists():
+		var stored: Variant = JSON.parse_string(_read_pending())
+		if not expected_id.is_empty() and _valid_pending_record(stored) and str(stored.request.body.get("commandId", "")) == expected_id:
+			_delete_pending(expected_id)
+		else:
+			_load_pending()
+
+func _switch_pending_identity() -> void:
+	var next_path: String = PENDING_PATH
+	var next_namespace: String = ""
+	if mode == "shared":
+		var identity: String = JSON.stringify([_authority, str(actor.get("id", ""))])
+		var hash: String = identity.sha256_text()
+		next_namespace = "user://pending-commands-shared-" + hash
+		next_path = "user://pending-command-shared-" + hash + ".json"
+	if next_namespace != _pending_namespace or (mode != "shared" and next_path != _pending_path):
+		_reset_pending_memory()
+		_pending_path = next_path
+		_pending_namespace = next_namespace
+	_load_pending()
+
+func _legacy_shared_path() -> String:
+	return "user://pending-command-shared-" + _pending_namespace.trim_prefix("user://pending-commands-shared-") + ".json"
+
+func _journal_path(command_id: String) -> String:
+	return _pending_namespace.path_join(command_id + ".json")
+
+func _journal_paths() -> Array[String]:
+	var paths: Array[String] = []
+	if OS.has_feature("web"):
+		var prefix: String = "three-kingdoms:pvp-receipt:" + _pending_namespace.get_file() + ":"
+		var value: Variant = JavaScriptBridge.eval("(() => { try { const prefix = " + JSON.stringify(prefix) + "; return JSON.stringify(Object.keys(window.localStorage).filter(key => key.startsWith(prefix)).map(key => key.slice(prefix.length)).sort()); } catch (_) { return '[]'; } })()", true)
+		var names: Variant = JSON.parse_string(str(value)) if value is String else []
+		if names is Array:
+			for name: Variant in names:
+				if name is String and name.is_valid_filename() and name.ends_with(".json"):
+					paths.append(_pending_namespace.path_join(name))
+	else:
+		var directory: DirAccess = DirAccess.open(_pending_namespace)
+		if directory != null:
+			for name: String in directory.get_files():
+				if name.ends_with(".json"):
+					paths.append(_pending_namespace.path_join(name))
+	paths.sort()
+	return paths
+
+func _queue_pending_replays() -> void:
+	if mode != "shared":
+		if not _retry.is_empty() and _pending_matches_identity():
+			_queue.push_front(_retry.duplicate(true))
+			_retry.clear()
+		return
+	for request: Dictionary in _pending_replays:
+		var id: String = str(request.body.get("commandId", ""))
+		var queued: bool = str(_current.get("body", {}).get("commandId", "")) == id
+		for item: Dictionary in _queue:
+			queued = queued or str(item.get("body", {}).get("commandId", "")) == id
+		if not queued:
+			_queue.append(request.duplicate(true))
+	_retry.clear()
+	_pending_replays.clear()
+
+func _uses_web_pending() -> bool:
+	return OS.has_feature("web") and mode == "shared"
+
+func _web_pending_key(path: String = "") -> String:
+	if path.is_empty():
+		path = _pending_path
+	if path.get_base_dir().get_file().begins_with("pending-commands-shared-"):
+		return "three-kingdoms:pvp-receipt:" + path.get_base_dir().get_file() + ":" + path.get_file()
+	return "three-kingdoms:pvp-receipt:" + path.get_file()
+
+func _pending_exists() -> bool:
+	return _pending_exists_at(_pending_path)
+
+func _pending_exists_at(path: String) -> bool:
+	if _uses_web_pending():
+		var value: Variant = JavaScriptBridge.eval("(() => { try { return window.localStorage.getItem(" + JSON.stringify(_web_pending_key(path)) + ") !== null ? 'present' : 'absent'; } catch (_) { return 'unavailable'; } })()", true)
+		return value is String and value == "present"
+	return FileAccess.file_exists(path)
+
+func _read_pending() -> String:
+	return _read_pending_at(_pending_path)
+
+func _read_pending_at(path: String) -> String:
+	if _uses_web_pending():
+		var value: Variant = JavaScriptBridge.eval("(() => { try { return window.localStorage.getItem(" + JSON.stringify(_web_pending_key(path)) + ") || ''; } catch (_) { return ''; } })()", true)
+		return str(value) if value is String else ""
+	return FileAccess.get_file_as_string(path)
+
+func _write_pending(contents: String) -> bool:
+	_pending_storage_error = ""
+	if _uses_web_pending():
+		# One atomic localStorage key per original command, never a mutable
+		# account-wide head/list; browser windows cannot lose each other's IDs.
+		var value: Variant = JavaScriptBridge.eval("(() => { try { const key = " + JSON.stringify(_web_pending_key()) + "; const text = " + JSON.stringify(contents) + "; const old = window.localStorage.getItem(key); if (old !== null && old !== text) return 'entry-conflict'; window.localStorage.setItem(key, text); return window.localStorage.getItem(key) === text ? 'saved' : 'readback-failed'; } catch (error) { return 'storage-' + String(error.name || 'Error'); } })()", true)
+		if value is String and value == "saved":
+			return true
+		_pending_storage_error = str(value) if value is String else "浏览器未确认保存 · 类型 " + str(typeof(value))
+		return false
+	if mode == "shared":
+		var folder: String = ProjectSettings.globalize_path(_pending_path.get_base_dir())
+		if DirAccess.make_dir_recursive_absolute(folder) != OK:
+			return false
+		# Unique temporary files and atomic rename prevent recovery reading a
+		# partial receipt. Different original command IDs have different targets.
+		var temporary: String = _pending_path + "." + Crypto.new().generate_random_bytes(12).hex_encode() + ".tmp"
+		var file: FileAccess = FileAccess.open(temporary, FileAccess.WRITE)
+		if file == null:
+			return false
+		file.store_string(contents)
+		file.flush()
+		var succeeded: bool = file.get_error() == OK
+		file.close()
+		if succeeded:
+			succeeded = DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary), ProjectSettings.globalize_path(_pending_path)) == OK
+		if FileAccess.file_exists(temporary):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(temporary))
+		return succeeded
+	var file: FileAccess = FileAccess.open(_pending_path, FileAccess.WRITE)
+	if file == null:
+		return false
+	file.store_string(contents)
+	var succeeded: bool = file.get_error() == OK
+	file.close()
+	return succeeded
+
+func _delete_pending(expected_id: String) -> void:
+	_delete_pending_at(_pending_path, expected_id)
+
+func _delete_pending_at(path: String, expected_id: String) -> void:
+	if expected_id.is_empty() or not _pending_exists_at(path):
+		return
+	if _uses_web_pending():
+		JavaScriptBridge.eval("(() => { try { const key = " + JSON.stringify(_web_pending_key(path)) + "; const record = JSON.parse(window.localStorage.getItem(key) || 'null'); if (record?.request?.body?.commandId === " + JSON.stringify(expected_id) + ") window.localStorage.removeItem(key); } catch (_) {} })()", true)
+		return
+	var stored: Variant = JSON.parse_string(_read_pending_at(path))
+	if _valid_pending_record(stored) and str(stored.request.body.get("commandId", "")) == expected_id:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 func _stash_unconfirmed() -> void:
 	if str(_current.get("path", "")) in ["command", "import"]:
@@ -228,46 +464,168 @@ func _on_completed(result: int, code: int, _headers: PackedStringArray, bytes: P
 			_fail_transport("连接未获授权，请检查设置后重连")
 			return
 		if str(request.path) in ["command", "import"]:
-			_clear_pending()
+			_clear_pending(str(request.body.get("commandId", "")))
+			if mode == "shared":
+				_queue_pending_replays()
 		var detail: Variant = payload.get("error", {})
 		var message: String = str(detail.get("message", "操作失败")) if detail is Dictionary else str(detail)
 		request_failed.emit(message)
 		if code == 409:
-			_enqueue("state", HTTPClient.METHOD_GET)
+			refresh()
 		_pump()
 		return
 	match str(request.path):
 		"health":
-			_authority = str(payload.get("authorityId", ""))
+			if not _accept_health(payload):
+				return
 			connected = true
-			status_changed.emit("已连接 · 进度自动保存", true)
+			status_changed.emit(_connected_status(), true)
 			_poll.start()
 			if not _retry.is_empty():
-				if _authority.is_empty() or _authority != _pending_authority:
-					request_failed.emit("未确认操作属于另一份存档，请返回原服务确认")
+				if not _pending_matches_identity():
+					request_failed.emit("未确认操作属于另一账号或存档，请返回原账号和服务确认")
 				else:
-					_queue.push_front(_retry.duplicate(true))
-					_retry.clear()
+					_queue_pending_replays()
 			refresh()
 		"world":
+			if not _accept_snapshot_identity(payload):
+				_current = request
+				_fail_transport("共享世界身份不一致，请重连原账号核对")
+				return
+			if _payload_is_stale(payload) or (_server_time(payload) > 0.0 and _server_time(payload) < _last_world_time):
+				refresh()
+				_pump()
+				return
+			_update_shared_world(payload)
 			world_received.emit(payload)
 		"export":
 			export_received.emit(payload)
 		"state", "command", "import":
+			if not _accept_snapshot_identity(payload):
+				_current = request
+				_fail_transport("游戏进度身份不一致，请重连原账号核对")
+				return
 			if str(request.path) in ["command", "import"]:
-				_clear_pending()
+				_clear_pending(str(request.body.get("commandId", "")))
+				if mode == "shared":
+					_queue_pending_replays()
+			if _payload_is_stale(payload):
+				# A cached receipt confirms its command, not the current world.
+				if str(request.path) == "command":
+					command_completed.emit(str(request.body.get("type", "")), payload)
+				refresh()
+				_pump()
+				return
+			_update_shared_world(payload)
 			revision = int(payload.get("revision", revision))
 			last_snapshot = payload
 			snapshot_received.emit(payload)
 			if not connected:
 				connected = true
 				_poll.start()
-				status_changed.emit("已重连 · 操作已确认", true)
+				status_changed.emit(_connected_status(), true)
 			if str(request.path) == "command":
 				command_completed.emit(str(request.body.get("type", "")), payload)
 			if str(request.path) != "state":
 				_enqueue("world", HTTPClient.METHOD_GET)
 	_pump()
+
+func _web_access_token() -> String:
+	# Credentials never enter query parameters, localStorage or pending receipts.
+	# Remove the fragment before the first network request or subsequent sharing.
+	var value: Variant = JavaScriptBridge.eval("(() => { const hash = window.location.hash; if (!hash.startsWith('#pvp-token=')) return ''; let value = ''; try { value = decodeURIComponent(hash.slice(11)); } catch (_) {} window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search); return /^[A-Za-z0-9._~-]{8,512}$/.test(value) ? value : ''; })()", true)
+	return str(value) if value is String else ""
+
+func _accept_health(payload: Dictionary) -> bool:
+	var next_mode: String = str(payload.get("mode", "local"))
+	if next_mode not in ["local", "shared"]:
+		_fail_transport("规则服务模式无效，请检查连接地址")
+		return false
+	var next_actor: Variant = payload.get("actor", {})
+	var next_authority: String = str(payload.get("authorityId", ""))
+	if next_mode == "shared" and (int(payload.get("protocol", 0)) != 1 or not bool(payload.get("ok", false)) or next_authority.is_empty() or not next_actor is Dictionary or str(next_actor.get("id", "")).is_empty()):
+		_fail_transport("共享演练身份未确认，请检查账号密钥后重连")
+		return false
+	var next_room: Variant = payload.get("room", {})
+	if payload.has("room") and (next_mode != "shared" or not LobbyApiScript.valid_room(next_room, str(next_actor.get("id", "")))):
+		_fail_transport("房间身份未确认，请重新核对自己的恢复信息")
+		return false
+	if not _expected_identity.is_empty() and (next_mode != "shared" or str(next_actor.get("id", "")) != str(_expected_identity.get("actorId", "")) or next_authority != str(_expected_identity.get("authorityId", "")) or not next_room is Dictionary or str(next_room.get("id", "")) != str(_expected_identity.get("roomId", ""))):
+		_fail_transport("房间服务返回了不同城主，请重连原席位核对")
+		return false
+	if next_mode == "local":
+		next_actor = {}
+		next_room = {}
+	var changed: bool = mode != next_mode or str(actor.get("id", "")) != str(next_actor.get("id", "")) or _authority != next_authority or str(room.get("id", "")) != str(next_room.get("id", ""))
+	mode = next_mode
+	actor = next_actor.duplicate(true) if mode == "shared" else {}
+	room = next_room.duplicate(true) if next_room is Dictionary else {}
+	_authority = next_authority
+	_switch_pending_identity()
+	if changed:
+		# A newly authenticated player never sees the previous player's snapshot.
+		last_snapshot.clear()
+		shared_world.clear()
+		_last_world_time = 0.0
+		revision = 0
+		mode_changed.emit(mode)
+	return true
+
+func _pending_matches_identity() -> bool:
+	if _authority.is_empty() or _authority != _pending_authority or mode != _pending_mode:
+		return false
+	return mode != "shared" or (not _pending_actor_id.is_empty() and _pending_actor_id == str(actor.get("id", "")))
+
+func _accept_snapshot_identity(payload: Dictionary) -> bool:
+	if mode != "shared":
+		# Older local envelopes/fixtures omit identity; a present identity must
+		# nevertheless agree with the health handshake.
+		return str(payload.get("mode", "local")) != "shared" and (not payload.has("authorityId") or str(payload.authorityId) == _authority)
+	var response_actor: Variant = payload.get("actor")
+	var identity_matches: bool = str(payload.get("mode", "")) == "shared" and str(payload.get("authorityId", "")) == _authority and not _authority.is_empty() and response_actor is Dictionary and not str(actor.get("id", "")).is_empty() and str(response_actor.get("id", "")) == str(actor.id)
+	if not identity_matches:
+		return false
+	if not room.is_empty():
+		var response_room: Variant = payload.get("room")
+		if not LobbyApiScript.valid_room(response_room, str(actor.id)) or str(response_room.get("id", "")) != str(room.get("id", "")):
+			return false
+	elif payload.has("room"):
+		return false
+	return true
+
+func _update_shared_world(payload: Dictionary) -> void:
+	if mode == "shared" and payload.get("shared") is Dictionary:
+		var timestamp: float = _server_time(payload)
+		if timestamp > 0.0 and timestamp < _last_world_time:
+			return
+		shared_world = payload.shared.duplicate(true)
+		_last_world_time = maxf(_last_world_time, timestamp)
+		if payload.get("room") is Dictionary:
+			room = payload.room.duplicate(true)
+
+func _server_time(payload: Dictionary) -> float:
+	var value: Variant = payload.get("serverTime", 0)
+	return float(value) if value is int or value is float else 0.0
+
+func _payload_is_stale(payload: Dictionary) -> bool:
+	var incoming_revision: int = int(payload.get("revision", revision))
+	if incoming_revision < revision:
+		return true
+	# A newer public world may reveal a later settlement before private polling.
+	# Cached command receipts must not resurrect that older view, even if their
+	# actor revision is higher than the last private snapshot we received.
+	if mode == "shared" or incoming_revision == revision:
+		var timestamp: float = _server_time(payload)
+		var known_time: float = maxf(_server_time(last_snapshot), _last_world_time)
+		return timestamp > 0.0 and timestamp < known_time
+	return false
+
+func _connected_status() -> String:
+	if mode == "shared":
+		if not room.is_empty():
+			return "已连接房间 · %s · %s · 自动结算" % [str(room.get("name", "房间")), str(actor.get("name", actor.get("id", "玩家")))]
+		return "已连接共享演练 · %s · 自动结算" % str(actor.get("name", actor.get("id", "玩家")))
+	return "已连接 · 进度自动保存"
 
 func _fail_transport(message: String) -> void:
 	_stash_unconfirmed()

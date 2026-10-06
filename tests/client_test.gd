@@ -16,8 +16,9 @@ class ClientProbe extends "res://src/main.gd":
 		api.snapshot_received.connect(_receive_snapshot)
 		api.world_received.connect(_receive_world)
 		api.status_changed.connect(_connection_changed)
-		api.request_failed.connect(func(message: String) -> void: _pending_battle = false; _show_toast(message))
+		api.request_failed.connect(_request_failed)
 		api.command_completed.connect(_command_completed)
+		api.mode_changed.connect(_mode_changed)
 		_show_page("world")
 
 
@@ -53,6 +54,7 @@ func _run() -> void:
 		return
 	_fixture = parsed
 	await _test_client_layout_and_chaining()
+	await _test_identity_switch_private_ui()
 	await _test_pending_reconnect()
 	_finish()
 
@@ -232,6 +234,149 @@ func _test_desktop_short_window(client: ClientProbe, scenario: String) -> void:
 	_assert(sidebar_scroll.get_global_rect().has_point(client._status.get_global_rect().get_center()), "The %s connection status must become reachable by scrolling the sidebar." % scenario)
 
 
+func _identity_health(mode: String, authority: String, actor_id: String) -> Dictionary:
+	return {"ok": true, "protocol": 1, "mode": mode, "authorityId": authority, "actor": {"id": actor_id, "name": "甲私城主" if authority == "authority-a" and actor_id == "actor-a" else "乙城主"}}
+
+
+func _private_ui_payload(health: Dictionary) -> Dictionary:
+	var payload: Dictionary = _payload(23)
+	for key: String in ["mode", "authorityId", "actor"]:
+		payload[key] = health[key]
+	var view: Dictionary = payload.view
+	var resource_index: int = 0
+	for id: String in view.res:
+		view.res[id] = 9381 + resource_index
+		view.caps[id] = 9000
+		resource_index += 1
+	view.city.name = "甲私城池"
+	view.objective = {"title": "甲私目标", "description": "甲私目标说明", "reward": {"gold": 9386}, "ready": true, "action": "claimMission"}
+	view.generals[0].name = "甲私将领"
+	view.units[0].name = "甲私兵种"
+	view.queues.build = [{"id": "甲私工事", "level": 2, "end": Time.get_unix_time_from_system() * 1000.0 + 60000.0}]
+	view.marches = [{"id": "private-march", "label": "甲私行军", "status": "stationed", "count": 7}]
+	view.nodes.append({"id": "private-battle", "name": "甲私战场"})
+	view.battle = {"node": "private-battle", "round": 1, "player": [], "enemy": [], "log": ["甲私战斗记录"]}
+	view.reports = [{"node": "private-battle", "won": true, "round": 1, "lost": {str(view.units[0].id): 7}}]
+	payload.state.banner = "甲私存档"
+	payload.shared = {"players": [{"id": "actor-a", "name": "甲私城主", "home": {"x": 8, "y": 12}}], "marches": [], "reports": []}
+	return payload
+
+
+func _ui_text(node: Node) -> String:
+	# Include hidden Controls: reopening a cached dialog or widening the window
+	# must not expose data left behind by the previous authenticated identity.
+	var text: String = ""
+	if node is Label or node is Button or node is RichTextLabel or node is TextEdit or node is LineEdit:
+		text = str(node.text) + "\n"
+	for child: Node in node.get_children():
+		text += _ui_text(child)
+	return text
+
+
+func _test_identity_switch_private_ui() -> void:
+	var settings: KingdomInputSettings = preload("res://src/input_settings.gd").new()
+	settings.initialize()
+	var shortcut: InputEventKey = InputEventKey.new()
+	shortcut.physical_keycode = KEY_F6
+	_assert(settings.rebind("tk_page_reports", shortcut).is_empty(), "The identity regression must create a real local key binding in its isolated user directory.")
+	var binding_before: String = settings.binding_text("tk_page_reports")
+	var scenarios: Array[Dictionary] = [
+		{"mode": "local", "next_mode": "local", "next_authority": "authority-b", "next_actor": ""},
+		{"mode": "shared", "next_mode": "shared", "next_authority": "authority-a", "next_actor": "actor-b"},
+		{"mode": "shared", "next_mode": "shared", "next_authority": "authority-b", "next_actor": "actor-a"},
+		{"mode": "local", "next_mode": "shared", "next_authority": "authority-b", "next_actor": "actor-b"},
+	]
+	for width: int in [1280, 390]:
+		root.size = Vector2i(width, 844)
+		for scenario: Dictionary in scenarios:
+			var client: ClientProbe = ClientProbe.new()
+			var api: TransportProbe = TransportProbe.new()
+			client.api = api
+			client.input_settings = settings
+			client.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			root.add_child(client)
+			var health_a: Dictionary = _identity_health(scenario.mode, "authority-a", "actor-a" if scenario.mode == "shared" else "")
+			api.connect_to("http://127.0.0.1:9999", "token-a")
+			_take_request(api, "health")
+			_complete(api, 200, health_a)
+			_take_request(api, "state")
+			var private_payload: Dictionary = _private_ui_payload(health_a)
+			_complete(api, 200, private_payload)
+			var world_a: Dictionary = _fixture.worldSample.duplicate(true)
+			for key: String in ["mode", "authorityId", "actor"]:
+				world_a[key] = health_a[key]
+			_take_request(api, "world")
+			_complete(api, 200, world_a)
+			client._show_page("city")
+			_assert(client._city._view.city.name == "甲私城池", "A's private city must reach the production canvas before switching identity.")
+			client._show_page("generals")
+			_assert(_ui_text(client._center).contains("甲私将领"), "A's private general must render before switching identity.")
+			client._show_page("reports")
+			_assert(_ui_text(client._center).contains("甲私战场"), "A's private report must render before switching identity.")
+			client._tasks_dialog()
+			_assert(_ui_text(client._dialog).contains("甲私目标说明"), "The narrow-layout task entry must render A's private goal before switching identity.")
+			client._show_management("inn")
+			if scenario.mode == "shared":
+				client._show_pvp()
+			client._report_dialog(private_payload.view.reports[0])
+			client._show_page("army")
+			await _settle_layout()
+			_assert(_ui_text(client._battle).contains("甲私战斗记录") and _ui_text(client._detail).contains("甲私行军"), "A's private battle and marching army must render before switching identity.")
+			_assert(str(client._resources.food.text).contains("9381") and client._resources.food.modulate != Color.WHITE, "A's private resource amount and over-cap styling must render before switching identity.")
+			if scenario.mode == "local":
+				_assert(client._objective_title.text == "甲私目标" and client._objective_button.text == "领取奖励", "A's private sidebar goal must render before switching authority.")
+			api.connect_to("http://127.0.0.1:9999", "rejected-token")
+			_take_request(api, "health")
+			_complete(api, 401, {"error": {"message": "unauthorized"}})
+			_assert(not api.connected and str(api.last_snapshot.get("authorityId", "")) == "authority-a" and str(client._resources.food.text).contains("9381"), "Rejected authentication must remain disconnected and retain the original authenticated snapshot under the existing reconnect contract.")
+			client._show_toast("甲私目标消息")
+			var health_b: Dictionary = _identity_health(scenario.next_mode, scenario.next_authority, scenario.next_actor)
+			api.connect_to("http://127.0.0.1:9999", "token-b")
+			_take_request(api, "health")
+			_complete(api, 200, health_b)
+			_assert(client._view.is_empty() and client._state.is_empty() and client._world.is_empty() and client._selected.is_empty(), "Accepted identity or authority changes must immediately discard A's private data, before the replacement state response.")
+			_assert(not _ui_text(client).contains("甲私"), "Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.")
+			_take_request(api, "state")
+			_complete(api, 503, {"error": {"message": "state unavailable"}})
+			await _settle_layout()
+			var old_resource_visible: bool = false
+			var styles_reset: bool = true
+			for label: Label in client._resources.values():
+				old_resource_visible = old_resource_visible or label.text.contains("9000")
+				for old_amount: int in range(9381, 9386):
+					old_resource_visible = old_resource_visible or label.text.contains(str(old_amount))
+				styles_reset = styles_reset and label.modulate == Color.WHITE
+			_assert(not old_resource_visible and styles_reset, "The %d px resource bar must discard every A amount, cap and over-cap highlight when B's state fails." % width)
+			_assert(not _ui_text(client).contains("甲私") and not client._objective_text.text.contains("9386") and client._objective_button.disabled, "The %d px shell, sidebar and cached dialogs must retain no A private goal, city, army, report or reward after the failed refresh." % width)
+			_assert(client._page == "army" and client.input_settings == settings and settings.binding_text("tk_page_reports") == binding_before, "Identity clearing must preserve local page selection and customized input settings.")
+			_assert(not client._visible_popup(client), "Identity changes must close A's private dialogs before the replacement snapshot arrives.")
+			for page: String in ["city", "army", "generals", "reports", "world"]:
+				client._show_page(page)
+				await _settle_layout()
+				_assert(not _ui_text(client).contains("甲私"), "Reopening the %s page at %d px after the failed identity refresh must not show A's private data." % [page, width])
+			client._tasks_dialog()
+			await _settle_layout()
+			_assert(not _ui_text(client._dialog).contains("甲私"), "The narrow-layout task menu must open from empty data after identity change.")
+			client._dialog.hide()
+			api.connect_to("http://127.0.0.1:9999", "token-b")
+			_take_request(api, "health")
+			_complete(api, 200, health_b)
+			_take_request(api, "state")
+			var payload_b: Dictionary = _payload(24)
+			for key: String in ["mode", "authorityId", "actor"]:
+				payload_b[key] = health_b[key]
+			payload_b.view.res.food = 3210
+			payload_b.view.city.name = "乙城池"
+			payload_b.view.objective.title = "乙目标"
+			_complete(api, 200, payload_b)
+			client._tasks_dialog()
+			await _settle_layout()
+			_assert(client._resources.food.text.contains("3210") and not client._objective_button.disabled and _ui_text(client._dialog).contains("乙目标") and not _ui_text(client).contains("甲私"), "A successful later B refresh must replace placeholders and re-enable goals without restoring A's data.")
+			root.remove_child(client)
+			client.queue_free()
+			await process_frame
+
+
 func _test_pending_reconnect() -> void:
 	var api: TransportProbe = TransportProbe.new()
 	root.add_child(api)
@@ -319,6 +464,9 @@ func _finish() -> void:
 	var pending_path: String = _temporary_user_dir.path_join("pending-command.json")
 	if FileAccess.file_exists(pending_path):
 		DirAccess.remove_absolute(pending_path)
+	var input_path: String = _temporary_user_dir.path_join("input-settings.cfg")
+	if FileAccess.file_exists(input_path):
+		DirAccess.remove_absolute(input_path)
 	DirAccess.remove_absolute(_temporary_user_dir)
 	_restore_settings()
 	print("Godot client checks: %d passed, %d failed" % [checks - failures, failures])

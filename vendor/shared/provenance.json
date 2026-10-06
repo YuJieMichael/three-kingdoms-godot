@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/YuJieMichael/three-kingdoms",
+  "commit": "c7674df45b9595405e57907524e737e633b0ff63",
+  "scope": "Unmodified canonical shared-world service, transactions, battle and realm rules; runtime.mjs is a local re-export adapter to the existing vendor/legacy snapshot.",
+  "files": {
+    "online/service.mjs": "2b2b85bde93845ffd4638bb0869e20bdc9f5a2cc495eb41967dd845188483734",
+    "online/world.mjs": "c0c25010bb0fc5bd5d0fac9a5b79fad426ad0ad6d99f1719c1bc43d98cd0e1c9",
+    "online/realm-systems.mjs": "624f74fc4901a91fb379586def77cc446e9588767b6177530380dd5cfb94775d",
+    "online/memory-store.mjs": "2a52baaf0d5739d3f5b63e1de857394c01edad87723fd6881eaa85bf67da6da0"
+  },
+  "sourceRuntimeSha256": "969dd03ab7d103a7cae5cdb93a78fcd099d6a65f654761ec02dfdc4078cd61ce",
+  "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4"
+}

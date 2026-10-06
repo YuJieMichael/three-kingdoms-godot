@@ -80,3 +80,18 @@ The original browser JSON import/export format is maintained. The Godot interfac
 ```sh
 node --test tests/bridge.test.cjs
 ```
+
+
+## Local room lobby (0.5.0)
+
+`node scripts/start-rooms.mjs --data-dir .local/rooms --web-dir build/web` starts a separate loopback service on17343. `/lobby` serves create/join/resume; `--native-only` serves only room APIs for the Godot `--lobby=http://127.0.0.1:17343` entry. Original private and four-account services remain separate.
+
+POST `/lobby/create` uses `{requestId,roomName,capacity,playerName}`; `/lobby/join` uses `{requestId,inviteCode,playerName}`; `/lobby/resume` uses `{roomId,recoveryKey}`. Capacity is1–8; request/invite/access/recovery capabilities are64 lowerhex characters. Room IDs use `room_` plus32 hex; member IDs use `member_` plus32 hex. Signup retries must keep the same request ID and exact original JSON body. A mismatched reuse is409.
+
+Success returns `{ok,protocol,room,seat,actor,authorityId,accessToken,recoveryKey,inviteCode}`. Public room metadata contains IDs, names, capacity and initial seat groups; only the enrolling/recovering member receives their own session. Invite codes claim vacant seats; recovery requires the room ID and that member's own recovery key. Nicknames cannot recover an existing seat.
+
+Bearer credentials select the live member and room on the server, with unique persisted member authority IDs. Existing state/world/node/command envelopes have public `room` metadata, and canonical shared rules execute in the corresponding room realm. Rooms cannot import/export private saves or accept browser shutdown. The server does not allow a public host bind.
+
+The private `rooms.json` atomically commits room registry, credentials, candidate MemoryStore worlds and original request receipts. Startup validates persisted data and preserves corrupt files. Existing private/four-account data directories are rejected. Automatic settlement runs while the service is open; restart catches overdue marches. This does not implement hosted accounts, cross-machine identity or Steamworks.
+
+The lobby retains an uncertain signup request only in the current window's memory. It warns that closing/refreshing can lose recovery of a committed but unconfirmed new seat. Clients do not persist signup or login credentials. In-game noncredential command journals retain the existing per-authority/member replay semantics.

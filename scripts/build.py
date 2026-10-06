@@ -4,7 +4,7 @@ import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.3.1'
+VERSION = '0.5.0'
 GODOT_VERSION = '4.7.2'
 NODE_WINDOWS_SHA256 = '158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541'
 
@@ -21,8 +21,11 @@ def command(args, log):
         print(run.stdout[-8000:]); raise SystemExit('Godot build failed; see ' + str(log))
 
 def service(destination):
-    for name in ('bridge', 'vendor/legacy'):
+    for name in ('bridge', 'vendor/legacy', 'vendor/shared'):
         shutil.copytree(ROOT / name, destination / name, dirs_exist_ok=True)
+    (destination/'scripts').mkdir(exist_ok=True)
+    for name in ('start-pvp.mjs','join-pvp.mjs','start-rooms.mjs'):
+        shutil.copy2(ROOT/'scripts'/name,destination/'scripts'/name)
 
 def notices(destination):
     folder = destination / 'licenses'; folder.mkdir(exist_ok=True)
@@ -66,6 +69,25 @@ for package in [windows,web_package]:
 (web_package/'StartWeb.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\necho Open http://127.0.0.1:17338/ after the service is ready.\r\nruntime\\node.exe rule-service\\bridge\\server.mjs --port 17338 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\Web" --web-dir web\r\n',encoding='ascii')
 (web_package/'start-web.sh').write_text('#!/bin/sh\nset -eu\ncd "$(dirname "$0")"\nnode rule-service/bridge/server.mjs --port 17338 --data-dir "${XDG_DATA_HOME:-$HOME/.local/share}/three-kingdoms-godot-web" --web-dir web\n')
 (web_package/'start-web.sh').chmod(0o755)
+for package in [windows,web_package]:
+    if package == windows:
+        (package/'StartPvP.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\necho Keep this window open. Then run PlayPvP1.cmd through PlayPvP4.cmd.\r\nruntime\\node.exe rule-service\\bridge\\shared-server.mjs --port 17342 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\SharedPvP"\r\n',encoding='ascii')
+    else:
+        (package/'StartPvP.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\nruntime\\node.exe rule-service\\scripts\\start-pvp.mjs --port 17342 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\SharedPvPWeb" --web-dir web\r\n',encoding='ascii')
+        (package/'start-pvp.sh').write_text('#!/bin/sh\nset -eu\ncd "$(dirname "$0")"\nnode rule-service/scripts/start-pvp.mjs --port 17342 --data-dir "${XDG_DATA_HOME:-$HOME/.local/share}/three-kingdoms-godot-shared-pvp" --web-dir web\n')
+        (package/'start-pvp.sh').chmod(0o755)
+    for slot in range(1,5):
+        if package == windows:
+            (package/f'PlayPvP{slot}.cmd').write_text(f'@echo off\r\ncd /d "%~dp0"\r\nruntime\\node.exe rule-service\\scripts\\join-pvp.mjs --native --slot {slot} --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\SharedPvP"\r\n',encoding='ascii')
+    (package/'共享演练说明.txt').write_text('共享攻防演练（本机四账号）\n\n先启动 StartPvP.cmd，并保持服务窗口运行。Windows 包再分别打开 PlayPvP1.cmd～PlayPvP4.cmd；网页包从自动打开的本地邀请页面选择账号。\n账号 1、2 同盟，账号 3、4 同盟。兵力和战争状态为虚构演练预置，不是正式新手礼包。\n先从账号 4 向账号 3 派遣援军，再由账号 1 掠夺账号 3；抵达后服务器自动结算，返程后物资入库。可在共享战争和战报查看结果。\n四份共享进度各自保存，私人进度保持独立。共享世界不能导入私人存档。\n服务器只接受本机连接；跨电脑账号、公网服务、Steamworks 和百人负载尚未接入。\n',encoding='utf-8-sig')
+    if package == windows:
+        (package/'StartRooms.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\necho Keep this window open. Then run PlayRooms.cmd.\r\nruntime\\node.exe rule-service\\scripts\\start-rooms.mjs --native-only --port 17343 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\Rooms"\r\n',encoding='ascii')
+        (package/'PlayRooms.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\nThreeKingdoms.exe -- --lobby=http://127.0.0.1:17343\r\n',encoding='ascii')
+    else:
+        (package/'StartRooms.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\nruntime\\node.exe rule-service\\scripts\\start-rooms.mjs --port 17343 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\RoomsWeb" --web-dir web\r\n',encoding='ascii')
+        (package/'start-rooms.sh').write_text('#!/bin/sh\nset -eu\ncd "$(dirname "$0")"\nnode rule-service/scripts/start-rooms.mjs --port 17343 --data-dir "${XDG_DATA_HOME:-$HOME/.local/share}/three-kingdoms-godot-rooms" --web-dir web\n')
+        (package/'start-rooms.sh').chmod(0o755)
+    (package/'房间试玩说明.txt').write_text('三国城志 1–8人房间演练\n\nWindows 桌面包：先运行 StartRooms.cmd 并保持窗口开启，再运行 PlayRooms.cmd 打开联机大厅。\n网页包：运行 StartRooms.cmd / start-rooms.sh，在自动打开的大厅创建或加入房间。\n创建时选择人数上限1–8。邀请码只能申请空席位；自己的恢复密钥才可回到已有城池，请自行保存。未确认请求请保持窗口开启并使用原请求重试；关闭或刷新会丢失本次重试信息。\n每位成员使用同样的备战资源与兵力，加入时按席位交替分入青、赤两盟，后续以当前游戏联盟关系为准。抵达自动交战，返程后物资入库。\n房间、四账号演练与私人试玩各有独立存档，不要将已有进度目录用于另一种启动入口。\n当前房间服务仅接受本机连接，尚未部署外网账号、跨电脑服务或Steamworks。\n',encoding='utf-8-sig')
 manifest = {'version':VERSION,'godot':actual,'nodeWindows':'24.21.0','legacyCommit':'c7674df45b9595405e57907524e737e633b0ff63','runtimeHash':re.search(r'export const runtimeHash="([a-f0-9]+)"', (ROOT/'vendor/legacy/supabase/functions/_shared/game-runtime.mjs').read_text()).group(1),'artifacts':[]}
 for folder,label in [(windows,'Windows-x64'),(web_package,'Web-preview')]:
     archive = build/('ThreeKingdoms-Godot-v'+VERSION+'-'+label+'.zip')
