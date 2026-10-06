@@ -1,5 +1,85 @@
 # Godot 验证记录
 
+## 0.3.0 可配置电脑输入更新
+
+2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。以下为根代理已执行与观察的本轮证据；0.2.0 与 0.1.1 记录保持为历史版本。0.3.0 实现、本地检查、macOS 原生操作、实际 Web 桌面/390 窄屏与最终 Windows/Web 导出已完成；正式发布与 Windows 发布包启动 CI 待完成。
+
+### 自动检查
+
+| 范围 | 通过数量 | 本轮重点 |
+| --- | ---: | --- |
+| 真实 HTTP 桥接 | 22 | 重新验证原规则、事务费用、权威回执、持久化与隔离 |
+| 原生地图 | 24 | 重新验证相机边界、拖动/缩放与行军语义 |
+| 城池/战斗表现 | 31 | 重新验证建筑、军令与回合反馈 |
+| 客户端 | 71 | 重新验证布局、状态保持、命令顺序与重连 |
+| 原生城池事务 | 79 | 重新验证实际报价、回执刷新和桌面/窄屏管理表单 |
+| 可配置输入 | 255 | 绑定校验、保存与失败回滚、损坏配置、真实事件导航、键盘地图和焦点隔离 |
+| **总计** | **482** | 根代理独立运行确认全部通过 |
+
+Godot 源码解析通过，未出现 ERROR。输入检查注入生产客户端的真实输入事件，并使用可丢弃的独立用户目录与 transport probe；未读写玩家进度。覆盖重复及原生 UI 保留键拒绝、带修饰组合、重新读取绑定、保存失败保留旧映射、损坏配置完整回退、原生 `ui_*` 不变、同帧按下/释放、WASD 与方向键、反向键抵消、地图边界和缩放锚点、按钮焦点、LineEdit/TextEdit/SpinBox、弹窗、失焦及 390 像素设置布局。导航和设置操作未发送经济或玩法命令。
+
+CI 已加入 `tests/input_test.gd`，远端本轮 CI 结果尚未记录。自动检查确认事件路由与布局边界，不代替实际桌面/网页观察。
+
+### 实际 macOS 原生操作
+
+在非 headless Godot 窗口中真实操作：
+
+- 用 K 打开按键设置，将“查看城池”绑定为 2 时显示冲突并拒绝，原绑定保留。
+- 改为 F9 后提示已保存；正常关闭客户端并重新启动，F9 成功切换城池，确认客户端绑定跨启动恢复。随后通过界面恢复默认 1，切换城池成功。
+- 原方向键曾被 Godot GUI 焦点导航消费；调整为地图获得焦点时在 GUI 前路由后，Right 短按使镜头 32→34，小键盘加号使缩放 80→90，H 返回主城。其他控件仍保留原生焦点导航。
+
+最终恢复默认后用 K 打开设置，截图为 `docs/screenshots/pc-input-settings-native-final.jpg`。此轮只读页面与本机按键设置，不执行经济命令，不导入测试进度覆盖玩家存档。其他截图为 `pc-input-conflict-native.jpg`、`pc-input-settings-native.jpg`、`pc-input-map-native.jpg`。
+
+### 实际 Web 观察
+
+最终导出版本使用临时 17341 端口进行独立 Web 输入验证：
+
+- 存档 TextEdit 输入 `12345k` 时未触发页面或设置快捷键；Esc 关闭后立即按 2，无需额外点击就成功进入舆图。截图为 `docs/screenshots/pc-input-text-web.jpg` 和 `pc-input-focus-web.jpg`。修复弹窗关闭后的焦点恢复，避免已隐藏的存档编辑器继续拦截快捷键；新增检查覆盖同样的真实事件链路。
+- H 回城，按 `=` 使缩放 80→90%，按 D 六次使镜头 32→38，地图位置变化可见；截图为 `pc-input-map-web.jpg`。
+- 390×844 窄屏顶部隐藏按键按钮，仍可通过“事务→按键设置”进入。350 像素宽的弹窗完整容纳内容，滚动可查看 15 项及恢复默认/关闭按钮，并实际点击恢复默认；截图为 `pc-input-settings-390-web.jpg` 和 `pc-input-settings-bottom-390-web.jpg`。
+- 最终浏览器 warn/error 日志为空。
+
+窄屏使用实际浏览器视口尺寸验证，未进行真实手机多点触控。本轮未执行经济命令，也未用测试存档覆盖玩家进度。
+
+### 导出产物
+
+官方 Windows 与 Web 模板均导出成功，包内包含 Node Windows 24.21.0、规则服务、游戏资源与许可证。构建脚本仍在导入前生成 `build/.gdignore`。最终包清单：
+
+| 文件 | 字节数 | SHA256 |
+| --- | ---: | --- |
+| ThreeKingdoms-Godot-v0.3.0-Windows-x64.zip | 86865047 | `8bf0128405e096e4dbf2f66ae0208d23e4fa7d0cc99681102e2f0fda98798c98` |
+| ThreeKingdoms-Godot-v0.3.0-Web-preview.zip | 59024910 | `3546e8bdd267210a18d421ffd07e0e8762faafedc2e1565c56f7f3a553e41945` |
+
+`build/build-manifest.json` 与 `SHA256SUMS.txt` 同时生成，规则来源仍为 `c7674df45b9595405e57907524e737e633b0ff63`，canonical runtime hash 保持 `432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4`。本轮只修改独立 Godot 仓库；不更改 vendor/legacy、原仓库或原 GitHub Pages，不启用 watcher、hook 或图谱上传。
+
+### 发布与运行边界
+
+PENDING — 正式发布、源码/标签提交、资产 digest 校验与 Windows 发布包下载后运行 CI 将在本轮发布后记录。导出成功与 macOS 原生操作不能代替正式 Windows 导出包运行。
+
+本轮未测得性能 FPS 基线，未验证 Windows 人工长局、真实 iPhone 多点触控、手柄、Steam Deck、Steamworks、公网账号/共享世界或百人压力。按键设置的浏览器用户目录与原生用户目录分离，不提供跨设备云同步。
+
+### 本地图谱与复核
+
+独立代码复核通过，未发现阻塞缺陷。Graphify 沿用 `extract . --code-only --exclude '.claude/**' --exclude 'docs/engine-reference/**'` 和 `cluster-only . --no-label` 完成最终刷新，为 553 节点、1662 边、29 社区；没有外部语义后端、上传、watcher 或 hook。Graphify 0.9.76 不识别 `.gd`，IIFE 图谱覆盖仍不完整，Godot 输入实现以源码、真实 SceneTree 和运行证据为准。
+
+![0.3.0 原生按键冲突反馈](screenshots/pc-input-conflict-native.jpg)
+
+![0.3.0 原生按键设置](screenshots/pc-input-settings-native.jpg)
+
+![0.3.0 最终原生默认按键设置](screenshots/pc-input-settings-native-final.jpg)
+
+![0.3.0 原生地图键盘操作](screenshots/pc-input-map-native.jpg)
+
+![0.3.0 网页存档文字输入隔离](screenshots/pc-input-text-web.jpg)
+
+![0.3.0 关闭存档后键盘切换舆图](screenshots/pc-input-focus-web.jpg)
+
+![0.3.0 网页地图键盘平移与缩放](screenshots/pc-input-map-web.jpg)
+
+![0.3.0 390 像素窄屏按键设置](screenshots/pc-input-settings-390-web.jpg)
+
+![0.3.0 窄屏设置滚动至恢复默认与关闭按钮](screenshots/pc-input-settings-bottom-390-web.jpg)
+
 ## 0.2.0 城池经营更新
 
 2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。0.2.0 本地检查、实际网页经营验证与 macOS 原生面板观察已通过；Windows/Web 包已发布，正式 Windows 导出包 headless 启动 CI 通过。以下 0.1.1 的 CI 链接属于历史版本，本次运行证据单独记录。

@@ -10,6 +10,7 @@ const MIN_ZOOM: float = 0.17
 const MAX_ZOOM: float = 1.90
 const DRAG_THRESHOLD: float = 9.0
 const INERTIA_DECAY: float = 7.8
+const KEYBOARD_PIXELS_PER_SECOND: float = 480.0
 const GOLD: Color = Color("cfb579")
 const TEXT: Color = Color("eee4cd")
 const BORDER: Color = Color("444e48")
@@ -40,6 +41,7 @@ var _last_hover: Vector2 = Vector2(-1, -1)
 func _ready() -> void:
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	focus_mode = Control.FOCUS_CLICK
 	custom_minimum_size = Vector2(260, 220)
 	_font = ThemeDB.fallback_font
 	if ResourceLoader.exists("res://assets/fonts/UI.tres"):
@@ -72,6 +74,21 @@ func set_world(next_world: Dictionary) -> void:
 func focus_home() -> void:
 	var home: Dictionary = world.get("home", {"x": 32, "y": 32})
 	focus_tile(int(home.get("x", 32)), int(home.get("y", 32)))
+
+
+func keyboard_pan(direction: Vector2, delta: float) -> void:
+	if direction.is_zero_approx() or _pointer_down or not _touches.is_empty():
+		return
+	_velocity = Vector2.ZERO
+	var distance: Vector2 = direction.limit_length(1.0) * KEYBOARD_PIXELS_PER_SECOND * clampf(delta, 0.0, 0.1)
+	camera_center = clamp_camera(camera_center + distance / cell_pixels(), size, world_size(), cell_pixels())
+	queue_redraw()
+
+
+func keyboard_zoom(factor: float) -> void:
+	if factor <= 0.0 or _pointer_down or not _touches.is_empty():
+		return
+	_zoom_at(size * 0.5, zoom * factor)
 
 
 func focus_tile(x: int, y: int) -> void:
@@ -241,6 +258,8 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _begin_pointer(position: Vector2) -> void:
+	if is_inside_tree():
+		grab_focus()
 	_pointer_down = true
 	_pointer_start = position
 	_pointer_previous = position

@@ -5,6 +5,8 @@ const MapScript: Script = preload("res://src/world_map.gd")
 const CityScript: Script = preload("res://src/city_view.gd")
 const BattleScript: Script = preload("res://src/battle_view.gd")
 const ManagementScript: Script = preload("res://src/management_dialog.gd")
+const InputSettingsScript: Script = preload("res://src/input_settings.gd")
+const InputSettingsDialogScript: Script = preload("res://src/input_settings_dialog.gd")
 const FONT: Font = preload("res://assets/fonts/UI.tres")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 
@@ -40,9 +42,18 @@ var _world: Dictionary = {}
 var _clock: Timer
 var _pending_battle: bool = false
 var _management: KingdomManagementDialog
+var input_settings: KingdomInputSettings
+var _input_settings_dialog: KingdomInputSettingsDialog
+var _input_settings_button: Button
+var _shortcut_hint: Label
+var _nav_buttons: Dictionary = {}
+var _map_home_button: Button
+var _input_window_active: bool = true
+var _pan_key_active: bool = false
 
 func _ready() -> void:
 	_smoke = OS.get_cmdline_user_args().has("--smoke")
+	_initialize_inputs()
 	_sync_web_scale()
 	theme = _make_theme()
 	_build_shell()
@@ -74,6 +85,159 @@ func _ready() -> void:
 			if not (_smoke_snapshot and _smoke_world):
 				push_error("GODOT_SMOKE_FAILED: no canonical state/world")
 				get_tree().quit(1))
+
+func _initialize_inputs() -> void:
+	if input_settings == null:
+		input_settings = InputSettingsScript.new() as KingdomInputSettings
+	input_settings.initialize()
+	if not input_settings.bindings_changed.is_connected(_update_shortcut_help):
+		input_settings.bindings_changed.connect(_update_shortcut_help)
+	if not get_window().focus_entered.is_connected(_input_focus_entered):
+		get_window().focus_entered.connect(_input_focus_entered)
+		get_window().focus_exited.connect(_input_focus_exited)
+
+func _input_focus_entered() -> void:
+	_input_window_active = true
+
+func _input_focus_exited() -> void:
+	_input_window_active = false
+	_stop_keyboard_pan()
+
+func _stop_keyboard_pan() -> void:
+	_pan_key_active = false
+	if input_settings != null:
+		for action: String in ["tk_map_left", "tk_map_right", "tk_map_up", "tk_map_down"]:
+			Input.action_release(action)
+
+func _visible_popup(node: Node) -> bool:
+	for child: Node in node.get_children(true):
+		if child is Window and child.visible:
+			return true
+		if _visible_popup(child):
+			return true
+	return false
+
+func _shortcut_blocked() -> bool:
+	if not _input_window_active or _visible_popup(self):
+		return true
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	return is_instance_valid(focus) and focus.is_visible_in_tree() and (focus is LineEdit or focus is TextEdit)
+
+func _process(delta: float) -> void:
+	if not _pan_key_active:
+		return
+	if input_settings == null or _page != "world" or not is_instance_valid(_map) or _shortcut_blocked():
+		_stop_keyboard_pan()
+		return
+	var direction: Vector2 = input_settings.movement_vector()
+	if direction.is_zero_approx():
+		var held: bool = false
+		for action: String in ["tk_map_left", "tk_map_right", "tk_map_up", "tk_map_down"]:
+			held = held or Input.is_action_pressed(action, true)
+		_pan_key_active = held
+		return
+	_map.keyboard_pan(direction, delta)
+
+func _input(event: InputEvent) -> void:
+	# Map arrows must be consumed before Control's default spatial focus moves
+	# away from the map. Other focused controls keep their native navigation.
+	if input_settings == null or _page != "world" or not is_instance_valid(_map) or _shortcut_blocked():
+		return
+	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	if focus != null and focus != _map:
+		return
+	var action: String = input_settings.action_for_event(event)
+	if action in ["tk_map_left", "tk_map_right", "tk_map_up", "tk_map_down", "tk_map_zoom_in", "tk_map_zoom_out"]:
+		_unhandled_key_input(event)
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not event is InputEventKey or not event.pressed or event.echo or input_settings == null:
+		return
+	if _shortcut_blocked():
+		_stop_keyboard_pan()
+		return
+	var action: String = input_settings.action_for_event(event)
+	if action.is_empty():
+		return
+	if action.begins_with("tk_page_"):
+		_show_page(action.trim_prefix("tk_page_"))
+		if is_instance_valid(_map):
+			_map.grab_focus()
+	elif action == "tk_tasks":
+		_tasks_dialog()
+	elif action == "tk_save":
+		_save_dialog()
+	elif action == "tk_settings":
+		_show_input_settings()
+	elif action == "tk_map_home":
+		if _page != "world":
+			_show_page("world")
+		_map.focus_home()
+		_map.grab_focus()
+	elif action.begins_with("tk_map_") and _page == "world" and is_instance_valid(_map):
+		if action == "tk_map_zoom_in":
+			_map.keyboard_zoom(1.12)
+		elif action == "tk_map_zoom_out":
+			_map.keyboard_zoom(1.0 / 1.12)
+		else:
+			_pan_key_active = true
+			var direction: Vector2 = input_settings.movement_vector()
+			var any_held: bool = false
+			for movement: String in ["tk_map_left", "tk_map_right", "tk_map_up", "tk_map_down"]:
+				any_held = any_held or Input.is_action_pressed(movement, true)
+			if direction.is_zero_approx() and not any_held:
+				direction = {"tk_map_left": Vector2.LEFT, "tk_map_right": Vector2.RIGHT, "tk_map_up": Vector2.UP, "tk_map_down": Vector2.DOWN}[action]
+			_map.keyboard_pan(direction, 1.0 / 60.0)
+	else:
+		return
+	get_viewport().set_input_as_handled()
+
+func _show_input_settings() -> void:
+	_stop_keyboard_pan()
+	if input_settings == null:
+		_initialize_inputs()
+	if is_instance_valid(_dialog):
+		_dialog.hide()
+	if is_instance_valid(_management):
+		_management.hide()
+	if not is_instance_valid(_input_settings_dialog):
+		_input_settings_dialog = InputSettingsDialogScript.new() as KingdomInputSettingsDialog
+		add_child(_input_settings_dialog)
+		_input_settings_dialog.setup(input_settings)
+		_input_settings_dialog.visibility_changed.connect(_on_popup_visibility.bind(_input_settings_dialog))
+	_input_settings_dialog.show_settings()
+
+func _on_popup_visibility(popup: Window) -> void:
+	if not popup.visible:
+		call_deferred("_restore_keyboard_focus")
+
+func _restore_keyboard_focus() -> void:
+	if not is_inside_tree() or _visible_popup(self):
+		return
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	if is_instance_valid(focus) and not focus.is_visible_in_tree():
+		focus.release_focus()
+	# The web exporter uses a hidden DOM text input for IME. Return browser
+	# keyboard focus to the canvas after an editor window closes.
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("document.getElementById('canvas')?.focus();", true)
+
+func _update_shortcut_help() -> void:
+	if input_settings == null:
+		return
+	for page: String in _nav_buttons:
+		_nav_buttons[page].tooltip_text = "切换页面：" + input_settings.binding_text("tk_page_" + page)
+	if is_instance_valid(_input_settings_button):
+		_input_settings_button.tooltip_text = "按键设置：" + input_settings.binding_text("tk_settings")
+	if is_instance_valid(_map_home_button):
+		_map_home_button.tooltip_text = "回城定位：" + input_settings.binding_text("tk_map_home")
+	if is_instance_valid(_shortcut_hint):
+		var text: String = "按键设置 %s · Tab 切换控件 · Enter 操作所选按钮 · Esc 关闭弹窗" % input_settings.binding_text("tk_settings")
+		if _page == "world":
+			text = "地图 %s / %s / %s / %s · 缩放 %s / %s · 回城 %s\n" % [input_settings.binding_text("tk_map_up"), input_settings.binding_text("tk_map_left"), input_settings.binding_text("tk_map_down"), input_settings.binding_text("tk_map_right"), input_settings.binding_text("tk_map_zoom_in"), input_settings.binding_text("tk_map_zoom_out"), input_settings.binding_text("tk_map_home")] + text
+		_shortcut_hint.text = text
 
 func _make_theme() -> Theme:
 	var result: Theme = Theme.new()
@@ -129,12 +293,15 @@ func _build_shell() -> void:
 	top.add_child(_button("事务", _tasks_dialog))
 	top.add_child(_button("存档", _save_dialog))
 	top.add_child(_button("连接", _connection_dialog))
+	_input_settings_button = _button("按键", _show_input_settings)
+	top.add_child(_input_settings_button)
 	_nav = HBoxContainer.new()
 	root.add_child(_nav)
 	for entry: Array in [["city", "城池"], ["world", "舆图"], ["army", "军队"], ["generals", "将领"], ["reports", "战报"]]:
 		var button: Button = _button(str(entry[1]), _show_page.bind(str(entry[0])))
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_nav.add_child(button)
+		_nav_buttons[str(entry[0])] = button
 	var resources_row: GridContainer = GridContainer.new()
 	resources_row.columns = 5
 	resources_row.add_theme_constant_override("h_separation", 8)
@@ -197,6 +364,9 @@ func _build_shell() -> void:
 	_detail = VBoxContainer.new()
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_detail)
+	_shortcut_hint = _label("", 13, Color("a4b5a3"))
+	_shortcut_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	root.add_child(_shortcut_hint)
 	_toast = _label("拖动舆图 · 滚轮缩放 · 点选目标", 14, Color("b9bfab"))
 	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(_toast)
@@ -212,6 +382,10 @@ func _adapt_layout() -> void:
 		label.add_theme_font_size_override("font_size", 12 if size.x < 760.0 else 16)
 	if is_instance_valid(_management) and _management.visible:
 		_management._fit_window()
+	_input_settings_button.visible = size.x >= 760.0
+	_shortcut_hint.visible = size.x >= 760.0
+	if is_instance_valid(_input_settings_dialog) and _input_settings_dialog.visible:
+		_input_settings_dialog._fit_window()
 
 func _sync_web_scale() -> void:
 	if OS.has_feature("web"):
@@ -240,18 +414,21 @@ func _clear(container: Node) -> void:
 		child.queue_free()
 
 func _show_page(page: String) -> void:
+	_stop_keyboard_pan()
 	_page = page
 	_last_structure = ""
 	_clear(_center)
 	_map = null
 	_city = null
 	_battle = null
+	_map_home_button = null
 	match page:
 		"world":
 			var toolbar: HBoxContainer = HBoxContainer.new()
 			_center.add_child(toolbar)
 			toolbar.add_child(_label("天下舆图", 22))
-			toolbar.add_child(_button("回城定位", func() -> void: _map.focus_home()))
+			_map_home_button = _button("回城定位", func() -> void: _map.focus_home())
+			toolbar.add_child(_map_home_button)
 			toolbar.add_child(_button("行军", _marches_dialog))
 			var map_panel: PanelContainer = PanelContainer.new()
 			map_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -307,6 +484,7 @@ func _show_page(page: String) -> void:
 			scroll.add_child(content)
 	_render_detail()
 	_update_page_content()
+	_update_shortcut_help()
 
 func _receive_snapshot(payload: Dictionary) -> void:
 	_view = payload.get("view", {})
@@ -485,6 +663,9 @@ func _update_page_content() -> void:
 			content.add_child(_button("查看战报", _report_dialog.bind(report)))
 
 func _open_dialog(title: String, width: int = 600) -> VBoxContainer:
+	_stop_keyboard_pan()
+	if is_instance_valid(_input_settings_dialog):
+		_input_settings_dialog.hide()
 	if is_instance_valid(_management):
 		_management.hide()
 	if is_instance_valid(_dialog):
@@ -494,6 +675,7 @@ func _open_dialog(title: String, width: int = 600) -> VBoxContainer:
 	_dialog.dialog_text = ""
 	_dialog.min_size = Vector2i(mini(width, maxi(300, int(size.x) - 40)), mini(550, maxi(240, int(size.y) - 60)))
 	add_child(_dialog)
+	_dialog.visibility_changed.connect(_on_popup_visibility.bind(_dialog))
 	var scroll: ScrollContainer = ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(float(_dialog.min_size.x - 40), 260.0)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -683,17 +865,22 @@ func _tasks_dialog() -> void:
 	content.add_child(_button("市场交易", _show_management.bind("market")))
 	content.add_child(_button("城守与税率", _show_management.bind("governance")))
 	content.add_child(_button("客栈招募", _show_management.bind("inn")))
+	content.add_child(_button("按键设置", _show_input_settings))
 	content.add_child(_button("城外资源", _plots_dialog))
 	content.add_child(_button("研究", _research_dialog))
 	content.add_child(_button("宝物与物资", _inventory_dialog))
 
 func _show_management(section: String) -> void:
+	_stop_keyboard_pan()
+	if is_instance_valid(_input_settings_dialog):
+		_input_settings_dialog.hide()
 	if is_instance_valid(_dialog):
 		_dialog.hide()
 	if not is_instance_valid(_management):
 		_management = ManagementScript.new() as KingdomManagementDialog
 		add_child(_management)
 		_management.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_management.visibility_changed.connect(_on_popup_visibility.bind(_management))
 	_management.set_command_state(api.connected, api._has_mutation())
 	_management.show_section(section, _view)
 
