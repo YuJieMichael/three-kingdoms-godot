@@ -94,7 +94,7 @@ func _run() -> void:
 	Engine.max_fps = 60
 	OS.low_processor_usage_mode = false
 	root.size = VIEWPORT_SIZE
-	root.title = "三国城志 · 地图性能基准（不读写玩家存档）"
+	root.title = "山河策 · 地图性能基准（不读写玩家存档）"
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED)
 	await process_frame
 	await RenderingServer.frame_post_draw

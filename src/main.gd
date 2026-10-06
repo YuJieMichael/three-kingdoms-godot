@@ -66,6 +66,7 @@ var _menu: KingdomPresentationMenu
 var _guide: KingdomPresentationDialogue
 
 func _ready() -> void:
+	get_window().title = "山河策"
 	_smoke = OS.get_cmdline_user_args().has("--smoke")
 	_initialize_inputs()
 	_sync_web_scale()
@@ -337,7 +338,7 @@ func _build_shell() -> void:
 	margin.add_child(root)
 	var top: HBoxContainer = HBoxContainer.new()
 	root.add_child(top)
-	var title: Label = _label("三国城志", 28)
+	var title: Label = _label("山河策", 28)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(title)
 	_pvp_button = _button("玩家战争", _show_pvp)
@@ -1292,7 +1293,7 @@ func _save_file() -> void:
 	var picker: FileDialog = FileDialog.new()
 	picker.file_mode = FileDialog.FILE_MODE_SAVE_FILE
 	picker.access = FileDialog.ACCESS_FILESYSTEM
-	picker.filters = PackedStringArray(["*.json ; 三国存档"])
+	picker.filters = PackedStringArray(["*.json ; 山河策存档"])
 	picker.current_file = "three-kingdoms-save.json"
 	picker.size = Vector2i(750, 500)
 	add_child(picker)
@@ -1311,7 +1312,7 @@ func _load_file() -> void:
 	var picker: FileDialog = FileDialog.new()
 	picker.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	picker.access = FileDialog.ACCESS_FILESYSTEM
-	picker.filters = PackedStringArray(["*.json ; 三国存档"])
+	picker.filters = PackedStringArray(["*.json ; 山河策存档"])
 	picker.size = Vector2i(750, 500)
 	add_child(picker)
 	picker.file_selected.connect(func(path: String) -> void:

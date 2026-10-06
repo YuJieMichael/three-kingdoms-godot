@@ -1,4 +1,4 @@
-# 三国城志 Godot 客户端
+# 山河策 Godot 客户端
 
 用户已选择 Godot＋GDScript，目标为 Steam 与网页。原仓库 `../three-kingdoms` 与现有 GitHub Pages 必须保持不变。只在本仓库开发。
 

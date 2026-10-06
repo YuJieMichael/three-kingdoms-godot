@@ -11,7 +11,7 @@ var _tabs: TabContainer
 var _feedback: Label
 
 func _ready() -> void:
-	title = "三国城志 · 菜单"
+	title = "山河策 · 菜单"
 	ok_button_text = "返回游戏"
 	min_size = Vector2i(280, 300)
 	_tabs = TabsScript.new() as TabContainer

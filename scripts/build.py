@@ -68,7 +68,7 @@ for package in [windows,web_package]:
         for name in ['node.exe','LICENSE']:
             match = next(key for key in archive.namelist() if key.endswith('/'+name))
             (runtime/name).write_bytes(archive.read(match))
-    (package/'试玩说明.txt').write_text(f'三国城志 Godot {VERSION}\n\nWindows 客户端：双击 ThreeKingdoms.exe，规则服务与进度会自动启动。请完整解压，不要只复制 exe。\n网页试玩包：双击 StartWeb.cmd，看到服务就绪后在浏览器打开 http://127.0.0.1:17338/ 。\n已有原网页版存档可在“存档”导入 JSON。\n电脑默认快捷键：1–5 切换页面，H 回城，T 打开事务，O 打开存档，K 打开按键设置。地图支持键盘移动与缩放，按键可在设置中重新绑定并保存在本机。Tab、Enter、Esc 保留原生界面的焦点、确认和关闭操作。\n市场交易、城守与税率管理、客栈招募的费用和收益仍由原规则结算。\n新版是独立迁移试玩；原网页和原 GitHub 保持不变。Steamworks 和公网多人服务尚未接入。\n',encoding='utf-8-sig')
+    (package/'试玩说明.txt').write_text(f'山河策 Godot {VERSION}\n\nWindows 客户端：双击 ThreeKingdoms.exe，规则服务与进度会自动启动。请完整解压，不要只复制 exe。\n网页试玩包：双击 StartWeb.cmd，看到服务就绪后在浏览器打开 http://127.0.0.1:17338/ 。\n已有原网页版存档可在“存档”导入 JSON。\n电脑默认快捷键：1–5 切换页面，H 回城，T 打开事务，O 打开存档，K 打开按键设置。地图支持键盘移动与缩放，按键可在设置中重新绑定并保存在本机。Tab、Enter、Esc 保留原生界面的焦点、确认和关闭操作。\n市场交易、城守与税率管理、客栈招募的费用和收益仍由原规则结算。\n新版是独立迁移试玩；原网页和原 GitHub 保持不变。Steamworks 和公网多人服务尚未接入。\n',encoding='utf-8-sig')
 (web_package/'StartWeb.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\necho Open http://127.0.0.1:17338/ after the service is ready.\r\nruntime\\node.exe rule-service\\bridge\\server.mjs --port 17338 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\Web" --web-dir web\r\n',encoding='ascii')
 (web_package/'start-web.sh').write_text('#!/bin/sh\nset -eu\ncd "$(dirname "$0")"\nnode rule-service/bridge/server.mjs --port 17338 --data-dir "${XDG_DATA_HOME:-$HOME/.local/share}/three-kingdoms-godot-web" --web-dir web\n')
 (web_package/'start-web.sh').chmod(0o755)
@@ -90,7 +90,7 @@ for package in [windows,web_package]:
         (package/'StartRooms.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\nruntime\\node.exe rule-service\\scripts\\start-rooms.mjs --port 17343 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\RoomsWeb" --web-dir web\r\n',encoding='ascii')
         (package/'start-rooms.sh').write_text('#!/bin/sh\nset -eu\ncd "$(dirname "$0")"\nnode rule-service/scripts/start-rooms.mjs --port 17343 --data-dir "${XDG_DATA_HOME:-$HOME/.local/share}/three-kingdoms-godot-rooms" --web-dir web\n')
         (package/'start-rooms.sh').chmod(0o755)
-    (package/'房间试玩说明.txt').write_text('三国城志 1–8人房间演练\n\nWindows 桌面包：先运行 StartRooms.cmd 并保持窗口开启，再运行 PlayRooms.cmd 打开联机大厅。\n网页包：运行 StartRooms.cmd / start-rooms.sh，在自动打开的大厅创建或加入房间。\n创建时选择人数上限1–8。邀请码只能申请空席位；自己的恢复密钥才可回到已有城池，请自行保存。未确认请求请保持窗口开启并使用原请求重试；关闭或刷新会丢失本次重试信息。\n每位成员使用同样的备战资源与兵力，加入时按席位交替分入青、赤两盟，后续以当前游戏联盟关系为准。抵达自动交战，返程后物资入库。\n房间、四账号演练与私人试玩各有独立存档，不要将已有进度目录用于另一种启动入口。\n当前房间服务仅接受本机连接，尚未部署外网账号、跨电脑服务或Steamworks。\n',encoding='utf-8-sig')
+    (package/'房间试玩说明.txt').write_text('山河策 1–8人房间演练\n\nWindows 桌面包：先运行 StartRooms.cmd 并保持窗口开启，再运行 PlayRooms.cmd 打开联机大厅。\n网页包：运行 StartRooms.cmd / start-rooms.sh，在自动打开的大厅创建或加入房间。\n创建时选择人数上限1–8。邀请码只能申请空席位；自己的恢复密钥才可回到已有城池，请自行保存。未确认请求请保持窗口开启并使用原请求重试；关闭或刷新会丢失本次重试信息。\n每位成员使用同样的备战资源与兵力，加入时按席位交替分入青、赤两盟，后续以当前游戏联盟关系为准。抵达自动交战，返程后物资入库。\n房间、四账号演练与私人试玩各有独立存档，不要将已有进度目录用于另一种启动入口。\n当前房间服务仅接受本机连接，尚未部署外网账号、跨电脑服务或Steamworks。\n',encoding='utf-8-sig')
 manifest = {'version':VERSION,'godot':actual,'nodeWindows':'24.21.0','legacyCommit':'c7674df45b9595405e57907524e737e633b0ff63','runtimeHash':re.search(r'export const runtimeHash="([a-f0-9]+)"', (ROOT/'vendor/legacy/supabase/functions/_shared/game-runtime.mjs').read_text()).group(1),'artifacts':[]}
 for folder,label in [(windows,'Windows-x64'),(web_package,'Web-preview')]:
     archive = build/('ThreeKingdoms-Godot-v'+VERSION+'-'+label+'.zip')

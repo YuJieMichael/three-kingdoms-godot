@@ -31,10 +31,10 @@ Supabase文档与2026-10-06 changelog已读取；不使用已弃用的框架adap
 
 ## 状态
 
-组织选择和Node托管目标通过异步问题等待回复；在此期间继续完成全部可独立进行的开发。
+组织已按用户后续选择创建为「山河策工作室」（Free，`mwctnnafccwgcezatckw`）；当前网页显示0个项目，现有MCP连接器无此组织访问权限。Node托管目标仍待用户提供；在此期间继续完成全部可独立进行的开发。
 
 ## 开发交付与未完成项
 
 0.5检查点 `dee68fa` 与远端音效/菜单/对话合并为 `e5f5c6c`，已推送独立仓库。0.6账号、Postgres与部署代码完成，最终本地HTTP/数据库97项、SceneTree1284项、实际HTML脚本隔离fixture19项，共1400项通过。独立复核未发现阻断开发预览的问题。实际Web已观察登录、建房、退出后恢复原席位、跨标签变更拒绝以及最终Godot Web城池。完整证据见 `production/polish/online-foundation-report-2026-10-06.md`。
 
-真实Supabase游戏项目、域名和持续在线Node主机尚未创建或部署。等待组织选择后查询费用并确认、等待托管目标和管理员账号配置；未修改其他业务项目。该故事继续In Progress，不将本地fake Auth和真实本机PG测试等同公网完成。Docker/systemd部署、Windows EXE实际运行和跨电脑验收未在本轮完成。
+真实Supabase游戏项目、域名和持续在线Node主机尚未创建或部署。新组织已创建，下一步需授权连接器、查询项目费用并确认，再落实托管目标和管理员账号配置；未修改其他业务项目。该故事继续In Progress，不将本地fake Auth和真实本机PG测试等同公网完成。Docker/systemd部署、Windows EXE实际运行和跨电脑验收未在本轮完成。
