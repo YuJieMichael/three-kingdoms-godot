@@ -37,7 +37,7 @@ jobs:
         run: |
           & $env:GODOT_BIN --headless --path . --editor --import 2>&1 | Tee-Object import.log
           if ($LASTEXITCODE -ne 0 -or (Select-String -Path import.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw 'Import failed' }
-          foreach ($test in @('tests/world_map_test.gd','tests/battle_view_test.gd','tests/client_test.gd','tests/management_test.gd','tests/input_test.gd','tests/map_render_test.gd')) {
+          foreach ($test in @('tests/world_map_test.gd','tests/battle_view_test.gd','tests/client_test.gd','tests/management_test.gd','tests/input_test.gd','tests/map_render_test.gd','tests/presentation_test.gd')) {
             & $env:GODOT_BIN --headless --path . --script $test 2>&1 | Tee-Object test.log
             if ($LASTEXITCODE -ne 0 -or (Select-String -Path test.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw "Failed $test" }
           }

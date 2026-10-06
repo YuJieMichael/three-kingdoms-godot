@@ -1,17 +1,17 @@
 # 当前状态
 
 <!-- STATUS -->
-Godot＋GDScript 独立客户端 0.3.1 大地图测量与路线裁剪已完成实现、697 项本地与 Windows CI 检查、非 headless 原生 before/first/final 捕获与最终原生/Web 桌面/390 观察；故事 004 为 DONE，发布、四项资产大小／digest 校验及三项 CI 全部完成，正式 Windows ZIP 校验后实际启动通过。最终总览 CPU draw p95 72.376→37.163 ms，正常地图 17.543→16.626 ms；正常帧间隔 p95 略升、draw calls 未下降、世界快照准备更贵，first 回退与额外成本完整保留。四项预算未设定、默认 enforce warn，GPU/Windows/Web 性能未测。最终 Windows/Web 导出已成功；原仓库干净 HEAD c7674df、vendor/bridge 无差异、原 Pages 未部署，Graphify 本地 573/1712/30，未启用 watcher/hook/上传。
+故事 005 声音、菜单与剧情工具已实现，固定提交引入 Sound Manager、Dialogue Manager 及 Maaack 独立分页组件；菜单复用原设置，新增音量和经营/出征引导。40 项新检查及 675 项原 Godot 检查通过，Windows CI 22 项规则＋715 项 Godot 共 737 项全绿。Windows/Web 导出、PCK smoke 和实际 Web 桌面/390 验证通过，非 headless 原生截图确认布局。草稿 PR #1 待审阅合并，未发布。导出 EXE 启动被自动审批策略拦截，真实手机音频解锁、听感与长局未验证。战斗、规则、地图数据与存档格式未修改。
 <!-- /STATUS -->
 
 <!-- CHECKPOINT -->
 **Updated:** 2026-10-06
-**Branch:** `main`
-**Current task:** /story-done — production/epics/godot-client/story-004-map-performance.md（DONE，八项验收全部完成）
-**Next step:** 本轮待办为 0；后续平台性能采样、持续长局或其余界面迁移另行选择。
+**Branch:** `feat/presentation-tools`
+**Current task:** production/epics/godot-client/story-005-presentation-tools.md（IMPLEMENTED / 草稿 PR #1 待审阅）
+**Next step:** 审阅 https://github.com/YuJieMichael/three-kingdoms-godot/pull/1；正式配乐、人工听感和长局另行验证。
 **Blocked on:** 无。
 **Files in progress:** 无；实现、基准、报告及结案文档已冻结。
-**Run result:** COMPLETE — before/first/final 均 valid，两份 comparison matched，五份 JSON 归档 production/polish/data。根代理最终独立确认 482＋215＝697 本地通过；源码 review 无阻塞，Godot 导入无 ERROR。原生拖动 32→40,36、41% 总览/H/KP_Add/任务侧栏、最终 Web 桌面与390拖动/缩放/回城已实际观察，warn/error=[]；截图 docs/screenshots/map-performance-*.jpg。Windows/Web 已发布，GitHub 四项资产大小／digest 与本地一致，源码推送、标签与正式 Windows 包启动 CI 均 success；正式 ZIP 下载并校验后实际启动收到 GODOT_SMOKE_OK canonical_revision=0 tiles=4096。
+**Run result:** Windows CI 37488545553 在 1dbce92 success，737 项检查全绿；当前实现与证据见 docs/PRESENTATION-TOOLS.zh.md。此前故事 004 的地图测量与发布记录见其独立故事和报告。
 **Open questions:** 无需更改引擎或规则；CPU 绘制／帧间隔／GPU／RSS 的测量边界和未设预算明确记录，动态 Canvas 分层保留后续范围。
 <!-- /CHECKPOINT -->
 
