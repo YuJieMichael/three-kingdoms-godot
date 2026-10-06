@@ -1,6 +1,6 @@
 # 大地图性能测量与路线裁剪
 
-Status: IN PROGRESS
+Status: DONE
 Last Updated: 2026-10-06
 Story Type: Logic / Integration / Visual
 GDD: design/game-brief.md
@@ -18,8 +18,8 @@ Dependencies: production/epics/godot-client/story-003-pc-input.md — DONE
 - [x] 超过旧 9000 像素上限的行军路线仍可显示穿过视口的部分，两端屏外的穿屏路线不会被误删，虚线相位随摄像机移动保持一致。
 - [x] 视口外的虚线计算随可见线段长度增长，而非沿整条长路线迭代；驻扎、采集、返回和到达时间沿用既有语义。
 - [x] 若测量支持减少无效行军重绘，视口中可见部队仍持续移动并在抵达后更新；过滤器、拖动、缩放、键盘和任务据点保持原行为。
-- [ ] 原 482 项检查通过，新增几何与真实绘制回归检查通过并进入 Windows CI；实际原生及最终 Web 观察保留截图。
-- [ ] 独立 Godot 仓库生成并发布 0.3.1 Windows/Web 包，核对资产摘要；正式 Windows ZIP 下载、校验及实际启动验证通过。
+- [x] 原 482 项检查通过，新增几何与真实绘制回归检查通过并进入 Windows CI；实际原生及最终 Web 观察保留截图。
+- [x] 独立 Godot 仓库生成并发布 0.3.1 Windows/Web 包，核对资产摘要；正式 Windows ZIP 下载、校验及实际启动验证通过。
 - [x] 性能报告、原始测量、复现命令及剩余问题保存到仓库；原仓库和原 Pages 保持不变，无 watcher、hook 或图谱上传。
 
 ## 边界
@@ -38,6 +38,6 @@ Dependencies: production/epics/godot-client/story-003-pc-input.md — DONE
 
 最终原生实际观察拖动镜头 32,32→40,36、缩小至 41% 显示中原分区、H 回城及 KP_Add 恢复 80%、河畔荒田侧栏 29,35 与配兵出征按钮；保留玩家 userdata，只查看未出征。最终 Web 在独立 17341 QA 服务完成桌面拖动／远近缩放／回城及同任务侧栏，390×844 完成拖动、缩放和回城；warn/error 日志为空，截图为 `docs/screenshots/map-performance-*.jpg`。临时 QA tab 已关闭、viewport reset；用户 17339 最终资产已重新加载、原 `.local/play` 保留，原生客户端继续运行。
 
-Windows/Web 0.3.1 最终导出成功；本地产物摘要见 `docs/QA.zh.md`。GitHub 发布资产 digest、正式 Windows ZIP 下载／校验／实际启动及本轮 CI 尚待完成，不以旧 0.3.0 结果替代。
+Windows/Web 0.3.1 最终导出已发布至 [v0.3.1](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.1)，标签源码 `ce131a8b62941cc537d2bc7398f247ad9b796d17`；四项 GitHub 资产大小／digest 均与本地一致，详见 `docs/QA.zh.md` 与 `.local/release031-verified.json`。[源码推送 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479201825)、[标签 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479270820) 与 [正式 Windows ZIP 下载／校验／实际启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934) 均 success，head 均为上述标签源码。Windows 日志确认 697 项通过，包括 `MAP_RENDER_TEST_CHECKS=215 failures=0`；源码 smoke 和正式导出包均收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。正式 ZIP 下载并核对 SHA256 后直接执行 `ThreeKingdoms.exe --headless -- --smoke`，不是以旧 0.3.0 证据替代，亦不代替 Windows 人工长局或性能验证。
 
-根代理最终核对原仓库 clean／HEAD c7674df、vendor/bridge 无差异，原 Pages 未部署。Graphify 同原 code-only 排除 flags 及 cluster-only/no-label 本地刷新为 573 节点、1712 边、30 社区；.gd 仍未覆盖，未启用外部语义后端、watcher、hook 或上传。剩余验收仅为本轮 Windows CI／正式发布包运行及资产 digest，完成后再结案。
+根代理最终核对原仓库 clean／HEAD c7674df、vendor/bridge 无差异，原 Pages 未部署。Graphify 同原 code-only 排除 flags 及 cluster-only/no-label 本地刷新为 573 节点、1712 边、30 社区；.gd 仍未覆盖，未启用外部语义后端、watcher、hook 或上传。八项验收全部完成，当前待办为 0；故事 004 按 story-done 结案。

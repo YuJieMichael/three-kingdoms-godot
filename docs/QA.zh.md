@@ -1,8 +1,8 @@
 # Godot 验证记录
 
-## 0.3.1 大地图测量与路线裁剪（发布验证进行中）
+## 0.3.1 大地图测量与路线裁剪
 
-2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。697 项本地检查、原生性能比较及最终原生／Web 观察已完成；故事 004 仍为 IN PROGRESS，等待发布资产校验与正式 Windows 包运行。本节记录当前版本；以下 0.3.0、0.2.0 与更早结果均为历史证据。
+2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。697 项本地与 Windows CI 检查、原生性能比较、最终原生／Web 观察、发布资产校验与正式 Windows 包运行验证均已完成，故事 004 为 DONE。本节记录当前版本；以下 0.3.0、0.2.0 与更早结果均为历史证据。
 
 ### 实现与自动检查
 
@@ -14,7 +14,7 @@
 |---|---:|---|
 | 桥接、地图、城池/战斗、客户端、事务与输入 | 482 | 根代理最终重新执行确认 |
 | 新增几何、真实绘制、到达边沿与缓存 | 215 | 根代理独立复跑 `MAP_RENDER_TEST_CHECKS=215 failures=0`，无 ERROR |
-| 合计 | 697 | 本地全部通过；本轮 Windows CI 尚待完成 |
+| 合计 | 697 | 本地与 Windows CI 全部通过；源码推送、标签与正式包验证三项 CI 均 success |
 
 新增检查使用隔离 DTO 与实际 SceneTree draw，覆盖长线几何、相位、可见候选量、连续动画、筛选、驻扎／采集、现有标签 margin、首次扫描前抵达、卡顿跨过到达、单次完成刷新、稀疏索引阈值／顺序／替换和缓存有界／坐标／缩放等价。根代理日志为 `.local/map-031-final-render.log`。独立源码复核无阻塞发现；源码导入无 ERROR。它们不连接规则服务或读写玩家存档，数学与 headless 回归不能代替性能捕获。
 
@@ -42,16 +42,18 @@ CPU draw 是插桩命令准备，分层时间属于其总量；帧间隔包含 V
 
 ![0.3.1 最终网页窄屏地图](screenshots/map-performance-390-web.jpg)
 
-### 导出、范围与待发布验证
+### 发布资产与 Windows 实际启动
 
-Windows/Web 最终导出成功；本地四项资产摘要如下。GitHub digest、发布源码标签与正式 Windows ZIP 下载／校验／实际启动 CI 待完成，不以旧 0.3.0 结果替代。
+Windows/Web 最终导出成功并发布至 [v0.3.1](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.1)，标签源码为 `ce131a8b62941cc537d2bc7398f247ad9b796d17`。根代理通过 GitHub API 核对下表四项资产的字节数及 digest 均与本地一致，记录为 `.local/release031-verified.json`。
 
-| 文件 | 字节数 | 本地 SHA256 |
+| 文件 | 字节数 | 本地与 GitHub 一致的 SHA256 |
 |---|---:|---|
 | ThreeKingdoms-Godot-v0.3.1-Windows-x64.zip | 86869201 | `84d15f246bb440e2fb895960adc198464c293cf8aefea4fe62b827f3be7913c6` |
 | ThreeKingdoms-Godot-v0.3.1-Web-preview.zip | 59029064 | `78659bb2f6c634124afc214333aec5b7a6422e95a7c3fec79e8ecef587fb3e91` |
 | build-manifest.json | 629 | `ac796ae78746148f0357889dffe011d326146bbd6ab4fa3c721ad8c6df26c19a` |
 | SHA256SUMS.txt | 218 | `0f005505c0974d5a1022edc747fe915ba76e8c5f90cb4701e52e689219a04736` |
+
+[源码推送 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479201825)、[标签 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479270820) 与 [正式 Windows 包下载／校验／启动验证](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934) 均 success，head 均为 `ce131a8b62941cc537d2bc7398f247ad9b796d17`。正式包验证日志 `.local/windows031-ci.log` 确认桥接 22、world 24、battle 31、client 71、management 79、input 255、map render 215，共 697 项通过，`MAP_RENDER_TEST_CHECKS=215 failures=0`。源码 smoke 与 `Verify exported Windows executable` 均收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。正式发布 ZIP 下载后通过 SHA256 校验，解压后实际执行 `ThreeKingdoms.exe --headless -- --smoke`，连接随包规则服务并载入权威状态与地图；这不代替 Windows 桌面人工长局或目标平台性能测量。
 
 规则来源仍为 c7674df，runtime hash 为 `432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4`；vendor/legacy 与 bridge 无差异，原仓库工作区干净、HEAD 仍 c7674df，原 Pages 未部署。Graphify 按原 code-only 排除 flags 与 `cluster-only . --no-label` 刷新，为 573 节点、1712 边、30 社区；`.gd` 仍未覆盖，只有本地图谱更新，没有外部语义后端、watcher、hook 或上传。
 

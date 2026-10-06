@@ -2,7 +2,7 @@
 
 Generated: 2026-10-06
 Scope: 独立 Godot 客户端的大地图绘制与行军路线。
-Status: COMPLETE — 本机同条件性能比较已完成；故事 004 的实际导出观察与发布运行验证仍进行中。
+Status: COMPLETE — 本机同条件性能比较已完成；故事 004 的实际导出观察、发布资产校验及正式 Windows 包运行 CI 已完成，故事状态为 DONE。
 Workflow: CCGS `perf-profile`，配置 `performance.enforce: warn (default)`。
 
 ## 结果与证据
@@ -117,4 +117,4 @@ Graphify 查询确认 `worldView()` → `marchesView()` 等桥接关系；当前
 - GPU timing、RSS、Windows/Web/真实手机性能、持续长局、输入延迟和多人压力为 NOT ASSESSED — NO DATA。预算符合性均为 NOT ASSESSED — NO BUDGET。
 - 合成 256² 不改变 canonical 64²，200 条行军不等于 200 名玩家、联网能力或已实现扩州。
 
-Verdict: COMPLETE — 性能报告与有效原始比较已保存，最终 CPU 绘制收益及实际回退／额外代价均已记录；预算符合性、缺失平台及 GPU 数据仍为 NOT ASSESSED。故事 004 仍等待实际导出观察和发布验证。复现见 [地图性能说明](../../docs/MAP-PERFORMANCE.zh.md)。
+Verdict: COMPLETE — 性能报告与有效原始比较已保存，最终 CPU 绘制收益及实际回退／额外代价均已记录；预算符合性、缺失平台及 GPU 数据仍为 NOT ASSESSED。故事 004 已完成实际导出观察、发布资产校验及 [正式 Windows 包运行 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934)，八项验收全部 DONE；启动证据不扩大本报告的平台性能测量范围。复现见 [地图性能说明](../../docs/MAP-PERFORMANCE.zh.md)。

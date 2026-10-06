@@ -1,6 +1,6 @@
 # 地图性能测量与复现
 
-本轮采用 pc-games 的先测量再优化及 CCGS `perf-profile`。基准只实例化 Godot 地图，使用隔离的合成 DTO，不连接规则桥接、不加载或写入玩家存档。优化前、第一轮和最终优化后三次非 headless 捕获已完成且有效，两份比较均 matched；数值及限制见 [2026-10-06 性能报告](../production/polish/world-map-report-2026-10-06.md)。这不代替故事 004 的实际导出观察与发布验证。
+本轮采用 pc-games 的先测量再优化及 CCGS `perf-profile`。基准只实例化 Godot 地图，使用隔离的合成 DTO，不连接规则桥接、不加载或写入玩家存档。优化前、第一轮和最终优化后三次非 headless 捕获已完成且有效，两份比较均 matched；数值及限制见 [2026-10-06 性能报告](../production/polish/world-map-report-2026-10-06.md)。故事 004 的实际导出观察、资产校验及正式 Windows 包启动 CI 亦已完成，见 [验证记录](QA.zh.md)；这些功能与启动证据不代替目标平台性能测量。
 
 原始逐帧 JSON 归档为 [before](../production/polish/data/map-before-2026-10-06.json)、[first after](../production/polish/data/map-after-first-2026-10-06.json)、[final after](../production/polish/data/map-after-2026-10-06.json)；比较为 [first comparison](../production/polish/data/map-comparison-first-2026-10-06.json) 与 [final comparison](../production/polish/data/map-comparison-2026-10-06.json)。第一轮三种 CPU 尾部回退保留供审计，最终数据来自后续代码优化，没有拼接各轮最佳场景。
 
