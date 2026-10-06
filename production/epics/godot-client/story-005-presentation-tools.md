@@ -11,3 +11,5 @@
 限制：自动审批拦截导出 Windows EXE 启动；没有 EXE 实际启动证据。未测试真实手机音频解锁、人工听感或长局；未发布新版本。规则桥接、原规则快照、地图数据与原仓库不变。
 
 实现与操作说明见 docs/PRESENTATION-TOOLS.zh.md。
+
+交付：[草稿 PR #1](https://github.com/YuJieMichael/three-kingdoms-godot/pull/1)。[Windows CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37488545553) 在实现提交 1dbce92 全绿，22 项规则＋715 项 Godot 检查，共 737 项；本机权限受阻的符号链接用例在 CI 中通过。

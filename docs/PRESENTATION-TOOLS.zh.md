@@ -32,6 +32,8 @@ godot --path . --script tests/presentation_test.gd -- --capture
 
 原有 675 项 Godot 检查通过；完整客户端连接独立本地预览服务得到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。Node 规则测试本机 21/22 通过，余下符号链接隔离用例因本机权限在创建测试链接时返回 EPERM，未进入断言；不是本次规则修改引起。该权限受阻用例不改写或绕过，继续保留在原 CI 中。
 
+[Windows CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37488545553) 在提交 `1dbce92` 全部通过：22 项 Node 规则测试与 715 项 Godot 检查，共 737 项，完整客户端 smoke 通过。headless 测试显式处理 dummy display 对 popup_centered 的屏幕约束，并调用真实适配方法检查主视口尺寸；实际窗口尺寸另由非 headless 截图验证。
+
 Windows 与 Web release 导出成功，导出日志没有 SCRIPT ERROR/ERROR。官方 Godot 引擎加载导出的 Windows PCK 连接独立预览服务，得到同样的 GODOT_SMOKE_OK。启动导出的 Windows EXE 被本机自动审批策略阻止，仅返回“blocked by policy”，因此不声称验证了该 EXE 的实际启动。
 
 实际 Web 浏览器验证了桌面菜单、出征剧情分支、返回菜单、声音页、音乐静音保存、390×844 布局及刷新后保留静音。浏览器 warn/error 日志为空；截图见 `docs/screenshots/presentation-web-*.jpg`。Windows 非 headless 原生测试运行 40 项通过，截图确认桌面与 390 窄屏菜单、音量与剧情布局，没有运行时错误。Godot 运行环境与导出模板取自官方 4.7.2-stable 发布，并按官方 SHA512 清单校验。
