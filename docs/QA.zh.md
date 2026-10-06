@@ -4,6 +4,8 @@
 
 2026-10-06。最终本地自动检查 **1400项通过**（Node97、SceneTree1284、实际HTML脚本fixture19），独立安全复核通过；独立最终包1742项审计通过，服务器包另外128项审计、生产依赖安装与配置检查通过。真实浏览器观察登录、退出恢复、跨标签账号保护、最终Godot城池及390账号大厅。
 
+代码提交4936de9的 [Windows与PostgreSQL源码CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37518089341) 已成功：Windows HTTP83通过/2项平台跳过、Godot1284＋HTML19通过，源码启动smoke成功；Linux真实PG12通过。导出Windows EXE验证未触发。
+
 数据库测试使用真实本机PostgreSQL17.10，Auth为模拟Supabase REST。**真实Supabase和公网尚未部署**，故事007继续In Progress；Docker/systemd未执行，0.6 Windows EXE未在Windows运行。最终包与详细证据见 [账号联机报告](../production/polish/online-foundation-report-2026-10-06.md)；部署方式见 [在线服务说明](ONLINE-SERVICE.zh.md)。
 
 ![最终账号房间列表](screenshots/account-lobby-final-060.png)

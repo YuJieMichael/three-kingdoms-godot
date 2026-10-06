@@ -17,7 +17,7 @@
 **Next step:** 本轮开发代码、最终客户端及服务器包已完成并保存；收到部署选择后配置独立游戏Supabase项目、HTTPS主机并进行跨电脑验收。
 **Blocked on:** 正式开通需要用户选择Supabase组织、确认费用，并提供公网Node托管目标；本地可独立完成的实现与验证已继续进行。
 **Files in progress:** 本次提交保存0.6账号、PG、客户端、部署配置及最终验证说明；不是正式云端上线。0.5与表现工具合并检查点e5f5c6c已推送。
-**Run result:** PASS — 1400项本地自动检查与服务器包128项审计；最终实际Web及390账号大厅已观察。证据见production/polish/online-foundation-report-2026-10-06.md。历史0.5报告仍见production/polish/room-lobby-report-2026-10-06.md。
+**Run result:** PASS — 1400项本地自动检查、独立最终包1742项审计与服务器包128项审计；源码4936de9的Windows/PostgreSQL CI completed/success（37518089341），后续仅补验收文档；最终实际Web及390账号大厅已观察。证据见production/polish/online-foundation-report-2026-10-06.md。历史0.5报告仍见production/polish/room-lobby-report-2026-10-06.md。
 **Open questions:** Supabase组织/费用、公网Node主机与域名。现有连接项目属于其他业务，未用于游戏；百人压力、正式Steamworks与策略重做仍在后续范围。
 <!-- /CHECKPOINT -->
 

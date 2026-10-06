@@ -49,3 +49,7 @@ Windows EXE未在Windows实际执行，本机PCK检查不能替代该结论；St
 等待用户选择Supabase组织，然后查询费用并取得确认后新建独立游戏项目；当前连接的其他业务数据库未写入。持续运行的Node另需服务器/容器托管账号、域名和管理员账号配置。配置后需真实Auth/数据库、HTTPS/自动重启、备份恢复与跨电脑验收，才能完成故事007。
 
 Graphify按原code-only/exclude标记本地刷新，1102节点、2957边、58社区；不上传、不加watcher/hook。SQL因缺少tree_sitter_sql未提取，.gd仍不覆盖；验证以源代码和运行结果为准。
+
+## Windows与Linux源码CI
+
+最终代码提交 `4936de9e6987e2f69fa74ed0ac88c4d64371b7fd` 的 [GitHub验证](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37518089341) completed/success。Windows HTTP/config/backup83项通过、2项按平台跳过（85总例）；Godot SceneTree1284与HTML脚本19项通过，源码启动返回 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。Linux真实Postgres12项通过、0跳过。源码CI不等于导出Windows EXE验证；本轮 `Verify exported Windows executable` 因非Release触发而跳过。此记录之后只补充验收文档，没有改生产源码或本地包。
