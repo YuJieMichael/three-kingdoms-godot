@@ -1,6 +1,6 @@
 # 原生城池经营与将领招募
 
-Status: IN PROGRESS
+Status: DONE
 Last Updated: 2026-10-06
 Story Type: UI / Integration
 GDD: design/game-brief.md
@@ -21,7 +21,7 @@ Dependencies: production/epics/godot-client/story-001-playable-client.md — DON
 - [x] 操作等待服务器回执，成功后刷新当前事务面板；失败与版本冲突可见，不让旧余额或旧将领状态误导下一次操作。
 - [x] 电脑和 390 像素窄屏均能进入市场、城守/税率与客栈；内容滚动、文字与操作按钮不被截断。
 - [x] 原有地图、城池、训练、出征、战斗、存档与重连检查继续通过；新增真实桥接命令与管理界面检查。
-- [ ] 生成 Windows 与 Web 0.2.0 试玩包，实际观察网页界面；分别记录导出结果与 Windows 发布包实际启动结果。
+- [x] 生成 Windows 与 Web 0.2.0 试玩包，实际观察网页界面；分别记录导出结果与 Windows 发布包实际启动结果。
 - [x] 只提交和发布独立新仓库；原规则快照、原 GitHub 仓库与现有网页不变。
 
 ## 实现范围
@@ -36,4 +36,14 @@ Dependencies: production/epics/godot-client/story-001-playable-client.md — DON
 
 `tests/bridge.test.cjs` 22 项、地图 24 项、城池/战斗 31 项、客户端 71 项、`tests/management_test.gd` 79 项，共 227 项通过。新增桥接集成检查覆盖交易超仓、费用与重复回执、忙碌城守、税率、招募黄金与两类俘将占位，以及多城经营范围。管理检查覆盖桌面/窄屏、数量实时预览与提交、回执后刷新和事务菜单奖励换行。
 
-实际 IAB 网页在 1280×720 / DPR 2 与 390×844 / DPR 1 完成市场买卖、免费打听、招募、任命、调税和重新加载；截图在 `docs/screenshots/management-*.jpg`，详细余额与产物校验见 `docs/QA.zh.md`。macOS 原生桌面窗口与本地规则连接亦已实际观察，城池和市场/城守税率/客栈三个面板只读打开，未更改桌面存档；原生截图为 `docs/screenshots/management-city-native.jpg`。Windows/Web 导出成功。当前仅剩发布并通过 Windows 导出包 headless 启动 CI，故事保持 IN PROGRESS，不能把本机导出结果当作 Windows 运行验证。
+实际 IAB 网页在 1280×720 / DPR 2 与 390×844 / DPR 1 完成市场买卖、免费打听、招募、任命、调税和重新加载；截图在 `docs/screenshots/management-*.jpg`，详细余额与产物校验见 `docs/QA.zh.md`。macOS 原生桌面窗口与本地规则连接亦已实际观察，城池和市场/城守税率/客栈三个面板只读打开，未更改桌面存档；原生截图为 `docs/screenshots/management-city-native.jpg`。Windows/Web 导出成功并已发布为 [v0.2.0](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.2.0)。
+
+正式 Windows ZIP 校验并解压后的 `ThreeKingdoms.exe --headless -- --smoke` 实际启动通过，输出 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`：[CI 记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37467149603)。源码/标签为 `aa963a8d7584103595983896d8681d2b59e8bfc1`，四个发布资产 digest 与本地一致。
+
+## Completion Notes
+
+Completed: 2026-10-06
+Criteria: 10 / 10 passing，无延期验收。
+Deviations: 无；Windows 人工长局、真实 iPhone 多点触控、Steamworks 与公开多人均属于故事外范围。
+Test Evidence: 227 项本地检查、实际浏览器与 macOS 原生截图、正式 Windows 包启动 CI，路径及结果见上文和 `docs/QA.zh.md`。
+Code Review: minimal 工作流未执行完整部门代码审查；桥接报价、命令参数与俘将容量已专项只读复核，运行结果由根代理核验。

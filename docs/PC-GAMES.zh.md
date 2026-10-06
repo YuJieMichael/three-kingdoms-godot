@@ -17,7 +17,7 @@
 
 Windows 包包含游戏资源、规则服务和 Node 运行时；Web 包通过本机服务提供网页及同源 API。二者仍是本地试玩，没有 Steam 身份、云存档或公网玩家账号。更完整的合同见 [架构说明](ARCHITECTURE.zh.md)。
 
-本轮 0.2.0 本地回归共 227 项通过：规则桥接 22 项、地图 24 项、城池与战斗表现 31 项、客户端 71 项、城池事务 79 项。Windows CI 会分别检查源码解析、测试、客户端启动，以及指定发布包的可执行文件启动；当前新包的 Windows 启动验证待完成。Windows 导出、headless 启动、人工桌面试玩和长期游戏体验应分别记录。控制器与 Steam Deck 尚未验证。
+本轮 0.2.0 本地回归共 227 项通过：规则桥接 22 项、地图 24 项、城池与战斗表现 31 项、客户端 71 项、城池事务 79 项。macOS 原生城池与三类经营面板已只读打开观察；Windows CI 的源码导入、原生检查、客户端启动及正式发布包启动均通过。CI 下载 ZIP、核对 SHA256、解压并执行 `ThreeKingdoms.exe --headless -- --smoke`，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`：[运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37467149603)。Windows 导出、headless 启动、人工桌面试玩和长期游戏体验分别记录；Windows 人工长局、真实 iPhone 多点触控、控制器与 Steam Deck 尚未验证。
 
 ## 桌面端后续顺序
 
