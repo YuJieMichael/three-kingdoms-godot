@@ -82,8 +82,14 @@ func _run() -> void:
 	_assert(audio.manager.sound_effects.get_child_count() > 0, "Confirmed command uses the actual sound pool")
 	for width: int in [1280, 390]:
 		root.size = Vector2i(width, 844)
+		await _settle()
 		client._open_menu()
 		await _settle()
+		# The dummy display clamps popup_centered to its nonexistent screen.
+		# Reapply the same production fitting method to test root-viewport sizing;
+		# non-headless capture separately verifies the actual popup on a display.
+		if DisplayServer.get_name() == "headless":
+			client._menu._fit_window()
 		_assert(client._shortcut_blocked(), "Menu blocks game shortcuts")
 		_assert(client._menu.size.x <= width - 24, "Menu fits viewport")
 		_assert(client._menu.size.x >= mini(560, width - 24), "Menu uses the root viewport instead of its own small viewport")
@@ -101,6 +107,8 @@ func _run() -> void:
 		var general: VBoxContainer = client._menu._tabs.get_child(0).get_child(0)
 		(general.get_child(2) as Button).pressed.emit()
 		await _settle()
+		if DisplayServer.get_name() == "headless":
+			client._guide._fit_window()
 		_assert(not client._menu.visible and client._guide.visible, "Menu guide button opens real dialogue UI")
 		_assert(client._guide._body.get_child_count() == 4, "Introduction offers three branches")
 		_assert(client._guide.size.x <= width - 24, "Dialogue fits viewport")
