@@ -10,6 +10,9 @@ const InputSettingsDialogScript: Script = preload("res://src/input_settings_dial
 const PvpDialogScript: Script = preload("res://src/pvp_dialog.gd")
 const LobbyApiScript: Script = preload("res://src/lobby_api.gd")
 const LobbyDialogScript: Script = preload("res://src/lobby_dialog.gd")
+const AudioScript: Script = preload("res://src/presentation_audio.gd")
+const MenuScript: Script = preload("res://src/presentation_menu.gd")
+const DialogueScript: Script = preload("res://src/presentation_dialogue.gd")
 const FONT: Font = preload("res://assets/fonts/UI.tres")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 
@@ -58,13 +61,19 @@ var _pvp_button: Button
 var _lobby_button: Button
 var _lobby_api: KingdomLobbyApi
 var _lobby: KingdomLobbyDialog
+var _audio: KingdomPresentationAudio
+var _menu: KingdomPresentationMenu
+var _guide: KingdomPresentationDialogue
 
 func _ready() -> void:
 	_smoke = OS.get_cmdline_user_args().has("--smoke")
 	_initialize_inputs()
 	_sync_web_scale()
 	theme = _make_theme()
+	_audio = AudioScript.new() as KingdomPresentationAudio
+	add_child(_audio)
 	_build_shell()
+	_initialize_presentation()
 	api = ApiScript.new() as KingdomApi
 	add_child(api)
 	api.snapshot_received.connect(_receive_snapshot)
@@ -111,6 +120,27 @@ func _initialize_inputs() -> void:
 	if not get_window().focus_entered.is_connected(_input_focus_entered):
 		get_window().focus_entered.connect(_input_focus_entered)
 		get_window().focus_exited.connect(_input_focus_exited)
+
+func _initialize_presentation() -> void:
+	_menu = MenuScript.new() as KingdomPresentationMenu
+	_menu.audio = _audio
+	_menu.theme = theme
+	add_child(_menu)
+	_guide = DialogueScript.new() as KingdomPresentationDialogue
+	_guide.audio = _audio
+	_guide.theme = theme
+	add_child(_guide)
+	_menu.input_requested.connect(_show_input_settings)
+	_menu.guide_requested.connect(_guide.start)
+	_menu.save_requested.connect(_save_dialog)
+	_menu.connection_requested.connect(_connection_dialog)
+	if not _smoke:
+		_menu.call_deferred("open_menu")
+
+func _open_menu() -> void:
+	_stop_keyboard_pan()
+	if is_instance_valid(_menu):
+		_menu.open_menu()
 
 func _input_focus_entered() -> void:
 	_input_window_active = true
@@ -316,6 +346,7 @@ func _build_shell() -> void:
 	top.add_child(_button("存档", _save_dialog))
 	_lobby_button = _button("联机", _show_lobby)
 	top.add_child(_lobby_button)
+	top.add_child(_button("菜单", _open_menu))
 	_input_settings_button = _button("按键", _show_input_settings)
 	top.add_child(_input_settings_button)
 	_nav = HBoxContainer.new()
@@ -433,6 +464,9 @@ func _button(text: String, callback: Callable, disabled: bool = false) -> Button
 	button.custom_minimum_size.y = 38.0
 	button.disabled = disabled
 	button.pressed.connect(callback)
+	button.pressed.connect(func() -> void:
+		if is_instance_valid(_audio):
+			_audio.click())
 	return button
 
 func _clear(container: Node) -> void:
@@ -900,6 +934,8 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 	_update_pvp()
 	if is_instance_valid(_pvp):
 		_pvp.acknowledge_command_success(type)
+	if is_instance_valid(_audio):
+		_audio.confirmed(type)
 	if is_instance_valid(_management):
 		_management.acknowledge_command(api.connected, api._has_mutation())
 	if type == "selectExpedition" and _pending_battle:

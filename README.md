@@ -2,6 +2,8 @@
 
 Godot 4.7.2＋GDScript 的独立迁移试玩，当前本地版本为 **0.5.0 1–8人房间演练**：创建房间、邀请码加入、自己的席位恢复，以及玩家城池、盟友援军、服务器自动战斗与返程入库。0.3.1 大地图更新继续保留。面向 Windows 和网页，Steamworks 与正式公网账号服务在后续接入。
 
+开发分支已接入声音管理、菜单分页和可编辑新手剧情，使用方式与验证见 [表现工具说明](docs/PRESENTATION-TOOLS.zh.md)。游戏内从“菜单”进入声音、按键、引导、存档和连接设置；当前音乐及音效为原创合成示范素材。
+
 原 [three-kingdoms 仓库](https://github.com/YuJieMichael/three-kingdoms) 与 [网页版](https://yujiemichael.github.io/three-kingdoms/) 保持不变。本仓库从 `c7674df45b9595405e57907524e737e633b0ff63` 保存规则快照，不直接同步或部署原仓库。
 
 ## 试玩

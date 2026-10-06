@@ -31,6 +31,8 @@ def notices(destination):
     folder = destination / 'licenses'; folder.mkdir(exist_ok=True)
     for source in [ROOT/'docs/GODOT-LICENSE.txt',ROOT/'docs/GODOT-COPYRIGHT.txt',ROOT/'assets/fonts/OFL.txt']:
         if source.exists(): shutil.copy2(source, folder/source.name)
+    for source in (ROOT/'docs/licenses').glob('*.txt'):
+        shutil.copy2(source, folder/source.name)
     shutil.copy2(ROOT/'THIRD_PARTY_NOTICES.md',destination/'THIRD_PARTY_NOTICES.md')
 
 def zip_folder(folder, target):
