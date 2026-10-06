@@ -273,14 +273,18 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
     await unlock();
     if (readyFile) await fs.unlink(readyFile).catch(() => {});
   };
+  let assignedPort;
   try {
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, host, resolve); });
+    // A client can shut down immediately after ready.json is published. Retain
+    // the port before that boundary; server.address() is null after close().
+    assignedPort = server.address().port;
     if (readyFile) {
       await fs.mkdir(path.dirname(readyFile), {recursive: true, mode: 0o700});
-      await atomicJSON(readyFile, {url: `http://${host === '::1' ? '[::1]' : host}:${server.address().port}`, pid: process.pid, protocol: 1});
+      await atomicJSON(readyFile, {url: `http://${host === '::1' ? '[::1]' : host}:${assignedPort}`, pid: process.pid, protocol: 1});
     }
   } catch (error) { await new Promise(resolve => server.close(resolve)); await unlock(); throw error; }
-  return {server, port: server.address().port, host, dataDir, close};
+  return {server, port: assignedPort, host, dataDir, close};
 }
 
 export function parseArguments(args) {

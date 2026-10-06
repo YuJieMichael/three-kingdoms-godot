@@ -8,3 +8,5 @@ outputs/
 project.local.yaml
 graphify-out/
 docs/**/*.import
+.claude/
+docs/engine-reference/

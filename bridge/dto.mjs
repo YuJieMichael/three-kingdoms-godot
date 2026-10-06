@@ -126,6 +126,28 @@ export function gameView(game, now) {
     people: unit.people || 1, role: unit.role, stats: copy(game.unitStats(id))}));
   const generals = state.generals.map(id => ({...game.general(id), busy: game.generalBusy(id),
     city: game.heroCity(id), governor: state.governor === id, loyalty: state.heroLoyalty[id]}));
+  const rates = game.rates(), governor = game.general(state.governor);
+  const market = {level: state.buildings.market, resources: Object.entries(game.resources)
+    .filter(([id]) => id !== 'gold').map(([id, resource]) => ({id, name: resource.name,
+      buy: copy(game.tradeQuote(id, true)), sell: copy(game.tradeQuote(id, false))}))};
+  const governance = {governorId: state.governor,
+    population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),
+    morale: state.morale, unrest: state.unrest, tax: state.tax,
+    targetMorale: game.governanceStatus().moraleTarget, goldPerMinute: rates.gold,
+    // These two presentation multipliers mirror engine.js productionBoost/buildSeconds.
+    // The production multiplier applies to outer plots, not base income or gold tax.
+    productionBoost: 1 + governor.pol / 100 * Math.min(1, governor.lead * 1000 / Math.max(1, state.population)),
+    constructionFactor: 1 + state.tech.construction * .1 + governor.pol / 100,
+    candidates: generals.map(hero => ({...hero, reason: hero.busy ? '该武将正在出征或驻守' : ''}))};
+  // hero-system.js wild.roomUsed includes both wild and defeated captive pools.
+  const heldCaptives = (state.wildGenerals?.captives?.length || 0) + (state.heroService?.captives?.length || 0);
+  const capacity = game.heroCapacity(), used = state.generals.length + heldCaptives;
+  const inn = {level: state.buildings.inn, capacity, used, remaining: Math.max(0, capacity - used),
+    refreshReason: state.buildings.inn < 1 ? '请先建造客栈' : '',
+    candidates: state.innCandidates.map(hero => ({...copy(hero), affordable: state.res.gold >= hero.price,
+      reason: used >= capacity ? '招贤馆没有空闲房间（包含被俘将领）' :
+        state.customGenerals.length + heldCaptives >= 100 ? '将领总量已达上限' :
+        state.res.gold < hero.price ? '黄金不足' : ''}))};
   const techs = Object.entries(game.manual.technology).map(([id, tech]) => ({
     id, name: tech.name, description: tech.desc, level: state.tech[id],
     cost: copy(game.researchCost(id)), seconds: state.tech[id] >= 10 ? 0 : game.researchSeconds(id),
@@ -149,12 +171,12 @@ export function gameView(game, now) {
     remaining: game.brickPurchaseRemaining(item.id)}));
   return {res: copy(state.res), gold: state.res.gold, gems: state.gems,
     caps: Object.fromEntries(Object.keys(game.resources).map(id => [id, game.capacity(id)])),
-    rates: copy(game.rates()), rateUnit: 'per-minute', city: copy(game.cityMeta()), cityList: copy(game.cityList()),
+    rates: copy(rates), rateUnit: 'per-minute', city: copy(game.cityMeta()), cityList: copy(game.cityList()),
     population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),
     morale: state.morale, unrest: state.unrest, tax: state.tax,
     buildings, buildingSlots: state.cityLayout.map((id, site) => ({site, id, level: state.cityLevels[site], reserved: id === 'reserved'})),
     buildOptions, plots, plotOptions: Object.keys(game.plotTypes).map(id => ({id, name: game.buildings[id].name})), units,
-    techs, inventory, shop, queueMetadata, autoResearch: state.autoResearch,
+    techs, inventory, shop, market, governance, inn, queueMetadata, autoResearch: state.autoResearch,
     autoResearchStatus: game.autoResearchStatus(),
     queues: {build: copy(state.buildQueue), train: copy(state.trainQueue), research: state.researchQueue ? [copy(state.researchQueue)] : [], defense: copy(state.defenseQueue)},
     queueLimits: {build: game.buildLimit(), train: game.trainingLimit()},

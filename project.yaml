@@ -1,9 +1,10 @@
 schema_version: 1
 project:
   name: 三国城志 Godot
-  version: 0.1.1
+  version: 0.2.0
   genre: 2D strategy
-  stage: Prototype
+  stage: Pre-Production
+  description: Independent Godot migration prototype; core city-management UI in development.
 engine:
   name: Godot
   version: 4.7.2

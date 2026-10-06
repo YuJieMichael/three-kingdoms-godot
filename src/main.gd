@@ -4,6 +4,7 @@ const ApiScript: Script = preload("res://src/game_api.gd")
 const MapScript: Script = preload("res://src/world_map.gd")
 const CityScript: Script = preload("res://src/city_view.gd")
 const BattleScript: Script = preload("res://src/battle_view.gd")
+const ManagementScript: Script = preload("res://src/management_dialog.gd")
 const FONT: Font = preload("res://assets/fonts/UI.tres")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 
@@ -38,6 +39,7 @@ var _save_text: TextEdit
 var _world: Dictionary = {}
 var _clock: Timer
 var _pending_battle: bool = false
+var _management: KingdomManagementDialog
 
 func _ready() -> void:
 	_smoke = OS.get_cmdline_user_args().has("--smoke")
@@ -49,7 +51,7 @@ func _ready() -> void:
 	api.snapshot_received.connect(_receive_snapshot)
 	api.world_received.connect(_receive_world)
 	api.status_changed.connect(_connection_changed)
-	api.request_failed.connect(func(message: String) -> void: _pending_battle = false; _show_toast(message))
+	api.request_failed.connect(_request_failed)
 	api.command_completed.connect(_command_completed)
 	api.export_received.connect(_show_export)
 	_clock = Timer.new()
@@ -208,6 +210,8 @@ func _adapt_layout() -> void:
 	_resource_grid.columns = 3 if size.x < 760.0 else 5
 	for label: Label in _resources.values():
 		label.add_theme_font_size_override("font_size", 12 if size.x < 760.0 else 16)
+	if is_instance_valid(_management) and _management.visible:
+		_management._fit_window()
 
 func _sync_web_scale() -> void:
 	if OS.has_feature("web"):
@@ -260,6 +264,13 @@ func _show_page(page: String) -> void:
 				_map.set_world(_world)
 		"city":
 			_center.add_child(_label("城池 · 建设与经营", 22))
+			var city_actions: GridContainer = GridContainer.new()
+			city_actions.columns = 3
+			_center.add_child(city_actions)
+			for entry: Array in [["market", "市场交易"], ["governance", "城守税率"], ["inn", "客栈招募"]]:
+				var action: Button = _button(str(entry[1]), _show_management.bind(str(entry[0])))
+				action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				city_actions.add_child(action)
 			_city = CityScript.new() as KingdomCityView
 			_city.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			_center.add_child(_city)
@@ -280,6 +291,13 @@ func _show_page(page: String) -> void:
 			_center.add_child(_button("行军与驻扎部队", _marches_dialog))
 		"generals", "reports":
 			_center.add_child(_label("将领名册" if page == "generals" else "战报与战利品", 22))
+			if page == "generals":
+				var general_actions: HBoxContainer = HBoxContainer.new()
+				_center.add_child(general_actions)
+				for entry: Array in [["inn", "招募将领"], ["governance", "任命城守"]]:
+					var action: Button = _button(str(entry[1]), _show_management.bind(str(entry[0])))
+					action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+					general_actions.add_child(action)
 			var scroll: ScrollContainer = ScrollContainer.new()
 			scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			_center.add_child(scroll)
@@ -310,6 +328,8 @@ func _receive_snapshot(payload: Dictionary) -> void:
 		_city.set_city(_view)
 	if _battle != null:
 		_battle.set_battle(_present_battle(), _unit_dictionary())
+	if is_instance_valid(_management):
+		_management.update_view(_view)
 	var signature: String = JSON.stringify([_view.get("buildings", []), _view.get("queues", {}), _view.get("marches", []), _view.get("reports", []), _view.get("generals", [])])
 	if signature != _last_structure:
 		_last_structure = signature
@@ -333,6 +353,15 @@ func _check_smoke() -> void:
 func _connection_changed(message: String, _connected: bool) -> void:
 	_status.text = message
 	_status.modulate = Color("aed1a9") if _connected else Color("e0b36e")
+	if is_instance_valid(_management):
+		_management.set_command_state(_connected, api._has_mutation())
+
+func _request_failed(message: String) -> void:
+	_pending_battle = false
+	_show_toast(message)
+	if is_instance_valid(_management):
+		_management.set_command_state(api.connected, api._has_mutation())
+		_management.show_error(message)
 
 func _show_toast(message: String) -> void:
 	_toast.text = message
@@ -456,6 +485,8 @@ func _update_page_content() -> void:
 			content.add_child(_button("查看战报", _report_dialog.bind(report)))
 
 func _open_dialog(title: String, width: int = 600) -> VBoxContainer:
+	if is_instance_valid(_management):
+		_management.hide()
 	if is_instance_valid(_dialog):
 		_dialog.queue_free()
 	_dialog = AcceptDialog.new()
@@ -604,6 +635,8 @@ func _start_march_battle(march: Dictionary) -> void:
 		_dialog.hide()
 
 func _command_completed(type: String, _payload: Dictionary) -> void:
+	if is_instance_valid(_management):
+		_management.acknowledge_command(api.connected, api._has_mutation())
 	if type == "selectExpedition" and _pending_battle:
 		_pending_battle = false
 		api.command("startBattle")
@@ -634,18 +667,35 @@ func _objective_action() -> void:
 func _tasks_dialog() -> void:
 	var content: VBoxContainer = _open_dialog("当前任务")
 	var objective: Dictionary = _view.get("objective", {})
-	content.add_child(_label(str(objective.get("title", "整备城池")), 23))
+	var objective_title: Label = _label(str(objective.get("title", "整备城池")), 23)
+	objective_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(objective_title)
 	var description: Label = _label(str(objective.get("description", "")))
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(description)
-	content.add_child(_label("奖励 " + _cost(objective.get("reward", {})), 15))
+	var reward: Label = _label("奖励 " + _cost(objective.get("reward", {})), 15)
+	reward.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(reward)
 	if objective.get("ready", false):
 		content.add_child(_button("领取奖励", _command_close.bind(str(objective.get("action", "claimMission")), objective.get("args", []))))
 	content.add_child(_button("前往城池建设", func() -> void: _dialog.hide(); _show_page("city")))
 	content.add_child(_button("领取已解锁礼包", _command_close.bind("onboarding.claimAvailable", [])))
+	content.add_child(_button("市场交易", _show_management.bind("market")))
+	content.add_child(_button("城守与税率", _show_management.bind("governance")))
+	content.add_child(_button("客栈招募", _show_management.bind("inn")))
 	content.add_child(_button("城外资源", _plots_dialog))
 	content.add_child(_button("研究", _research_dialog))
 	content.add_child(_button("宝物与物资", _inventory_dialog))
+
+func _show_management(section: String) -> void:
+	if is_instance_valid(_dialog):
+		_dialog.hide()
+	if not is_instance_valid(_management):
+		_management = ManagementScript.new() as KingdomManagementDialog
+		add_child(_management)
+		_management.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+	_management.set_command_state(api.connected, api._has_mutation())
+	_management.show_section(section, _view)
 
 func _plots_dialog() -> void:
 	var content: VBoxContainer = _open_dialog("城外资源", 700)

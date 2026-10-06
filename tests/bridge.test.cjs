@@ -134,6 +134,173 @@ test('real research and inventory DTOs quote native rules; random speedup retry 
   const lateRetry=await f.request('/command',input);assert.deepEqual(lateRetry.body.result,first.body.result);
 });
 
+test('management unlock requirements reject transactions without changing save or revision', async t => {
+  const f=await fixture(t),before=await f.read();
+  assert.equal(before.view.market.level,0);assert.equal(before.view.inn.level,0);
+  assert.equal(before.view.market.resources[0].buy.reason,'请先建造市场');
+  assert.equal(before.view.inn.refreshReason,'请先建造客栈');
+  for(const [type,args,message] of [['trade',['food',1,true],'请先建造市场'],['refreshInn',[],'请先建造客栈'],['recruit',['missing'],'候选已离开']]){
+    const result=await f.request('/command',{commandId:`management_block_${type}`,expectedRevision:before.revision,type,args});
+    assert.equal(result.status,400);assert.equal(result.body.error.code,'GAME_RULE');assert.equal(result.body.error.message,message);
+  }
+  const after=await f.read();assert.equal(after.revision,before.revision);assert.deepEqual(after.state,before.state);
+});
+
+test('real market quotes allow full-resource purchases, reject oversize, and replay one persisted settlement', async t => {
+  const f=await fixture(t),game=f.runtime.createGameRuntime({now:f.now}).Game,s=game.state;
+  s.cityLayout[0]='market';s.cityLevels[0]=1;s.buildings.market=1;
+  s.res.food=game.capacity('food');s.res.gold=200000;game.save();assert.equal(game.validSave(s),true);
+  const imported=await f.request('/import',{commandId:'market_import_001',expectedRevision:0,state:s});assert.equal(imported.status,200);
+  const before=await f.read(),native=f.runtime.createGameRuntime({snapshot:before.state,now:f.now}).Game;
+  const resource=before.view.market.resources.find(row=>row.id==='food');
+  assert.deepEqual(resource.buy,native.tradeQuote('food',true));assert.deepEqual(resource.sell,native.tradeQuote('food',false));
+  assert.equal(resource.name,'粮食');assert.equal(resource.buy.room,0);assert.equal(resource.buy.limit,100000);
+  assert.match(resource.buy.warning,/仍可购买/);
+  const tooMany=await f.request('/command',{commandId:'market_toomany_001',expectedRevision:before.revision,type:'trade',args:['food',resource.buy.limit+1,true]});
+  assert.equal(tooMany.status,400);assert.equal(tooMany.body.error.message,'当前最多可买入 100000');
+  assert.equal((await f.read()).revision,before.revision);
+  const input={commandId:'market_buy_once_001',expectedRevision:before.revision,type:'trade',args:['food',resource.buy.limit,true]};
+  const bought=await f.request('/command',input);assert.equal(bought.status,200);
+  assert.equal(bought.body.state.res.food,before.state.res.food+100000);assert.equal(bought.body.state.res.gold,before.state.res.gold-100000);
+  assert.ok(bought.body.state.res.food>bought.body.view.caps.food);
+  const retry=await f.request('/command',input);assert.equal(retry.body.replayed,true);assert.deepEqual(retry.body.state.res,bought.body.state.res);
+  await f.restart();assert.deepEqual((await f.read()).state.res,bought.body.state.res);
+  const lateRetry=await f.request('/command',input);assert.equal(lateRetry.body.replayed,true);
+  const sold=await f.command('trade',['food',1234,false]);
+  assert.equal(sold.state.res.food,bought.body.state.res.food-1234);assert.equal(sold.state.res.gold,bought.body.state.res.gold+1234);
+});
+
+test('market sale capacity and cash shortage remain authoritative rules', async t => {
+  const f=await fixture(t),game=f.runtime.createGameRuntime({now:f.now}).Game,s=game.state;
+  s.cityLayout[0]='market';s.cityLevels[0]=1;s.buildings.market=1;
+  s.res.gold=game.capacity('gold')-3;game.save();assert.equal(game.validSave(s),true);
+  assert.equal((await f.request('/import',{commandId:'market_gold_import',expectedRevision:0,state:s})).status,200);
+  const before=await f.read(),quote=before.view.market.resources.find(row=>row.id==='wood').sell;
+  assert.equal(quote.limit,3);assert.equal(quote.room,3);
+  const excess=await f.request('/command',{commandId:'market_sell_excess',expectedRevision:before.revision,type:'trade',args:['wood',4,false]});
+  assert.equal(excess.status,400);assert.equal(excess.body.error.message,'当前最多可卖出 3');
+  const sold=await f.command('trade',['wood',3,false]);assert.equal(sold.state.res.gold,sold.view.caps.gold);
+  assert.equal(sold.view.market.resources.find(row=>row.id==='wood').sell.reason,'黄金已满仓，当前不能卖出');
+  // A separate valid imported treasury exercises the buy quote's zero-cash branch.
+  const emptyGame=f.runtime.createGameRuntime({snapshot:sold.state,now:f.now}).Game;
+  emptyGame.state.res.gold=0;emptyGame.save();const empty=emptyGame.state;
+  assert.equal((await f.request('/import',{commandId:'market_cash_import',expectedRevision:sold.revision,state:empty})).status,200);
+  const cashless=await f.read();assert.equal(cashless.view.market.resources.find(row=>row.id==='iron').buy.reason,'黄金不足');
+  const denied=await f.request('/command',{commandId:'market_cash_denied',expectedRevision:cashless.revision,type:'trade',args:['iron',1,true]});
+  assert.equal(denied.status,400);assert.equal(denied.body.error.message,'黄金不足');
+});
+
+test('governor and tax commands change canonical production, construction and morale; marching governors are rejected', async t => {
+  const f=await fixture(t),game=f.runtime.createGameRuntime({now:f.now}).Game,s=game.state;
+  for(const [site,id] of ['house','drill'].entries()){s.cityLayout[site]=id;s.cityLevels[site]=3;s.buildings[id]=3;}
+  s.plots[0]={type:'farm',level:1};s.population=200;s.unrest=5;s.army.cavalry=10;s.res.food=100000;
+  game.save();assert.equal(game.validSave(s),true);
+  assert.equal((await f.request('/import',{commandId:'governor_import_001',expectedRevision:0,state:s})).status,200);
+  const initial=await f.read(),native=f.runtime.createGameRuntime({snapshot:initial.state,now:f.now}).Game;
+  assert.equal(initial.view.governance.targetMorale,native.governanceStatus().moraleTarget);
+  assert.equal(initial.view.governance.goldPerMinute,native.rates().gold);
+  const suBuild=initial.view.buildings.find(row=>row.id==='hall').seconds;
+  const appointed=await f.command('setGovernor',['lin']);
+  assert.equal(appointed.state.governor,'lin');assert.equal(appointed.view.governance.governorId,'lin');
+  assert.ok(appointed.view.rates.food<initial.view.rates.food);assert.ok(appointed.view.governance.productionBoost<initial.view.governance.productionBoost);
+  assert.ok(appointed.view.buildings.find(row=>row.id==='hall').seconds>suBuild);
+  await f.command('setGovernor',['su']);
+  const taxed=await f.command('setTax',[35]);assert.equal(taxed.state.tax,35);assert.equal(taxed.view.governance.targetMorale,60);
+  assert.equal(taxed.view.governance.goldPerMinute,initial.view.governance.goldPerMinute*35/20);
+  const capped=await f.command('setTax',[200]);assert.equal(capped.state.tax,100);assert.equal(capped.view.governance.targetMorale,0);
+  const sent=await f.command('dispatch',['field','lin',{cavalry:5},'raid']);
+  const candidate=sent.view.governance.candidates.find(hero=>hero.id==='lin');assert.equal(candidate.busy,true);assert.equal(candidate.reason,'该武将正在出征或驻守');
+  const denied=await f.request('/command',{commandId:'governor_busy_001',expectedRevision:sent.revision,type:'setGovernor',args:['lin']});
+  assert.equal(denied.status,400);assert.equal(denied.body.error.message,candidate.reason);
+  assert.equal((await f.read()).revision,sent.revision);assert.equal((await f.read()).state.governor,'su');
+  await f.restart();const resumed=await f.read();assert.equal(resumed.state.governor,'su');assert.equal(resumed.state.tax,100);
+});
+
+test('inn inquiry is free; recruitment charges once, consumes a room and persists real hero statistics', async t => {
+  const f=await fixture(t),game=f.runtime.createGameRuntime({now:f.now}).Game,s=game.state;
+  for(const [site,id,level] of [[0,'inn',2],[1,'tavern',3]]){s.cityLayout[site]=id;s.cityLevels[site]=level;s.buildings[id]=level;}
+  s.res.gold=20000;game.save();assert.equal(game.validSave(s),true);
+  assert.equal((await f.request('/import',{commandId:'inn_import_001',expectedRevision:0,state:s})).status,200);
+  const before=await f.read(),inquired=await f.command('refreshInn');
+  assert.equal(inquired.state.res.gold,before.state.res.gold);assert.equal(inquired.view.inn.candidates.length,2);
+  assert.equal(inquired.view.inn.capacity,3);assert.equal(inquired.view.inn.used,2);assert.equal(inquired.view.inn.remaining,1);
+  const candidate=inquired.view.inn.candidates[0];assert.equal(candidate.affordable,true);assert.equal(candidate.reason,'');
+  assert.equal(candidate.price,candidate.level*1000);
+  const input={commandId:'recruit_once_001',expectedRevision:inquired.revision,type:'recruit',args:[candidate.id]};
+  const hired=await f.request('/command',input);assert.equal(hired.status,200);
+  assert.equal(hired.body.state.res.gold,inquired.state.res.gold-candidate.price);assert.equal(hired.body.state.generals.includes(candidate.id),true);
+  assert.equal(hired.body.view.inn.used,3);assert.equal(hired.body.view.inn.remaining,0);
+  assert.equal(hired.body.view.inn.candidates[0].reason,'招贤馆没有空闲房间（包含被俘将领）');
+  const owned=hired.body.view.generals.find(hero=>hero.id===candidate.id);
+  const native=f.runtime.createGameRuntime({snapshot:hired.body.state,now:f.now}).Game;
+  for(const attr of ['atk','def','pol','wis','lead','level'])assert.equal(owned[attr],native.general(candidate.id)[attr]);
+  const duplicate=await f.request('/command',input);assert.equal(duplicate.body.replayed,true);assert.deepEqual(duplicate.body.state,hired.body.state);
+  const denied=await f.request('/command',{commandId:'recruit_no_room_001',expectedRevision:hired.body.revision,type:'recruit',args:[hired.body.view.inn.candidates[0].id]});
+  assert.equal(denied.status,400);assert.equal(denied.body.error.message,hired.body.view.inn.candidates[0].reason);
+  await f.restart();const resumed=await f.read();assert.deepEqual(resumed.state.generals,hired.body.state.generals);assert.equal(resumed.state.res.gold,hired.body.state.res.gold);
+  const lateRetry=await f.request('/command',input);assert.equal(lateRetry.body.replayed,true);assert.equal((await f.read()).revision,hired.body.revision);
+});
+
+test('inn rooms include both captive pools, and recruit quotes expose cash shortage only when space exists', async t => {
+  const f=await fixture(t),runtime=f.runtime.createGameRuntime({now:f.now}),game=runtime.Game,s=game.state;
+  for(const [site,id,level] of [[0,'inn',1],[1,'tavern',4]]){s.cityLayout[site]=id;s.cityLevels[site]=level;s.buildings[id]=level;}
+  game.save();assert.equal(runtime.HeroSystem.wild.discover(),null);
+  const line=s.wildGenerals.rumors.find(row=>row.line==='wanderer'),portrait=runtime.HeroSystem.wild.portraitQuote(s,'wanderer');
+  assert.equal(runtime.HeroSystem.wild.buyPortrait('wanderer',portrait.key),null);
+  // Canonical settlement helpers prepare a strict-valid fictional captive save; no player data is touched.
+  const captured=runtime.HeroSystem.wild.settle(s,game.getNode(line.node),{finished:false,mode:'raid',enemy:[{hp:0}]},true,f.now);
+  assert.equal(captured.status,'captured');
+  const loser=f.runtime.createGameRuntime({now:f.now});loser.Game.state.generals.push('yan');loser.Game.state.generalLevels.yan=1;loser.Game.state.generalXp.yan=0;
+  loser.HeroSystem.init(loser.Game.state);loser.Game.state.heroLoyalty.yan=40;loser.Game.save();
+  assert.equal(runtime.GovernanceSystem.captureDefeated(loser.Game.state,s,'yan',f.now).status,'captured');
+  game.refreshInn();game.save();assert.equal(game.validSave(s),true);
+  const imported=await f.request('/import',{commandId:'captive_rooms_import',expectedRevision:0,state:s});assert.equal(imported.status,200,JSON.stringify(imported.body));
+  const full=await f.read();assert.equal(full.view.inn.used,4);assert.equal(full.view.inn.remaining,0);
+  assert.equal(full.view.inn.candidates[0].reason,'招贤馆没有空闲房间（包含被俘将领）');
+  const roomyGame=f.runtime.createGameRuntime({snapshot:full.state,now:f.now}).Game,roomy=roomyGame.state;
+  roomy.cityLevels[1]=5;roomy.buildings.tavern=5;roomy.res.gold=0;roomyGame.save();
+  assert.equal((await f.request('/import',{commandId:'captive_cash_import',expectedRevision:full.revision,state:roomy})).status,200);
+  const cashless=await f.read();assert.equal(cashless.view.inn.remaining,1);assert.equal(cashless.view.inn.candidates[0].affordable,false);
+  assert.equal(cashless.view.inn.candidates[0].reason,'黄金不足');
+  const denied=await f.request('/command',{commandId:'captive_cash_denied',expectedRevision:cashless.revision,type:'recruit',args:[cashless.view.inn.candidates[0].id]});
+  assert.equal(denied.status,400);assert.equal(denied.body.error.message,'黄金不足');
+});
+
+test('multi-city management uses the requested city treasury, tax and inn while rooms remain realm-wide', async t => {
+  const f=await fixture(t),game=f.runtime.createGameRuntime({now:f.now}).Game,s=game.state;
+  const plain=Array.from({length:4096},(_,i)=>game.getWorldTile(i%64,Math.floor(i/64))).find(node=>node.wild&&node.type==='plain');
+  s.honors.noble=1;s.conquered[plain.id]=true;s.landClaims[plain.id]={at:f.now,level:plain.level};s.realm.wildOwners[plain.id]='capital';
+  for(const key of Object.keys(s.res))s.res[key]=100000;
+  for(const [site,id,level] of [[0,'market',1],[1,'inn',1],[2,'tavern',2]]){s.cityLayout[site]=id;s.cityLevels[site]=level;s.buildings[id]=level;}
+  game.save();const quote=game.foundCityQuote(plain.id,'试验分城');assert.equal(quote.reason,'');
+  assert.equal(game.foundCity(plain.id,quote.name,quote.key),null);const city=`city_${plain.id}`;
+  assert.equal(game.switchCity(city),null);
+  for(const [site,id,level] of [[0,'market',2],[1,'inn',2],[2,'tavern',3]]){s.cityLayout[site]=id;s.cityLevels[site]=level;s.buildings[id]=level;}
+  for(const key of Object.keys(s.res))s.res[key]=40000;s.realm.heroLocations.lin=city;
+  assert.equal(game.setGovernor('lin'),null);assert.equal(game.switchCity('capital'),null);game.save();assert.equal(game.validSave(s),true);
+  assert.equal((await f.request('/import',{commandId:'realm_manage_import',expectedRevision:0,state:s})).status,200);
+  const before=await f.read(),capitalTreasury=structuredClone(before.state.res);
+  const traded=await f.command('trade',['wood',50,true],{sourceCity:city});
+  assert.equal(traded.view.city.id,city);assert.equal(traded.view.market.level,2);
+  assert.equal(traded.state.res.wood,40050);assert.equal(traded.state.res.gold,39950);
+  assert.deepEqual(traded.state.realm.cities.capital.data.res,capitalTreasury);
+  const taxed=await f.command('setTax',[30],{sourceCity:city});assert.equal(taxed.state.tax,30);assert.equal(taxed.state.realm.cities.capital.data.tax,20);
+  const inquired=await f.command('refreshInn',[],{sourceCity:city});assert.equal(inquired.view.inn.candidates.length,2);
+  assert.equal(inquired.state.realm.cities.capital.data.innCandidates.length,0);assert.equal(inquired.view.inn.capacity,5);
+  const nonlocal=inquired.view.governance.candidates.find(hero=>hero.id==='su');assert.equal(nonlocal.city,'capital');assert.equal(nonlocal.busy,true);
+  const blocked=await f.request('/command',{commandId:'realm_governor_denied',expectedRevision:inquired.revision,type:'setGovernor',args:['su'],sourceCity:city});
+  assert.equal(blocked.status,400);assert.equal(blocked.body.error.message,nonlocal.reason);
+  const hired=await f.command('recruit',[inquired.view.inn.candidates[0].id],{sourceCity:city});
+  assert.equal(hired.state.res.gold,inquired.state.res.gold-inquired.view.inn.candidates[0].price);
+  assert.deepEqual(hired.state.realm.cities.capital.data.res,capitalTreasury);
+  assert.equal(hired.view.inn.used,3);assert.equal(hired.view.inn.remaining,2);
+  assert.equal(hired.state.realm.heroLocations[inquired.view.inn.candidates[0].id],city);
+  const capitalTax=await f.command('setTax',[15],{sourceCity:'capital'});assert.equal(capitalTax.state.tax,15);
+  assert.equal(capitalTax.state.realm.cities[city].data.tax,30);assert.equal(capitalTax.view.inn.capacity,5);
+  await f.restart();const resumed=await f.read();assert.equal(resumed.state.realm.cities[city].data.res.gold,hired.state.res.gold);
+  assert.equal(resumed.state.realm.cities[city].data.innCandidates.length,1);assert.equal(resumed.state.realm.cities.capital.data.tax,15);
+});
+
 test('invalid imports leave save and revision intact; original browser export round trips', async t => {
   const f = await fixture(t); await f.command('onboarding.claimAvailable');
   const exported = await f.request('/export'), before = await f.read();
@@ -279,5 +446,5 @@ test('desktop CLI emits a ready file with assigned port and authenticated shutdo
   for(let i=0;i<100;i++){try{ready=JSON.parse(await fs.readFile(readyFile,'utf8'));break;}catch{await new Promise(resolve=>setTimeout(resolve,20));}}
   assert.ok(ready,output);assert.equal(ready.pid,child.pid);
   const response=await fetch(ready.url+'/api/shutdown',{method:'POST',headers:{Authorization:'Bearer cli-private'}});assert.equal(response.status,200);
-  assert.equal(await ended,0);await assert.rejects(fs.access(readyFile),error=>error.code==='ENOENT');
+  assert.equal(await ended,0,output);await assert.rejects(fs.access(readyFile),error=>error.code==='ENOENT');
 });
