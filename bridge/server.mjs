@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {createGameRuntime, executeGame, validateInput, gameActions, GameError, copy, runtimeHash, seededRandom} from '../vendor/legacy/online/runtime.mjs';
 import {gameView, worldView, nodeView} from './dto.mjs';
+import {managementQuote} from './management-quotes.mjs';
 
 const MAX_BODY = 16 * 1024 * 1024;
 const RECEIPT_LIMIT = 32;
@@ -90,7 +91,7 @@ function envelope(snapshot, revision, now, runtime = null, authorityId = null) {
   runtime ||= runtimeFor(snapshot, now);
   runtime.Game.tick(now, true); runtime.Game.save();
   if (!runtime.Game.validSave(runtime.Game.state)) throw new GameError('INVALID_RESULT', '状态投影校验失败', 500);
-  return {revision, state: copy(runtime.Game.state), view: gameView(runtime.Game, now), serverTime: now, authorityId};
+  return {revision, state: copy(runtime.Game.state), view: gameView(runtime.Game, now, runtime), serverTime: now, authorityId};
 }
 
 async function readBody(request) {
@@ -176,7 +177,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
       if (request.method === 'OPTIONS') { response.writeHead(204); response.end(); return; }
       const url = new URL(request.url, `http://${request.headers.host || '127.0.0.1'}`);
       const route = url.pathname.startsWith('/api/') ? url.pathname.slice(4) : url.pathname;
-      const apiRoutes = ['/health', '/state', '/world', '/export', '/node', '/command', '/import', '/shutdown'];
+      const apiRoutes = ['/health', '/state', '/world', '/export', '/node', '/quote', '/command', '/import', '/shutdown'];
       if (apiRoutes.includes(route) && route !== '/health' && secret.length && !authenticated(request)) throw new GameError('UNAUTHORIZED', '本地连接密钥不正确', 401);
       if (request.method === 'GET' && route === '/health') {
         reply(200, {ok: true, protocol: 1, runtimeHash, mode: 'local', authentication: !!secret.length, authorityId: stored.authorityId}); return;
@@ -195,6 +196,16 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
           return envelope(stored.state, stored.revision, now, runtime, stored.authorityId);
         });
         reply(200, result, route === '/export' ? {'Content-Disposition': 'attachment; filename="three-kingdoms-save.json"'} : {}); return;
+      }
+      if (request.method === 'POST' && route === '/quote') {
+        if ([...url.searchParams.keys()].length) throw new GameError('BAD_QUOTE', '预览不接受查询参数');
+        const input = await readBody(request);
+        const result = await serial(() => {
+          const now = clock(), runtime = runtimeFor(stored.state, now);
+          runtime.Game.tick(now, true);
+          return {...managementQuote(runtime, input), revision: stored.revision, serverTime: now, authorityId: stored.authorityId};
+        });
+        reply(200, result); return;
       }
       if (request.method === 'POST' && ['/command', '/import'].includes(route)) {
         const input = await readBody(request); requireRevision(input);

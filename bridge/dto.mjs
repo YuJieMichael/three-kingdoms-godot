@@ -1,4 +1,9 @@
 import {copy} from '../vendor/legacy/online/runtime.mjs';
+import {heroView} from './hero-view.mjs';
+import {progressionView} from './progression-view.mjs';
+import {warView} from './war-view.mjs';
+import {realmView} from './realm-view.mjs';
+import {inventoryView} from './inventory-view.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
@@ -89,14 +94,15 @@ export function worldView(game, now) {
     tiles, marches: marchesView(game, now)};
 }
 
-export function gameView(game, now) {
+export function gameView(game, now, runtime = null, options = {}) {
   const state = game.state;
   const ready = game.missions.find(mission => game.missionReady(mission));
   const mission = ready || game.currentMission();
   const objective = mission ? {id: mission.id, title: mission.title, stage: mission.stage || '',
     description: mission.desc, reward: copy(mission.reward || {}), ready: !!ready,
     action: ready ? 'claimMission' : mission.id === 'gift' ? 'onboarding.claimAvailable' : '',
-    args: ready ? [mission.id] : [], route: mission.route || 'city'} :
+    args: ready ? [mission.id] : [], route: mission.route || 'city',
+    items: copy(mission.items || {}), jewels: copy(mission.jewels || {}), army: copy(mission.army || {})} :
     {id: 'complete', title: '主线任务已完成', description: '继续发展城池和领地', reward: {}, ready: false, action: '', args: []};
   const buildings = state.cityLayout.flatMap((id, site) => {
     if (!id || id === 'reserved') return [];
@@ -169,7 +175,15 @@ export function gameView(game, now) {
     effect: item.effect || '', currency: 'gems', description: item.desc || '',
     queueKind: item.queueKind || null, rewardOnly: !!item.rewardOnly, available: !!item.effect && !item.rewardOnly,
     remaining: game.brickPurchaseRemaining(item.id)}));
-  return {res: copy(state.res), gold: state.res.gold, gems: state.gems,
+  const management = runtime ? {
+    heroes: heroView(runtime, {...options, now}), progression: progressionView(runtime, {...options, now}),
+    warManagement: warView(runtime, {...options, now}), realmManagement: realmView(runtime, {...options, now}),
+    inventoryManagement: inventoryView(runtime, {...options, now})} : {};
+  if (runtime) {
+    const selected = management.progression.missions.find(row => row.id === objective.id);
+    if (selected) { objective.target = selected.target; objective.rewards = selected.rewards; }
+  }
+  return {...management, res: copy(state.res), gold: state.res.gold, gems: state.gems,
     caps: Object.fromEntries(Object.keys(game.resources).map(id => [id, game.capacity(id)])),
     rates: copy(rates), rateUnit: 'per-minute', city: copy(game.cityMeta()), cityList: copy(game.cityList()),
     population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),

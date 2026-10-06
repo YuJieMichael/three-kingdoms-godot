@@ -1,40 +1,46 @@
 # 当前状态
 
+2026-10-06。用户优先完成游戏本体，Claude斜杠命令配置和真实Supabase联调暂缓。
+
 <!-- STATUS -->
-新版游戏名已统一为「山河策」，当前为0.6.0-dev.1账号联机开发预览，故事007仍为In Progress。Web/Godot账号入口、本人房间恢复、Supabase Auth适配、私有Postgres持久化及HTTPS部署基础已实现；原城池/兵种/自动结算规则和私人/四账号/0.5本机房间入口保留，策略重做继续暂缓。
+独立新版「山河策」当前为 **0.6.0-dev.2 本机玩法收尾**，故事008 Complete。任务/每日/史诗/官爵/俸禄、野将画像与招降、培养装备、伤兵俘虏/城防/黄巾来袭、多城/建城/运输、城外样板/领地采集、自动建设研究、宝物/商城入口完成。既有canonical规则和进度格式保留；技能及策略重做继续暂缓。
 
-账号与PG测试使用本机真实PostgreSQL17.10和测试Supabase REST。最终1400项本地自动检查通过（Node97、SceneTree1284、HTML脚本fixture19），独立最终包另1742项审计、服务器包128项审计通过，包括跨标签Cookie切换后的X-Expected-Account核对、账号绑定、真实SQL单实例/失败停止和离线战斗返程只结算一次；实际浏览器登录、席位恢复和390账号大厅已观察。真实Supabase游戏项目现已创建，数据库与Auth基础配置完成；用户选择暂不付费、先本机联调。真实登录/服务连接及公网Node主机尚未验证，不能把本地测试当作真实云端/跨电脑验证。
+1814项本地自动检查通过：Node131、SceneTree1664、HTML脚本fixture19；最终包另192项检查通过。实际Web全部23个分区、桌面与390关键管理界面、礼包入库和任务推进已观察；最终编译PCK两包都读取实际状态与4096地图。Windows EXE本版本尚未执行，公网/Steam/真实手机/自然长局未验证。详见 `production/polish/playable-completion-report-2026-10-06.md`。
 
-0.5房间故事006继续Complete：历史1187项核心本地检查、365项独立包审计及真实Web/macOS观察保留。0.5源码与表现工具已经合并，并以e5f5c6c推送独立仓库；0.5发布包未公开发布，历史Windows运行边界不变。
+新存档使用正常奖励和道具完成30弓首战；测试跳到队列结束时间且没用加速，累计800分钟未加速模拟时间不等于实际玩家耗时。后期用明确的合法高阶库存验证3次攻县城、第二章6关和第三章首节点开放，不冒充自然成长平衡。
 
-0.5历史观察：真实Web/macOS房间创建/加入/满员恢复、原生20骑驻扎召回与重启恢复600可用骑兵、最终GodotWeb390大厅和粮草12000战报交付已观察。Windows/Web最终包已重导出，无凭据或私人进度混入；原私人原生客户端已恢复。0.5 Windows EXE/CI尚未执行，公网及Steamworks未配置。报告与截图继续见production/polish/room-lobby-report-2026-10-06.md、docs/screenshots/rooms-lobby-final-050.png。
+故事007仍 In Progress，按用户要求暂缓联调。独立Free组织「山河策工作室」和项目「山河策」已完成数据库/Auth基础配置；3个人工创建、已确认账号和私密启动配置保留。已有数据库密码尚未被实际读到；本轮不启动17345、不询问或重设凭据，不创建密码助手，不改其他业务项目。恢复联网工作后再验真实Auth/PG及公网托管，先不付费。
 <!-- /STATUS -->
 
 <!-- CHECKPOINT -->
 **Updated:** 2026-10-06
 **Branch:** `main`
-**Current task:** production/epics/godot-client/story-007-online-foundation.md（In Progress），版本0.6.0-dev.1。
-**Next step:** 用户在私密 .local/supabase-local.env 第15行填已有数据库密码并保存。3个游戏账号已创建、邮箱均确认且已加入名单。随后以真实Auth/PG启动17345，验证登录、建房、存档、重启与离线结算。
-**Blocked on:** 已有数据库密码尚未填到本机；游戏账号已完成创建。连接器仍无新组织权限，但网页已完成基础配置，不以此阻止本机联调。公网托管按用户选择暂缓。
-**Files in progress:** 真实项目基础配置与本机联调交接说明；私密 .local 启动包装及配置不进Git。独立客户端和服务器包保留，尚未部署公网。
-**Run result:** PASS — 1400项本地自动检查、独立最终包1742项审计与服务器包128项审计；源码4936de9的Windows/PostgreSQL CI completed/success（37518089341），后续仅补验收文档；最终实际Web及390账号大厅已观察。证据见production/polish/online-foundation-report-2026-10-06.md。历史0.5报告仍见production/polish/room-lobby-report-2026-10-06.md。
-**Open questions:** 已有数据库凭据的本机填写与真实联调结果。费用方案已选择暂不付费，本轮不开通托管。连接器新组织授权、公网主机与域名留待后续；其他业务项目未用于游戏，百人压力、正式Steamworks与策略重做仍在后续范围。
+**Current task:** production/epics/godot-client/story-008-playable-completion.md — Complete，0.6.0-dev.2。
+**Next step:** 用户从17347试玩新版，重点反馈引导、加速道具使用和中后期资源节奏。后续若继续开发，先评估真实等待与长期成长，再扩展内容；技能/计谋和联网需遵守用户后续方向。
+**Blocked on:** 当前本机玩法收尾没有阻断。真实云联调仍等待用户恢复该范围；不以此阻止本机开发。
+**Files in progress:** 无剩余生产实现；源码、故事及QA报告保存本轮结果。本地包位于build/playable-0602，未公开Release。
+**Run result:** OBSERVED — 实际最终Web桌面及390宽度，production/qa/evidence/story-008/30–39；PASS — 1814项自动检查、192项最终包检查、实际原生/编译PCK状态与地图smoke。并未对玩家原生窗口操作。
+**Open questions:** 实际新手等待和长局平衡、Windows人工试玩、正式美术、各州扩容、联网与Steamworks。当前故事只完成本机规则入口/闭环，不能叫完整商业版。
 <!-- /CHECKPOINT -->
 
-0.5会话保留记录：房间大厅 http://127.0.0.1:17343/lobby 使用 .local/room-play-050，保留空白大厅入口；不展示测试会话秘密。原生房间测试窗口已结束，私人客户端启动成功恢复青溪城。以下本机进度路径不用于0.6临时Auth/PG测试。
+## 当前可继续试玩
 
-本机独立私人预览 http://127.0.0.1:17339/ 使用 .local/play 新城进度，不覆盖它进行测试；原生私人客户端已恢复并继续使用原userdata。共享演练 http://127.0.0.1:17342/ 使用 .local/pvp-play-040，私有邀请页为该目录join-world.html；Web演练页继续可用，刷新需重新从邀请页加入。测试使用独立目录，性能基准只实例化地图与合成DTO。原仓库和原Pages保持不变；已创建独立Supabase组织及游戏项目，尚未启动真实本机联调或部署公网，不启用watcher、hook、语义后端或图谱上传。历史根代理确认原仓库clean／HEAD c7674df、旧vendor/bridge无差异；0.5 Graphify按原flags本地更新为726节点、2218边、40社区，仍不覆盖.gd；0.6本地最终刷新1102节点、2957边、58社区，SQL与.gd覆盖限制仍在。
+- 新版本独立预览 `http://127.0.0.1:17347/`，数据 `.local/playable-0602-preview`，最终Web导出 `build/playable-0602/web`。真实UI领取官府1礼包及首个任务后停在安置百姓；这是独立测试新城，可继续玩。后台保留运行。
+- 原私人试玩17339使用 `.local/play`，不用于测试；原生私人客户端的userdata和窗口未改动。
+- 原共享四账号17342使用 `.local/pvp-play-040`，邀请页与角色密钥不输出到Git或答复。
+- 原0.5房间17343使用 `.local/room-play-050`；恢复密钥须用户自行保存。
+- 17345真实Supabase服务及17346密码助手均未启动。暂时原生QA进程已退出，不占用玩家原生窗口。
 
-2026-10-06 真实项目及本机联调交接：用户完成新项目创建，Dashboard确认「山河策」属于「山河策工作室」，项目biembbkyghflivkmeecl，Canada Central/NANO；SQL验证Postgres17.11、game_private.room_worlds存在、RLS开启、客户端策略0、PUBLIC/anon/authenticated无权限、初始0行。建表事务成功，验证阶段一次Monaco文本替换导致的只读SQL语法错误已清空并修正，未重跑建表。公开注册关闭、匿名关闭、邮箱确认保留，Data API保持关闭。证据为 .local/supabase-private-table-check.png、.local/supabase-inner-test-auth.png、.local/supabase-data-api-disabled.png。
+## 构建、保存与图谱
 
-用户选择「暂不付费，先本机联调」。实际Session pooler为aws-1-ca-central-1.pooler.supabase.com:5432/postgres，固定本项目用户名；仅读取publishable key并写入0600私密配置，未读取secret/service_role。 .local/start-supabase-local.mjs 固定127.0.0.1:17345/lobby、真实Auth及已确认邮箱名单、namespace shanhece-local-real、独立状态目录 .local/cloud-real-060 与build/brand-preview。初版包装经代理只读审查，根代理随后增加原始DATABASE_PASSWORD自动编码，23项针对性fixture通过。用户本次回复ok后，网页确认已有3个游戏账号，逐个Confirmed at均有值，已从邮箱列写入本机名单；没有新建或修改密码。私密配置权限600，DATABASE_PASSWORD仍空白。已有账号UID/邮箱不进Git，实际登录尚未验证。正常启动会创建该namespace初始数据库行，下一轮需按实际结果验收，不提前声称联调成功。最小保存验收计划为setTax35→优雅停止17345→同namespace重启→同账号重登录并恢复原房间/席位/税率，旧会话应401；其他私人入口保持。
+Windows/Web两包为0.6.0-dev.2，SHA256和字节数见QA报告与build-manifest.json。包内为完整资源、官方Node及规则服务；真实账号配置与存档不入包。Godot application/config/name继续「三国城志 · Godot」以保持user://兼容，实际窗口、页面及界面显示「山河策」。
 
-2026-10-06 组织操作：用户拒绝修改原房产业务组织，改为创建新组织，并选定「山河策工作室」。组织ID为 `mwctnnafccwgcezatckw`，Free方案，网页确认0 projects；名称已保存，截图 `.local/supabase-shanhece-organization.png`。MCP get_organization对此ID返回权限不足，因此网页登录与现有连接器访问范围尚未接通，不能借用其他业务项目。
+原three-kingdoms仍clean，HEAD c7674df45b9595405e57907524e737e633b0ff63，Pages不部署；vendor/legacy及vendor/shared无差异。Graphify按既有code-only/exclude标记本地更新1169节点、3097边、62社区；.gd和SQL提取限制保留，不启用watcher、hook、语义后端或图谱上传。
 
-2026-10-06 创建表单交接：网页登录的新项目表单选定「山河策工作室」Free组织，项目名「山河策」，区域暂选Canada (Central)，标准Postgres。Data API及自动暴露新表关闭，自动RLS开启；世界数据由Node经直连或session pooler 5432访问，不能使用transaction pooler 6543。数据库密码字段保持空白，未点击Generate或Create new project，未创建新项目。当前浏览器操作规则要求新凭据由用户亲自填写和提交，表单已展示并保留；截图 `.local/supabase-game-project-ready.png`。插件管理确认Supabase已安装/启用，但MCP仍只列出旧组织，不能通过修改全局权限解决此OAuth访问范围问题。
+## 历史验收
 
-2026-10-06 名称更新：新版Godot工程的窗口、顶栏、菜单、房间/账号大厅与后续打包说明改为「山河策」。Godot `application/config/name` 继续作为原桌面和Web `user://` 的兼容标识；仓库路径、EXE/PCK入口、JSON存档和服务协议名保留。独立 `build/brand-preview` 已导出并通过真实浏览器观察：标签/顶栏/菜单为新名，城池界面和官府1级正常，canonical资源随时间推进，无console error/warn；截图 `.local/shanhece-game-preview.png`。3个GDScript解析及Node/Python语法通过，隔离原生启动确认旧userdata目录和新窗口/菜单标题，canonical smoke返回 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。此名称验证使用独立临时进度；既有私人进度和改名前归档包未覆盖，也未重新发布历史版本。品牌diff经独立只读复核，避免了Web平台name覆盖导致的存档目录变化；Graphify按原flags刷新仍为1102节点、2957边、58社区。
+0.6账号基础报告 `production/polish/online-foundation-report-2026-10-06.md` 记录历史1400项本地检查及源码4936de9的Windows/Linux CI，不能等同真实Supabase或本轮Windows EXE运行。
 
-0.3.1 [最终 Windows/Web 包已发布](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.1)，标签源码 `ce131a8b62941cc537d2bc7398f247ad9b796d17`，GitHub 四项资产大小／digest 均与本地一致。[源码推送 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479201825)、[标签 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479270820) 与 [正式 Windows 包启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934) 均 success，head 均为上述标签源码，Windows 同样通过 697 项检查。正式 ZIP 下载并核对 SHA256 后执行导出客户端 headless smoke，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`，日志 `.local/windows031-ci.log`。动态分层、图集、正式美术、完整名将／招降、完整联盟界面、计谋及各州扩容留待后续；当前先完成共享攻防闭环；账号权威服务与 Steamworks 尚未配置。
+0.5房间报告 `production/polish/room-lobby-report-2026-10-06.md` 记录1187项核心检查、365项独立包审计，以及实际Web/macOS房间与返程入库。0.5源码及表现工具以e5f5c6c推送；0.5包未公开Release。
 
-历史 0.3.0：[发布](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.0)、[正式 Windows 包 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37472454474)，全绿，GODOT_SMOKE_OK canonical_revision=0 tiles=4096。历史 0.2.0：[发布](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.2.0)、[Windows 正式包 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37467149603)。Windows 人工长局、真实手机多点触控、控制器、Steam Deck 与 Steamworks 尚未验证。
+公开版本仍为0.3.1（ce131a8b62941cc537d2bc7398f247ad9b796d17），正式发布包Windows启动CI37479418934成功，源码及标签CI亦成功。历史697项证据和地图性能见docs/QA.zh.md、production/polish/world-map-report-2026-10-06.md；不把历史CI当作本轮导出执行证明。

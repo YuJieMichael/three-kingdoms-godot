@@ -1,6 +1,6 @@
 # 山河策
 
-Godot 4.7.2＋GDScript 的独立迁移试玩，当前开发版本为 **0.6.0-dev.1 账号联机基础**：在0.5.0的1–8人房间、玩家城池、盟友援军、自动战斗与返程入库上，增加账号登录、自己的房间列表与Postgres持久化。真实Supabase项目已完成数据库与Auth基础配置，等待账号与本机连接验证，尚未上线公网。0.3.1大地图与原有本机试玩继续保留，目标为Windows、网页及后续Steam。
+Godot 4.7.2＋GDScript 的独立迁移试玩，当前开发版本为 **0.6.0-dev.2 本机玩法收尾**。新版补齐任务与官爵、野地抓将、将领培养装备、伤兵俘虏、城防与黄巾来袭、多城运输、资源样板、自动建设研究和宝物商城的可操作界面。首次弓兵出征逐项引导建筑及科技前置，章节据点按当前阶段开放。Windows 与网页共用既有规则，目标为后续 Steam 试玩。账号联网基础保留；用户选择先完成游戏，真实 Supabase 联调及公网部署暂缓。
 
 开发分支已接入声音管理、菜单分页和可编辑新手剧情，使用方式与验证见 [表现工具说明](docs/PRESENTATION-TOOLS.zh.md)。游戏内从“菜单”进入声音、按键、引导、存档和连接设置；当前音乐及音效为原创合成示范素材。
 
@@ -27,6 +27,19 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，当前开发版本为 **0.6.0-dev
 
 0.5源码与声音、菜单、对话工具已合并并推送到独立仓库，检查点为 [e5f5c6c](https://github.com/YuJieMichael/three-kingdoms-godot/commit/e5f5c6c)。源码推送不代表新版本发布包或正式在线服务已上线。
 
+## 0.6.0-dev.2 本机完整玩法
+
+从顶栏“事务”进入主线、每日任务、黄巾史诗、官爵、十阶礼包及各管理功能。费用、容量、画像、珠宝、训练和章节条件直接读取规则服务。出征、运输和建城先显示实际报价，修改输入后须重新预览；同一未确认操作保持原回执，轮询保留正在输入的数量。
+
+- 首战以30名弓箭兵为目标，依次提示官府、书院、练兵、铁矿、铁匠铺、抛射和军营的实际前置；完成出征、胜利和返城后领取引导奖励。
+- 客栈打听 → 购买画像 → 定位野将 → 出征 → 俘获和招降；详情支持原有成长、训练、装备与锻造。
+- 伤兵治疗、士兵俘虏一键招降、城防修建、守城军令、玩家主动开启的黄巾来袭和演练。共享模式保留实际支持的守城军令，私人 NPC 事件只在私人进度开放。
+- 多城切换、官爵建城条件、城守与统领任命、运输调遣、驻扎和领地采集；运输与掠夺返城继续允许超仓。
+- 城外样板可补齐空地，选择替换布局时会明确提示改建地块回到1级；建设与研究自动选项、宝物使用目标、开箱结果和商城费用均有对应入口。
+- 县城须按原规则连续攻打至民心归零以下才能占领。第二章在古渡县城归属后开放；第三章仍须完成第二章。
+
+当前本地包位于 `build/playable-0602/`。实际验证、截图、范围和限制见 [本机玩法验收](production/polish/playable-completion-report-2026-10-06.md)。尚未公开发布此开发版；Windows 导出不等于 Windows 实机长局验证。
+
 ## 0.6 账号联机开发预览
 
 已准备Web与Godot账号登录、创建/加入房间和“我的房间”。同一账号再次加入满员房间会恢复原席位；正式在线模式按已验证账号恢复城池，本机0.5恢复密钥入口仍保留。网页与原生客户端的未确认请求绑定原账号，`X-Expected-Account`核对会阻止跨标签切换账号后误创建或退出另一账号。
@@ -52,7 +65,7 @@ HTTPS反向代理、服务守护、健康检查、私有配置与备份恢复脚
 - 同一套既有规则负责费用、解锁、队列、行军和结算；回执持久化、重连核对、重复操作去重及版本冲突处理。
 - 电脑与窄屏布局；网页高分屏按逻辑像素适配。
 
-当前客户端仍处于迁移试玩阶段。原游戏的联盟、计谋、完整名将/招降、安抚祭祀等其余城池管理界面仍需继续迁移。当前界面采用程序绘制的场景和图标，后续可以换成正式美术资源；各州扩容和Steamworks尚未接入，正式跨电脑服务仍待云项目、主机与实际验收。
+当前客户端仍处于迁移试玩阶段。本轮已迁移名将招降、培养装备和安抚祭祀等管理入口；完整联盟外交、计谋与名将技能重做不在本轮范围。当前界面采用程序绘制的场景和图标，后续可以换成正式美术资源；各州扩容和Steamworks尚未接入，正式跨电脑服务仍待云项目、主机与实际验收。
 
 0.3.1 的 **697 项本地与 Windows CI 检查已通过**（原有 482＋新增地图 215），[源码推送 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479201825) 已成功。最终原生与 Web 桌面/390 窄屏已观察地图拖动、远景、缩放、回城及当前任务点侧栏；浏览器 warn/error 日志为空。Windows/Web 已导出并发布，四项资产校验通过；[标签 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479270820) 与 [正式 Windows 包启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934) 均成功，故事 004 已完成。
 
@@ -82,6 +95,12 @@ godot --headless --path . --script tests/lobby_ui_test.gd
 godot --headless --path . --script tests/cloud_lobby_api_test.gd
 godot --headless --path . --script tests/cloud_lobby_ui_test.gd
 godot --headless --path . --script tests/cloud_lobby_html_test.gd
+godot --headless --path . --script tests/hero_management_test.gd
+godot --headless --path . --script tests/progression_management_test.gd
+godot --headless --path . --script tests/war_management_test.gd
+godot --headless --path . --script tests/inventory_management_test.gd
+godot --headless --path . --script tests/realm_management_test.gd
+godot --headless --path . --script tests/playable_ui_test.gd
 godot --headless --path . -- --smoke
 ```
 

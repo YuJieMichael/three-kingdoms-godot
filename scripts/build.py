@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Reproducible Godot client exports and local rule-service packages."""
 import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.6.0-dev.1'
+VERSION = '0.6.0-dev.2'
 GODOT_VERSION = '4.7.2'
 NODE_WINDOWS_SHA256 = '158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541'
 
@@ -68,7 +69,7 @@ for package in [windows,web_package]:
         for name in ['node.exe','LICENSE']:
             match = next(key for key in archive.namelist() if key.endswith('/'+name))
             (runtime/name).write_bytes(archive.read(match))
-    (package/'试玩说明.txt').write_text(f'山河策 Godot {VERSION}\n\nWindows 客户端：双击 ThreeKingdoms.exe，规则服务与进度会自动启动。请完整解压，不要只复制 exe。\n网页试玩包：双击 StartWeb.cmd，看到服务就绪后在浏览器打开 http://127.0.0.1:17338/ 。\n已有原网页版存档可在“存档”导入 JSON。\n电脑默认快捷键：1–5 切换页面，H 回城，T 打开事务，O 打开存档，K 打开按键设置。地图支持键盘移动与缩放，按键可在设置中重新绑定并保存在本机。Tab、Enter、Esc 保留原生界面的焦点、确认和关闭操作。\n市场交易、城守与税率管理、客栈招募的费用和收益仍由原规则结算。\n新版是独立迁移试玩；原网页和原 GitHub 保持不变。Steamworks 和公网多人服务尚未接入。\n',encoding='utf-8-sig')
+    (package/'试玩说明.txt').write_text(f'山河策 Godot {VERSION}\n\nWindows 客户端：双击 ThreeKingdoms.exe，规则服务与进度会自动启动。请完整解压，不要只复制 exe。\n网页试玩包：双击 StartWeb.cmd，看到服务就绪后在浏览器打开 http://127.0.0.1:17338/ 。\n已有原网页版存档可在“存档”导入 JSON。\n电脑默认快捷键：1–5 切换页面，H 回城，T 打开事务，O 打开存档，K 打开按键设置。地图支持键盘移动与缩放，按键可在设置中重新绑定并保存在本机。Tab、Enter、Esc 保留原生界面的焦点、确认和关闭操作。\n本版补齐任务、每日任务、黄巾史诗、官爵珠宝晋升、俸禄、野地画像抓将、将领成长与装备、伤兵俘虏、城防与黄巾来袭、多城运输调遣、城外样板、挂机保留、宝物开箱和商城。\n任务册可切换主线、日常、史诗、官爵、章节和十阶礼包；未达成任务点击前往目标。宝物可以选择目标或装备部位。运输、调遣和建城先预览费用再确认。原规则与存档格式继续兼容。\n新版是独立迁移试玩；原网页和原 GitHub 保持不变。Steamworks 和公网多人服务尚未接入。\n',encoding='utf-8-sig')
 (web_package/'StartWeb.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\necho Open http://127.0.0.1:17338/ after the service is ready.\r\nruntime\\node.exe rule-service\\bridge\\server.mjs --port 17338 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\Web" --web-dir web\r\n',encoding='ascii')
 (web_package/'start-web.sh').write_text('#!/bin/sh\nset -eu\ncd "$(dirname "$0")"\nnode rule-service/bridge/server.mjs --port 17338 --data-dir "${XDG_DATA_HOME:-$HOME/.local/share}/three-kingdoms-godot-web" --web-dir web\n')
 (web_package/'start-web.sh').chmod(0o755)

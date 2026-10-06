@@ -11,6 +11,7 @@ import {atomicSharedJSON} from './shared-store.mjs';
 import {openRoomStore,roomMetadata,memberSession,validSecret,cleanName,createRoom,joinRoom} from './room-store.mjs';
 import {ROOM_PROFILE} from './room-scenario.mjs';
 import {sharedEnvelope,sharedWorldView,sharedNodeView} from './shared-dto.mjs';
+import {sharedManagementQuote} from './management-quotes.mjs';
 
 const MAX_PENDING=64;
 const within=(root,target)=>target===root||target.startsWith(root+path.sep);
@@ -227,7 +228,7 @@ export async function startRoomsServer({dataDir,port=17343,host='127.0.0.1',cloc
           });
         });reply(200,result);return;
       }
-      const api=['/health','/state','/world','/node','/command','/import','/export','/shutdown'];
+      const api=['/health','/state','/world','/node','/quote','/command','/import','/export','/shutdown'];
       let identity,account;if(api.includes(route)||url.pathname.startsWith('/api/')){
         account=cloud?await accountFor(request):null;
         identity=identityFor(request);if(!identity)throw new GameError('UNAUTHORIZED','请从房间大厅加入，或使用自己的恢复密钥',401);
@@ -248,6 +249,16 @@ export async function startRoomsServer({dataDir,port=17343,host='127.0.0.1',cloc
           const value=route==='/world'?sharedWorldView(context,member.id,member.authorityId,member):route==='/node'?
             sharedNodeView(context,member.id,url.searchParams.get('id')||'',member.authorityId,member):sharedEnvelope(context,member.id,member.authorityId,member);
           return {...value,room:publicRoom(room,member)};
+        });reply(200,result);return;
+      }
+      if(request.method==='POST'&&route==='/quote'){
+        if([...url.searchParams.keys()].length)throw new GameError('BAD_QUOTE','预览不能指定房间或查询参数');
+        const input=await readBody(request);
+        const result=await serial(async()=>{
+          if(account)cloud.auth.assertActive?.(account.token);
+          const {room,member}=currentRoom(identity),context=await new MemoryStore(room.data).context(member.id,room.id,null,safeNow(clock));
+          return {...sharedManagementQuote(context,member.id,input),protocol:1,mode:'shared',authorityId:member.authorityId,
+            actor:{id:member.id,name:member.name},room:publicRoom(room,member)};
         });reply(200,result);return;
       }
       if(request.method==='POST'&&route==='/command'){

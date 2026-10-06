@@ -8,6 +8,7 @@ import {handleRequest} from '../vendor/shared/service.mjs';
 import {openSharedStore, atomicSharedJSON} from './shared-store.mjs';
 import {sharedEnvelope, sharedWorldView, sharedNodeView} from './shared-dto.mjs';
 import {SHARED_REALM} from './shared-scenario.mjs';
+import {sharedManagementQuote} from './management-quotes.mjs';
 
 const MAX_BODY=128*1024,MAX_PENDING=64;
 const within=(root,target)=>target===root||target.startsWith(root+path.sep);
@@ -16,7 +17,7 @@ const namespaces=/^(?:wild\.(?:discover|buyPortrait|recruit|reward|release)|hero
 const sharedActions=new Set(['shared.attackPlayer','shared.aid','shared.recallAid','shared.hunt','shared.createAlliance','shared.joinAlliance','shared.leaveAlliance','shared.endProtection','shared.declareWar','shared.peace','shared.setDiplomacy','shared.markOperation','shared.removeOperation','shared.marketCreate','shared.marketBuy','shared.marketCancel']);
 const marchCreators=new Set(['shared.attackPlayer','shared.aid','shared.hunt','shared.marketBuy']);
 // This rehearsal validates shared player warfare; private-coordinate NPC battles remain local-only.
-const localBattleActions=new Set(['dispatch','scout','dispatchScout','startBattle','battleRound','setBattleOrder','setBattleOrders','recall','dismissBattle','selectExpedition','requestCityDefense','startCityDefense','cityDefenseRound','endDefenseDrill','resolveCityDefense','submitBattleTactic','cancelBattleTactic','startRegionalFront']);
+const localBattleActions=new Set(['dispatch','scout','dispatchScout','startBattle','battleRound','setBattleOrder','setBattleOrders','recall','dismissBattle','selectExpedition','requestCityDefense','setAutoCityDefense','startCityDefense','cityDefenseRound','endDefenseDrill','resolveCityDefense','submitBattleTactic','cancelBattleTactic','startRegionalFront']);
 const protectedFields=new Set(['actor','actorId','user','userId','owner','ownerId','source','sourceId','seller','sellerId','buyer','buyerId','authorityId','state','snapshot','clock','now','serverTime','start','arrive','returnAt','declaredAt','startsAt','endsAt','createdAt','expiresAt','won','statsSnapshot','generalSnapshot','loot','revision']);
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json','.txt':'text/plain; charset=utf-8','.wasm':'application/wasm','.pck':'application/octet-stream','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon','.webp':'image/webp','.woff':'font/woff','.woff2':'font/woff2','.ttf':'font/ttf','.otf':'font/otf','.ogg':'audio/ogg','.mp3':'audio/mpeg'};
 
@@ -98,7 +99,7 @@ export async function startSharedBridge({dataDir,port=17342,host='127.0.0.1',clo
       if(origin){response.setHeader('Access-Control-Allow-Origin',origin);response.setHeader('Vary','Origin');response.setHeader('Access-Control-Allow-Headers','Authorization, X-Bridge-Token, Content-Type');response.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');}
       if(request.method==='OPTIONS'){response.writeHead(204);response.end();return;}
       const url=new URL(request.url,`http://${request.headers.host||'127.0.0.1'}`),route=url.pathname.startsWith('/api/')?url.pathname.slice(4):url.pathname;
-      const api=['/health','/state','/world','/node','/command','/import','/export','/shutdown'];
+      const api=['/health','/state','/world','/node','/quote','/command','/import','/export','/shutdown'];
       if(api.includes(route)||url.pathname.startsWith('/api/')){identity=actorFor(request);if(!identity)throw new GameError('UNAUTHORIZED','请选择有效的演练身份连接密钥',401);}
       if(request.method==='GET'&&route==='/health'){
         if([...url.searchParams.keys()].length)throw new GameError('BAD_INPUT','健康检查不接受身份或时间参数');
@@ -111,6 +112,15 @@ export async function startSharedBridge({dataDir,port=17342,host='127.0.0.1',clo
           if(route==='/world')return sharedWorldView(current,identity.id,authority,identity);
           if(route==='/node')return sharedNodeView(current,identity.id,url.searchParams.get('id')||'',authority,identity);
           return sharedEnvelope(current,identity.id,authority,identity);
+        });reply(200,result);return;
+      }
+      if(request.method==='POST'&&route==='/quote'){
+        if([...url.searchParams.keys()].length)throw new GameError('BAD_QUOTE','预览不接受身份或时间参数');
+        const input=await readBody(request);
+        const result=await serial(async()=>{
+          const current=await context(storage.readStore(),identity.id,safeNow(clock));
+          return {...sharedManagementQuote(current,identity.id,input),protocol:1,mode:'shared',
+            authorityId:storage.authorityId(identity.id),actor:{id:identity.id,name:identity.name}};
         });reply(200,result);return;
       }
       if(request.method==='POST'&&route==='/command'){

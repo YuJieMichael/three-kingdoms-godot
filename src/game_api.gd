@@ -10,6 +10,7 @@ signal request_failed(message: String)
 signal export_received(snapshot: Dictionary)
 signal command_completed(type: String, payload: Dictionary)
 signal mode_changed(mode: String)
+signal quote_received(payload: Dictionary)
 
 var base_url: String = "http://127.0.0.1:17337"
 var token: String = ""
@@ -45,7 +46,7 @@ var _pending_replays: Array[Dictionary] = []
 var _last_world_time: float = 0.0
 # Shared arrival/battle settlement belongs to the server, even while players
 # are offline. Prepared army tactics remain available through setTactic.
-const SHARED_FORBIDDEN_COMMANDS: PackedStringArray = ["dispatch", "scout", "dispatchScout", "shared.settle", "startBattle", "battleRound", "setBattleOrder", "setBattleOrders", "dismissBattle", "submitBattleTactic", "cancelBattleTactic", "startCityDefense", "cityDefenseRound", "resolveCityDefense", "endDefenseDrill"]
+const SHARED_FORBIDDEN_COMMANDS: PackedStringArray = ["dispatch", "scout", "dispatchScout", "shared.settle", "startBattle", "battleRound", "setBattleOrder", "setBattleOrders", "dismissBattle", "submitBattleTactic", "cancelBattleTactic", "requestCityDefense", "setAutoCityDefense", "startCityDefense", "cityDefenseRound", "resolveCityDefense", "endDefenseDrill"]
 
 func _ready() -> void:
 	_load_pending()
@@ -146,6 +147,13 @@ func import_snapshot(snapshot: Dictionary) -> void:
 		request_failed.emit("请等待当前操作完成")
 		return
 	_enqueue("import", HTTPClient.METHOD_POST, {"commandId": "gd_" + Crypto.new().generate_random_bytes(12).hex_encode(), "expectedRevision": revision, "state": snapshot})
+
+func request_quote(kind: String, args: Array, request_id: String) -> void:
+	if not connected or _has_mutation():
+		request_failed.emit("请先连接并等待当前操作完成，再预览")
+		return
+	_enqueue("quote", HTTPClient.METHOD_POST, {"kind": kind, "args": args, "requestId": request_id,
+		"sourceCity": str(last_snapshot.get("view", {}).get("city", {}).get("id", "capital"))})
 
 func fetch_export() -> void:
 	if mode == "shared":
@@ -503,6 +511,13 @@ func _on_completed(result: int, code: int, _headers: PackedStringArray, bytes: P
 			world_received.emit(payload)
 		"export":
 			export_received.emit(payload)
+		"quote":
+			if not _accept_snapshot_identity(payload):
+				request_failed.emit("预览身份已变化，请重新连接自己的城池")
+			elif int(payload.get("revision", -1)) < revision:
+				request_failed.emit("进度已变化，请重新预览")
+			else:
+				quote_received.emit(payload)
 		"state", "command", "import":
 			if not _accept_snapshot_identity(payload):
 				_current = request

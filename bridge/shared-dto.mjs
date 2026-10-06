@@ -63,7 +63,7 @@ export function sharedEnvelope(context,actor,authorityId,identity,result=undefin
   const row=context.players.find(player=>player.id===actor);
   if(!row)throw new GameError('NOT_JOINED','演练账号尚未创建',404);
   const runtime=scopedRuntime(row.state,context.serverTime,context.marches,actor),g=runtime.Game;
-  const shared=sharedProjection(context,actor),view=gameView(g,context.serverTime);
+  const shared=sharedProjection(context,actor),view=gameView(g,context.serverTime,runtime,{shared:true});
   if(g.currentCityId()==='capital')view.city={...view.city,...point(row.home)};
   view.marches=[...view.marches,...shared.marches];view.reports=[...shared.reports,...view.reports];
   return {ok:true,protocol:1,mode:'shared',revision:row.revision,state:copy(g.state),view,serverTime:context.serverTime,authorityId,

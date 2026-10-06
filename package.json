@@ -1,9 +1,9 @@
 {
   "name": "three-kingdoms-godot",
-  "version": "0.6.0-dev.1",
+  "version": "0.6.0-dev.2",
   "private": true,
   "scripts": {
-    "test": "node --test tests/bridge.test.cjs tests/shared-bridge.test.cjs tests/room-bridge.test.cjs tests/cloud-bridge.test.cjs tests/cloud-config.test.cjs tests/cloud-backup.test.cjs tests/postgres-room-store.test.cjs tests/cloud-postgres.test.cjs",
+    "test": "node --test tests/*.test.cjs",
     "serve": "node bridge/server.mjs --port 17339 --data-dir .local/web --web-dir build/web",
     "test:postgres": "node --test tests/postgres-room-store.test.cjs",
     "start:cloud": "node scripts/start-cloud.mjs",

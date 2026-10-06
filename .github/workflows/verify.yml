@@ -20,7 +20,7 @@ jobs:
       - name: Canonical bridge tests
         run: |
           npm ci --omit=dev --ignore-scripts
-          node --test tests/bridge.test.cjs tests/shared-bridge.test.cjs tests/room-bridge.test.cjs tests/cloud-bridge.test.cjs tests/cloud-config.test.cjs tests/cloud-backup.test.cjs
+          node --test tests/bridge.test.cjs tests/shared-bridge.test.cjs tests/room-bridge.test.cjs tests/cloud-bridge.test.cjs tests/cloud-config.test.cjs tests/cloud-backup.test.cjs tests/hero-management.test.cjs tests/progression-management.test.cjs tests/war-management.test.cjs tests/inventory-management.test.cjs tests/realm-management.test.cjs
       - name: Install pinned official Godot
         shell: pwsh
         run: |
@@ -40,7 +40,7 @@ jobs:
           New-Item node_modules/.gdignore -ItemType File -Force
           & $env:GODOT_BIN --headless --path . --editor --import 2>&1 | Tee-Object import.log
           if ($LASTEXITCODE -ne 0 -or (Select-String -Path import.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw 'Import failed' }
-          foreach ($test in @('tests/world_map_test.gd','tests/battle_view_test.gd','tests/client_test.gd','tests/management_test.gd','tests/input_test.gd','tests/map_render_test.gd','tests/pvp_api_test.gd','tests/pvp_ui_test.gd','tests/lobby_api_test.gd','tests/lobby_ui_test.gd','tests/presentation_test.gd','tests/cloud_lobby_api_test.gd','tests/cloud_lobby_ui_test.gd','tests/cloud_lobby_html_test.gd')) {
+          foreach ($test in @('tests/world_map_test.gd','tests/battle_view_test.gd','tests/client_test.gd','tests/management_test.gd','tests/input_test.gd','tests/map_render_test.gd','tests/pvp_api_test.gd','tests/pvp_ui_test.gd','tests/lobby_api_test.gd','tests/lobby_ui_test.gd','tests/presentation_test.gd','tests/cloud_lobby_api_test.gd','tests/cloud_lobby_ui_test.gd','tests/cloud_lobby_html_test.gd','tests/hero_management_test.gd','tests/progression_management_test.gd','tests/war_management_test.gd','tests/inventory_management_test.gd','tests/realm_management_test.gd','tests/playable_ui_test.gd')) {
             & $env:GODOT_BIN --headless --path . --script $test 2>&1 | Tee-Object test.log
             if ($LASTEXITCODE -ne 0 -or (Select-String -Path test.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw "Failed $test" }
           }
