@@ -53,3 +53,5 @@ Run result: OBSERVED — 最终Web桌面与390宽度实际观察，证据在 `pr
 Review mode: solo/minimal；分工代理实际复核自身模块，根代理整合、运行全部回归、检查截图和最终包。不宣称额外独立审查或人工Windows试玩。没有GDD/ADR规则偏离；本轮补接口和界面，原经济/兵种/战斗规则未改。
 
 未验证边界：未加速首战链累计800分钟模拟时间，未证明实际等待节奏；后期使用合法高阶fixture。自然成长平衡、正式美术、各州、技能/计谋、联盟扩展、真实联网及Steam发布属于后续工作。故事007按用户要求暂停联调，仍In Progress。
+
+同源码cb2a4ef的Windows/Linux CI37540027451已completed/success；仅源码客户端smoke，导出Windows EXE步骤跳过。随后只更新验收文档。

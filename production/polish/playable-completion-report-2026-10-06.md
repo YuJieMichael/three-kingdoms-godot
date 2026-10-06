@@ -60,3 +60,7 @@ macOS实际图形引擎启动连接独立服务，返回 `GODOT_SMOKE_OK canonic
 原仓库仍clean，HEAD `c7674df45b9595405e57907524e737e633b0ff63`；vendor快照无差异。测试使用临时目录，原17339/17342/17343服务未替换。最终预览17347使用 `.local/playable-0602-preview`，可继续试玩；编译/native QA采用独立user目录。
 
 Graphify按 `extract . --code-only --exclude '.claude/**' --exclude 'docs/engine-reference/**'` 本地刷新为1169节点、3097边、62社区。未启用watcher、hook、语义后端或上传；.gd与缺少tree_sitter_sql的SQL不覆盖，图缺失不当作无依赖。
+
+## 同源码 Windows/Linux CI
+
+生产源码提交 `cb2a4ef17191a600db4e742a8bcad01b4da5976e` 的 [GitHub验证](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37540027451) completed/success。Windows Node119例中117通过、2项按平台跳过；Godot SceneTree1664和HTML fixture19通过，源码客户端返回 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。Linux真实Postgres12项通过、0跳过。Windows导出EXE验证步骤因没有Release触发而跳过；源码成功不替代导出包实机运行。此结果之后只更新验收文档，未改生产代码或本地包。

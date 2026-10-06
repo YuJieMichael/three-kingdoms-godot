@@ -4,7 +4,7 @@
 
 2026-10-06：1814项本地自动检查通过（Node131、SceneTree1664、HTML脚本fixture19），另有最终包192项检查通过。实际Web桌面/390界面、礼包入库与任务推进已观察；两份最终编译PCK加载并读取实际状态/4096地图成功。
 
-任务、官爵、画像抓将、培养装备、战后管理、多城运输、城外样板、自动建设研究与宝物商城已迁移。新存档首战用正常奖励走通；第二章使用明确的高阶测试库存验证，不声称自然长局平衡。Windows EXE、公网/真实Supabase与Steam未执行，用户要求先完成本机玩法。详细范围、包校验、截图与节奏限制见 [本机玩法验收](../production/polish/playable-completion-report-2026-10-06.md)。
+任务、官爵、画像抓将、培养装备、战后管理、多城运输、城外样板、自动建设研究与宝物商城已迁移。新存档首战用正常奖励走通；第二章使用明确的高阶测试库存验证，不声称自然长局平衡。Windows EXE、公网/真实Supabase与Steam未执行，用户要求先完成本机玩法。同源码cb2a4ef的 [Windows/Linux CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37540027451) 已success，包含Windows源码客户端smoke；导出EXE步骤跳过。详细范围、包校验、截图与节奏限制见 [本机玩法验收](../production/polish/playable-completion-report-2026-10-06.md)。
 
 ## 0.6.0-dev.1账号与Postgres开发预览
 
