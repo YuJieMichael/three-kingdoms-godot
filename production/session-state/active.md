@@ -14,8 +14,8 @@
 **Updated:** 2026-10-06
 **Branch:** `main`
 **Current task:** production/epics/godot-client/story-007-online-foundation.md（In Progress），版本0.6.0-dev.1。
-**Next step:** 新组织「山河策工作室」已创建；为连接器授权此组织后查询项目费用、创建独立游戏项目，配置HTTPS主机并进行跨电脑验收。
-**Blocked on:** 现有连接器没有新组织权限；正式项目费用与公网Node托管目标仍待落实。本地客户端及服务器包已保存，尚未部署公网。
+**Next step:** 浏览器的新游戏项目表单已准备，等待用户亲自填写数据库密码并提交创建；创建完成后授权连接器访问新组织，核验实际项目与费用，再配置私有表、Auth及HTTPS主机并进行跨电脑验收。
+**Blocked on:** 创建表单的新数据库凭据需要用户接手；现有连接器仍没有新组织权限，公网Node托管目标待落实。本地客户端及服务器包已保存，尚未部署公网。
 **Files in progress:** 本次提交保存0.6账号、PG、客户端、部署配置及最终验证说明；不是正式云端上线。0.5与表现工具合并检查点e5f5c6c已推送。
 **Run result:** PASS — 1400项本地自动检查、独立最终包1742项审计与服务器包128项审计；源码4936de9的Windows/PostgreSQL CI completed/success（37518089341），后续仅补验收文档；最终实际Web及390账号大厅已观察。证据见production/polish/online-foundation-report-2026-10-06.md。历史0.5报告仍见production/polish/room-lobby-report-2026-10-06.md。
 **Open questions:** 新组织的连接器授权、项目费用、公网Node主机与域名。现有连接项目属于其他业务，未用于游戏；百人压力、正式Steamworks与策略重做仍在后续范围。
@@ -26,6 +26,8 @@
 本机独立私人预览 http://127.0.0.1:17339/ 使用 .local/play 新城进度，不覆盖它进行测试；原生私人客户端已恢复并继续使用原userdata。共享演练 http://127.0.0.1:17342/ 使用 .local/pvp-play-040，私有邀请页为该目录join-world.html；Web演练页继续可用，刷新需重新从邀请页加入。测试使用独立目录，性能基准只实例化地图与合成DTO。原仓库和原Pages保持不变；已创建独立Supabase组织，但没有开通游戏项目或部署公网，不启用watcher、hook、语义后端或图谱上传。历史根代理确认原仓库clean／HEAD c7674df、旧vendor/bridge无差异；0.5 Graphify按原flags本地更新为726节点、2218边、40社区，仍不覆盖.gd；0.6本地最终刷新1102节点、2957边、58社区，SQL与.gd覆盖限制仍在。
 
 2026-10-06 组织操作：用户拒绝修改原房产业务组织，改为创建新组织，并选定「山河策工作室」。组织ID为 `mwctnnafccwgcezatckw`，Free方案，网页确认0 projects；名称已保存，截图 `.local/supabase-shanhece-organization.png`。MCP get_organization对此ID返回权限不足，因此网页登录与现有连接器访问范围尚未接通，不能借用其他业务项目。
+
+2026-10-06 创建表单交接：网页登录的新项目表单选定「山河策工作室」Free组织，项目名「山河策」，区域暂选Canada (Central)，标准Postgres。Data API及自动暴露新表关闭，自动RLS开启；世界数据由Node经直连或session pooler 5432访问，不能使用transaction pooler 6543。数据库密码字段保持空白，未点击Generate或Create new project，未创建新项目。当前浏览器操作规则要求新凭据由用户亲自填写和提交，表单已展示并保留；截图 `.local/supabase-game-project-ready.png`。插件管理确认Supabase已安装/启用，但MCP仍只列出旧组织，不能通过修改全局权限解决此OAuth访问范围问题。
 
 2026-10-06 名称更新：新版Godot工程的窗口、顶栏、菜单、房间/账号大厅与后续打包说明改为「山河策」。Godot `application/config/name` 继续作为原桌面和Web `user://` 的兼容标识；仓库路径、EXE/PCK入口、JSON存档和服务协议名保留。独立 `build/brand-preview` 已导出并通过真实浏览器观察：标签/顶栏/菜单为新名，城池界面和官府1级正常，canonical资源随时间推进，无console error/warn；截图 `.local/shanhece-game-preview.png`。3个GDScript解析及Node/Python语法通过，隔离原生启动确认旧userdata目录和新窗口/菜单标题，canonical smoke返回 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。此名称验证使用独立临时进度；既有私人进度和改名前归档包未覆盖，也未重新发布历史版本。品牌diff经独立只读复核，避免了Web平台name覆盖导致的存档目录变化；Graphify按原flags刷新仍为1102节点、2957边、58社区。
 
