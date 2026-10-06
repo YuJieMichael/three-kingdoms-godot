@@ -4,9 +4,28 @@
 
 ## 当前边界
 
-账号接口使用 Supabase Auth，世界数据使用 Supabase Postgres，现有 Node canonical 规则服务负责行军、自动战斗与返程入库。尚未开通或验证真实游戏云项目、域名与公网主机。代码本地验证不能代替跨电脑验收。
+账号接口使用 Supabase Auth，世界数据使用 Supabase Postgres，现有 Node canonical 规则服务负责行军、自动战斗与返程入库。真实游戏云项目已创建并完成数据库与 Auth 基础配置；实际账号登录、服务连接、域名与公网主机尚未验证。代码本地验证不能代替跨电脑验收。
 
-2026-10-06 已按用户要求创建独立的 Supabase 组织「山河策工作室」（`mwctnnafccwgcezatckw`），采用 Free 方案；网页确认组织内为 0 个项目。原房产业务组织与项目未修改。现有 Supabase 连接器尚无新组织权限，需要重新授权该组织后查询项目费用，再创建独立游戏项目。Node 服务另需一台持续在线主机或容器托管账号；Supabase 项目本身不会自动托管本仓库的 Node 进程。
+2026-10-06 用户在独立 Free 组织「山河策工作室」（`mwctnnafccwgcezatckw`）内创建了游戏项目「山河策」（`biembbkyghflivkmeecl`），区域 Canada (Central)，网页显示 NANO，SQL 返回 Postgres 17.11。通过已登录的 Dashboard 建立并核验 `game_private.room_worlds`：RLS 已开启，客户端策略为 0，PUBLIC、anon、authenticated 均无访问权限。Data API 保持关闭；Auth 邮箱密码入口开启，公开注册与匿名登录关闭，邮箱确认开启。首个游戏账号尚未创建。
+
+用户选择「暂不付费，先本机联调」，没有开通付费托管或独立 IPv4。现有 Supabase 连接器仍无新组织权限，本轮配置使用网页；原房产业务组织与项目未修改。Node 服务先在本机运行；Supabase 项目本身不会自动托管本仓库的 Node 进程。
+
+## 本次本机联调入口
+
+私密启动包装脚本位于 `.local/start-supabase-local.mjs`，配置位于 `.local/supabase-local.env`，均不进入 Git 或导出包。项目 URL、publishable key 与实际 session pooler 5432 地址已写入配置；尚缺已有数据库密码和首个内测邮箱。密码只在本机填写，不能发到聊天或提交仓库。
+
+配置支持在 `DATABASE_PASSWORD` 填原始密码并自动处理 URL 编码，也支持直接填写包含已编码密码的完整 `DATABASE_URL`；两者不能同时提供实际密码。将同一个内测账号邮箱填入 `TK_ALLOWED_EMAILS`，并在 Dashboard 的 Authentication → Users → Add user → Create new user 中亲自设置游戏登录密码、确认并提交。该管理员表单默认勾选 Auto confirm user，且明确不发送确认邮件；请只用于管理员确认归属的内测账号。
+
+启动需要 Node 24：
+
+```sh
+node .local/start-supabase-local.mjs --check
+node .local/start-supabase-local.mjs
+```
+
+入口固定为 `http://127.0.0.1:17345/lobby`，仅监听本机，使用真实 Supabase Auth、已确认邮箱与允许名单。状态目录为 `.local/cloud-real-060`，数据库 namespace 为 `shanhece-local-real`；不覆盖 17339 私人试玩或其他演练进度。使用独立的 `build/brand-preview` 完整 Web 导出。TLS 证书验证保持开启，数据库断连或失锁时退出，不回退本机 JSON 或测试账号。
+
+`--check` 只检查本机配置与资源；本轮 23 项密码编码、连接限制和配置 fixture 通过，私密包装脚本经只读审查。真实网络连接尚未启动，不能将该检查当作登录或存档成功。正常启动会在真实数据库创建该 namespace 的初始记录；后续验收需实际登录、建房、保存、停止并重启服务，再核对房间与离线结算。
 
 ## 玩家入口
 

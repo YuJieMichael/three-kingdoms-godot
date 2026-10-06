@@ -31,10 +31,10 @@ Supabase文档与2026-10-06 changelog已读取；不使用已弃用的框架adap
 
 ## 状态
 
-组织已按用户后续选择创建为「山河策工作室」（Free，`mwctnnafccwgcezatckw`）；当前网页显示0个项目，现有MCP连接器无此组织访问权限。Node托管目标仍待用户提供；在此期间继续完成全部可独立进行的开发。
+组织已按用户后续选择创建为「山河策工作室」（Free，`mwctnnafccwgcezatckw`）。用户创建游戏项目「山河策」（`biembbkyghflivkmeecl`，Canada Central，Postgres17.11）；Dashboard已建立私有存档表并验证RLS及PUBLIC/anon/authenticated均无访问权限，Data API关闭，公开注册关闭，邮箱确认开启。现有MCP连接器仍无此组织访问权限，未修改其他业务项目。用户选择暂不付费、先本机联调；付费Node托管暂缓。
 
 ## 开发交付与未完成项
 
 0.5检查点 `dee68fa` 与远端音效/菜单/对话合并为 `e5f5c6c`，已推送独立仓库。0.6账号、Postgres与部署代码完成，最终本地HTTP/数据库97项、SceneTree1284项、实际HTML脚本隔离fixture19项，共1400项通过。独立复核未发现阻断开发预览的问题。实际Web已观察登录、建房、退出后恢复原席位、跨标签变更拒绝以及最终Godot Web城池。完整证据见 `production/polish/online-foundation-report-2026-10-06.md`。
 
-真实Supabase游戏项目、域名和持续在线Node主机尚未创建或部署。新组织已创建，下一步需授权连接器、查询项目费用并确认，再落实托管目标和管理员账号配置；未修改其他业务项目。该故事继续In Progress，不将本地fake Auth和真实本机PG测试等同公网完成。Docker/systemd部署、Windows EXE实际运行和跨电脑验收未在本轮完成。
+真实Supabase项目与数据库/Auth基础配置完成，本机启动包装与实际会话连接池5432地址已准备。23项密码编码/连接限制配置fixture通过，包装脚本经独立只读审查；仍需用户仅在本机填写已有数据库密码，并在Supabase亲自设置首个游戏账号密码，之后才能启动真实服务并验证登录、保存与重启恢复。正常启动会创建独立namespace初始记录，当前未启动联网。该故事继续In Progress，不将本地fake Auth、真实本机PG测试或配置检查等同真实Supabase联调完成。域名、Docker/systemd上线、持续在线主机与跨电脑验收均未完成。
