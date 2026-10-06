@@ -275,7 +275,7 @@ func _show_page(page: String) -> void:
 			_center.add_child(_battle)
 			_battle.custom_minimum_size = Vector2(260.0, 540.0)
 			_battle.action_requested.connect(_battle_action)
-			_battle.set_battle(_view.get("battle"), _unit_dictionary())
+			_battle.set_battle(_present_battle(), _unit_dictionary())
 			_center.add_child(_button("训练与驻军", _training_dialog))
 			_center.add_child(_button("行军与驻扎部队", _marches_dialog))
 		"generals", "reports":
@@ -309,7 +309,7 @@ func _receive_snapshot(payload: Dictionary) -> void:
 	if _city != null:
 		_city.set_city(_view)
 	if _battle != null:
-		_battle.set_battle(_view.get("battle"), _unit_dictionary())
+		_battle.set_battle(_present_battle(), _unit_dictionary())
 	var signature: String = JSON.stringify([_view.get("buildings", []), _view.get("queues", {}), _view.get("marches", []), _view.get("reports", []), _view.get("generals", [])])
 	if signature != _last_structure:
 		_last_structure = signature
@@ -404,6 +404,8 @@ func _queue_name(queue: Dictionary, kind: String) -> String:
 
 func _march_status(march: Dictionary) -> String:
 	var status: String = str(march.get("status", "march"))
+	if status == "battle":
+		return "交战中 · " + str(int(march.get("count", 0))) + "人"
 	if status == "stationed":
 		return "驻扎 · " + str(march.get("count", 0)) + "人"
 	if march.get("canStartBattle", false):
@@ -709,6 +711,17 @@ func _report_dialog(report: Dictionary) -> void:
 
 func _report_title(report: Dictionary) -> String:
 	var id: String = str(report.get("node", ""))
+	return _node_name(id) + " · " + ("占领" if report.get("mode", "raid") == "occupy" else "掠夺") + ("胜利" if report.get("won", false) else "失利")
+
+func _present_battle() -> Variant:
+	var battle: Variant = _view.get("battle")
+	if not battle is Dictionary:
+		return null
+	var display: Dictionary = battle.duplicate(true)
+	display["nodeName"] = _node_name(str(display.get("node", "")))
+	return display
+
+func _node_name(id: String) -> String:
 	var name: String = id
 	for node: Dictionary in _view.get("nodes", []):
 		if str(node.get("id", "")) == id:
@@ -719,7 +732,7 @@ func _report_title(report: Dictionary) -> String:
 			if str(tile.get("id", "")) == id:
 				name = str(tile.get("name", id))
 				break
-	return name + " · " + ("占领" if report.get("mode", "raid") == "occupy" else "掠夺") + ("胜利" if report.get("won", false) else "失利")
+	return name
 
 func _army_text(army: Dictionary) -> String:
 	var names: Dictionary = _unit_dictionary()
