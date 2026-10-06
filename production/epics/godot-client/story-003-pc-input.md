@@ -1,6 +1,6 @@
 # 可配置电脑输入与地图导航
 
-Status: IN PROGRESS
+Status: DONE
 Last Updated: 2026-10-06
 Story Type: UI / Integration / Config
 GDD: design/game-brief.md
@@ -19,10 +19,10 @@ Dependencies: production/epics/godot-client/story-002-city-management.md — DON
 - [x] 有效绑定保存在本机客户端设置中，重新启动或网页重新加载后恢复；与游戏存档分离，不覆盖玩家进度。
 - [x] 文本输入、SpinBox 数量编辑、弹窗和按键捕获期间，地图移动与页面快捷键不会误触发；Tab、Enter、Esc 保留原生焦点、确认与关闭操作。
 - [x] 桌面和 390 像素窄屏可打开、滚动并操作按键设置；长动作名、反馈文字和按钮不被截断，触屏仍可使用原按钮。
-- [ ] 原有 227 项检查继续通过，新增 `tests/input_test.gd` 检查覆盖绑定校验、冲突与持久化、导航和输入隔离；CI 执行新检查。
+- [x] 原有 227 项检查继续通过，新增 `tests/input_test.gd` 检查覆盖绑定校验、冲突与持久化、导航和输入隔离；CI 执行新检查。
 - [x] 实际观察 macOS 桌面窗口与 Web：地图移动、快捷键、编辑隔离、重绑冲突与重新加载，并保存截图及观察记录。
-- [ ] 生成 Windows 与 Web 0.3.0 试玩包；正式 Windows ZIP 校验后实际启动 CI 通过，分别记录导出与发布包运行结果。
-- [ ] 只提交和发布独立新仓库；原仓库、原网页、规则快照及玩家存档不变，未开启 watcher、hook 或图谱上传。
+- [x] 生成 Windows 与 Web 0.3.0 试玩包；正式 Windows ZIP 校验后实际启动 CI 通过，分别记录导出与发布包运行结果。
+- [x] 只提交和发布独立新仓库；原仓库、原网页、规则快照及玩家存档不变，未开启 watcher、hook 或图谱上传。
 
 ## 实现范围
 
@@ -40,4 +40,13 @@ macOS 原生窗口实际使用 K 打开设置：城池绑定 2 时明确拒绝�
 
 最终 Web 实际存档 TextEdit 输入 `12345k` 时未触发游戏快捷键，Esc 关闭后立即按 2 成功切换舆图，无需额外点击；新增检查亦覆盖弹窗关闭后的焦点恢复。H 回城、`=` 缩放 80→90%、D 六次镜头 32→38 均可见。390×844 窄屏通过事务菜单进入 350 像素宽设置弹窗，滚动可见 15 项与恢复默认/关闭按钮，并实际恢复默认；浏览器 warn/error 日志为空。截图为 `pc-input-text-web.jpg`、`pc-input-focus-web.jpg`、`pc-input-map-web.jpg`、`pc-input-settings-390-web.jpg`、`pc-input-settings-bottom-390-web.jpg`。最终原生默认设置截图为 `pc-input-settings-native-final.jpg`。
 
-Windows/Web 0.3.0 最终导出成功，SHA256 清单见 `docs/QA.zh.md`；正式 Windows 发布包启动 CI 尚待完成，因此故事保持 IN PROGRESS。0.2.0 的运行结果仅作为历史证据保留。
+Windows/Web 0.3.0 最终导出成功并已发布为 [v0.3.0](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.0)，标签/源码为 `3a48bf5df20a708199f3c69a1a0409c8cadac92a`，四项发布资产 digest 与本地一致，SHA256 清单见 `docs/QA.zh.md`。[正式 Windows CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37472454474) 全绿：官方 Godot 安装、导入、全部 GDScript 检查与源码 smoke 成功，日志确认 `INPUT_TEST_CHECKS=255 failures=0`。下载正式发布 ZIP、核对 SHA256、解压后执行 `ThreeKingdoms.exe --headless -- --smoke`，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。原仓库工作区干净，HEAD 与远端仍为 c7674df；0.2.0 的运行结果仅作为历史证据保留。
+
+## Completion Notes
+
+Completed: 2026-10-06
+Criteria: 10 / 10 passing，无延期验收。
+Deviations: 无；未进行 Windows 人工长局、真实 iPhone 多点触控或性能 FPS 基线测量；手柄、Steam Deck、Steamworks 与公开多人为故事外范围。
+Test Evidence: 482 项本地与 Windows CI 检查、macOS 原生与实际 Web 桌面/390 窄屏截图、正式 Windows ZIP 校验后的导出包启动，见上文与 `docs/QA.zh.md`。
+Run result: OBSERVED — `docs/screenshots/pc-input-*.jpg` 保留按键设置、冲突、地图、存档编辑与弹窗返回、窄屏入口和滚动的真实截图；正式 Windows 包 headless 返回 GODOT_SMOKE_OK。
+Code Review: 独立代码复核通过，无阻塞缺陷；CCGS minimal 未执行完整部门审批或质量覆盖门禁。

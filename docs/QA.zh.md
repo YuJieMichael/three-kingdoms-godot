@@ -2,7 +2,7 @@
 
 ## 0.3.0 可配置电脑输入更新
 
-2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。以下为根代理已执行与观察的本轮证据；0.2.0 与 0.1.1 记录保持为历史版本。0.3.0 实现、本地检查、macOS 原生操作、实际 Web 桌面/390 窄屏与最终 Windows/Web 导出已完成；正式发布与 Windows 发布包启动 CI 待完成。
+2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。以下为根代理已执行与观察的本轮证据；0.2.0 与 0.1.1 记录保持为历史版本。0.3.0 实现、本地检查、macOS 原生操作、实际 Web 桌面/390 窄屏、最终 Windows/Web 导出与发布、正式 Windows 发布包启动 CI 均已完成，故事 003 为 DONE。
 
 ### 自动检查
 
@@ -18,7 +18,7 @@
 
 Godot 源码解析通过，未出现 ERROR。输入检查注入生产客户端的真实输入事件，并使用可丢弃的独立用户目录与 transport probe；未读写玩家进度。覆盖重复及原生 UI 保留键拒绝、带修饰组合、重新读取绑定、保存失败保留旧映射、损坏配置完整回退、原生 `ui_*` 不变、同帧按下/释放、WASD 与方向键、反向键抵消、地图边界和缩放锚点、按钮焦点、LineEdit/TextEdit/SpinBox、弹窗、失焦及 390 像素设置布局。导航和设置操作未发送经济或玩法命令。
 
-CI 已加入 `tests/input_test.gd`，远端本轮 CI 结果尚未记录。自动检查确认事件路由与布局边界，不代替实际桌面/网页观察。
+CI 已执行 `tests/input_test.gd`，本轮 Windows 日志确认 `INPUT_TEST_CHECKS=255 failures=0`、`MANAGEMENT_TEST_CHECKS=79 failures=0`，其余原有检查亦通过。自动检查确认事件路由与布局边界，不代替实际桌面/网页观察。
 
 ### 实际 macOS 原生操作
 
@@ -54,7 +54,11 @@ CI 已加入 `tests/input_test.gd`，远端本轮 CI 结果尚未记录。自动
 
 ### 发布与运行边界
 
-PENDING — 正式发布、源码/标签提交、资产 digest 校验与 Windows 发布包下载后运行 CI 将在本轮发布后记录。导出成功与 macOS 原生操作不能代替正式 Windows 导出包运行。
+[v0.3.0 预览发布](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.0) 已创建，标签与源码指向 `3a48bf5df20a708199f3c69a1a0409c8cadac92a`。两个 ZIP 的 GitHub digest 与上表一致；清单文件 `build-manifest.json` 的 SHA256 为 `0993f3a370c8c4877678a005ddf02483769d8880dcd04ac78d54767d29e244aa`，`SHA256SUMS.txt` 为 `64dc51d84f186fec83a5830bff1e269918dedefbc23aae3203a3520f606b499f`，四项发布资产 digest 均与本地核对一致。
+
+[Windows CI 运行](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37472454474) 在同一源码提交全绿。官方 Godot 安装与校验、导入、全部原生 GDScript 检查、源码客户端 smoke 和 `Verify exported Windows executable` 均 success。正式发布 ZIP 下载并核对 SHA256，解压后直接执行 `ThreeKingdoms.exe --headless -- --smoke`，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`。这确认正式 Windows 导出包能启动、连接随包规则服务并载入权威状态与地图，不等于 Windows 桌面人工长局或 Steam 成品验证。
+
+原仓库工作区、HEAD 与远端均经根代理确认保持 `c7674df45b9595405e57907524e737e633b0ff63`，未发布原 Pages。临时 17341 QA 服务已关闭，本机玩家 17339 与原生客户端继续运行。
 
 本轮未测得性能 FPS 基线，未验证 Windows 人工长局、真实 iPhone 多点触控、手柄、Steam Deck、Steamworks、公网账号/共享世界或百人压力。按键设置的浏览器用户目录与原生用户目录分离，不提供跨设备云同步。
 
