@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "scope": "试玩地图分区，保留原 64×64 世界坐标；不是全国州郡版图。",
+  "regions": [
+    {"id": "north_plains", "name": "北原", "bounds": [0, 0, 32, 24], "color": "899179", "capital": [18, 12]},
+    {"id": "east_ridges", "name": "白石", "bounds": [32, 0, 32, 24], "color": "827f70", "capital": [46, 14]},
+    {"id": "west_fields", "name": "河洛", "bounds": [0, 24, 32, 24], "color": "a19676", "capital": [18, 34]},
+    {"id": "central_valley", "name": "中原", "bounds": [32, 24, 32, 24], "color": "858b6d", "capital": [42, 35]},
+    {"id": "south_crossings", "name": "寒川", "bounds": [0, 48, 64, 16], "color": "707e76", "capital": [32, 55]}
+  ]
+}

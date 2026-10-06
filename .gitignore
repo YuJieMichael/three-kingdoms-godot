@@ -1,0 +1,10 @@
+.godot/
+build/
+runtime/
+.local/
+outputs/
+*.tmp
+.DS_Store
+project.local.yaml
+graphify-out/
+docs/**/*.import

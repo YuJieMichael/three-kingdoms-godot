@@ -1,0 +1,70 @@
+name: Godot client verification
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Optional release tag to verify the exported Windows package
+        type: string
+        default: ''
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Canonical bridge tests
+        run: node --test tests/bridge.test.cjs
+      - name: Install pinned official Godot
+        shell: pwsh
+        run: |
+          $version = '4.7.2-stable'
+          $file = "Godot_v${version}_win64.exe.zip"
+          Invoke-WebRequest "https://github.com/godotengine/godot/releases/download/$version/$file" -OutFile godot.zip
+          Invoke-WebRequest "https://github.com/godotengine/godot/releases/download/$version/SHA512-SUMS.txt" -OutFile sums.txt
+          $expected = ((Get-Content sums.txt | Where-Object { $_.EndsWith($file) }) -split '\s+')[0]
+          if ((Get-FileHash godot.zip -Algorithm SHA512).Hash.ToLower() -ne $expected) { throw 'Checksum mismatch' }
+          Expand-Archive godot.zip godot
+          $engine = (Get-ChildItem godot -Filter '*console.exe').FullName
+          "GODOT_BIN=$engine" >> $env:GITHUB_ENV
+          "TK_NODE=$((Get-Command node).Source)" >> $env:GITHUB_ENV
+      - name: Import and native GDScript checks
+        shell: pwsh
+        run: |
+          & $env:GODOT_BIN --headless --path . --editor --import 2>&1 | Tee-Object import.log
+          if ($LASTEXITCODE -ne 0 -or (Select-String -Path import.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw 'Import failed' }
+          foreach ($test in @('tests/world_map_test.gd','tests/battle_view_test.gd','tests/client_test.gd')) {
+            & $env:GODOT_BIN --headless --path . --script $test 2>&1 | Tee-Object test.log
+            if ($LASTEXITCODE -ne 0 -or (Select-String -Path test.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw "Failed $test" }
+          }
+          & $env:GODOT_BIN --headless --path . -- --smoke 2>&1 | Tee-Object smoke.log
+          if ($LASTEXITCODE -ne 0 -or !(Select-String -Path smoke.log -Pattern GODOT_SMOKE_OK) -or (Select-String -Path smoke.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw 'Client smoke failed' }
+      - name: Verify exported Windows executable
+        if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_REPO: ${{ github.repository }}
+        run: |
+          gh release download $env:RELEASE_TAG --repo $env:RELEASE_REPO --pattern '*Windows-x64.zip' --pattern 'SHA256SUMS.txt' --dir release
+          $archive = Get-ChildItem release -Filter '*Windows-x64.zip'
+          $expected = ((Get-Content release/SHA256SUMS.txt | Where-Object { $_.EndsWith($archive.Name) }) -split '\s+')[0]
+          if ((Get-FileHash $archive.FullName -Algorithm SHA256).Hash.ToLower() -ne $expected) { throw 'Release checksum mismatch' }
+          Expand-Archive $archive.FullName release/game
+          $process = Start-Process release/game/ThreeKingdoms.exe -ArgumentList '--headless','--','--smoke' -PassThru -RedirectStandardOutput release/smoke.log -RedirectStandardError release/errors.log
+          if (!$process.WaitForExit(40000)) { $process.Kill(); throw 'Exported executable timed out' }
+          $process.Refresh()
+          Get-Content release/smoke.log
+          if ($process.ExitCode -ne 0 -or !(Select-String -Path release/smoke.log -Pattern GODOT_SMOKE_OK) -or (Select-String -Path release/errors.log -Pattern 'SCRIPT ERROR:|^ERROR:')) { throw 'Exported executable failed' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-verification-logs
+          path: |
+            *.log
+            release/*.log

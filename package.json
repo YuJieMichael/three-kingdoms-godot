@@ -1,0 +1,1 @@
+{"name":"three-kingdoms-godot","version":"0.1.0","private":true,"scripts":{"test":"node --test tests/bridge.test.cjs","serve":"node bridge/server.mjs --port 17339 --data-dir .local/web --web-dir build/web"},"engines":{"node":">=24"}}

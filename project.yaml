@@ -1,0 +1,17 @@
+schema_version: 1
+project:
+  name: 三国城志 Godot
+  version: 0.1.0
+  genre: 2D strategy
+  stage: Prototype
+engine:
+  name: Godot
+  version: 4.7.2
+  language: GDScript
+modes:
+  rigor: minimal
+platform:
+  targets: [Windows, Web]
+commands:
+  test: node --test tests/bridge.test.cjs
+  build: python3 scripts/build.py

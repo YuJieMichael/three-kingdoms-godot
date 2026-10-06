@@ -1,0 +1,5431 @@
+{
+  "fixture": {
+    "type": "fictional fresh city",
+    "worldSample": "visible landmarks and terrain within four cells of home; HTTP world includes all4096 tiles"
+  },
+  "revision": 0,
+  "state": {
+    "version": 2,
+    "manualSchema": 1,
+    "last": 1800000000000,
+    "speed": 1,
+    "autoUpgrade": false,
+    "autoResearch": false,
+    "starterGiftClaimed": false,
+    "starterGiftVersion": 0,
+    "missionSchema": 2,
+    "missionClaims": [],
+    "res": {
+      "food": 5000,
+      "wood": 5000,
+      "stone": 5000,
+      "iron": 5000,
+      "gold": 5000
+    },
+    "buildings": {
+      "house": 0,
+      "academy": 0,
+      "inn": 0,
+      "market": 0,
+      "warehouse": 0,
+      "drill": 0,
+      "barracks": 0,
+      "tavern": 0,
+      "embassy": 0,
+      "smith": 0,
+      "workshop": 0,
+      "stable": 0,
+      "post": 0,
+      "beacon": 0,
+      "hall": 1,
+      "wall": 0
+    },
+    "cityLayout": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "hall",
+      "reserved",
+      null,
+      null,
+      null,
+      null,
+      "reserved",
+      "reserved",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cityLevels": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "tactics": {
+      "worker": {
+        "command": "advance",
+        "target": ""
+      },
+      "militia": {
+        "command": "advance",
+        "target": ""
+      },
+      "scout": {
+        "command": "advance",
+        "target": ""
+      },
+      "spear": {
+        "command": "advance",
+        "target": ""
+      },
+      "shield": {
+        "command": "advance",
+        "target": ""
+      },
+      "archer": {
+        "command": "advance",
+        "target": ""
+      },
+      "cavalry": {
+        "command": "advance",
+        "target": ""
+      },
+      "heavy": {
+        "command": "advance",
+        "target": ""
+      },
+      "wagon": {
+        "command": "advance",
+        "target": ""
+      },
+      "ballista": {
+        "command": "hold",
+        "target": ""
+      },
+      "ram": {
+        "command": "advance",
+        "target": ""
+      },
+      "catapult": {
+        "command": "hold",
+        "target": ""
+      }
+    },
+    "plots": [
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      },
+      {
+        "type": null,
+        "level": 0
+      }
+    ],
+    "plotTemplate": {
+      "id": null,
+      "active": false,
+      "mode": "fill"
+    },
+    "army": {
+      "worker": 0,
+      "militia": 0,
+      "scout": 0,
+      "spear": 0,
+      "shield": 0,
+      "archer": 0,
+      "cavalry": 0,
+      "heavy": 0,
+      "wagon": 0,
+      "ballista": 0,
+      "ram": 0,
+      "catapult": 0
+    },
+    "captives": {
+      "worker": 0,
+      "militia": 0,
+      "scout": 0,
+      "spear": 0,
+      "shield": 0,
+      "archer": 0,
+      "cavalry": 0,
+      "heavy": 0,
+      "wagon": 0,
+      "ballista": 0,
+      "ram": 0,
+      "catapult": 0
+    },
+    "buildQueue": [],
+    "trainQueue": [],
+    "researchQueue": null,
+    "tech": {
+      "plant": 0,
+      "logging": 0,
+      "mining": 0,
+      "smelting": 0,
+      "manufacture": 0,
+      "leadership": 0,
+      "scouting": 0,
+      "training": 0,
+      "combat": 0,
+      "protection": 0,
+      "load": 0,
+      "march": 0,
+      "riding": 0,
+      "shooting": 0,
+      "storage": 0,
+      "supply": 0,
+      "construction": 0,
+      "fortification": 0,
+      "repair": 0,
+      "plunder": 0,
+      "researching": 0
+    },
+    "generals": [
+      "lin",
+      "su"
+    ],
+    "generalLevels": {
+      "lin": 1,
+      "su": 1
+    },
+    "generalXp": {
+      "lin": 0,
+      "su": 0
+    },
+    "customGenerals": [],
+    "innCandidates": [],
+    "governor": "su",
+    "population": 0,
+    "morale": 80,
+    "unrest": 0,
+    "tax": 20,
+    "storageAllocation": {
+      "food": 25,
+      "wood": 25,
+      "stone": 25,
+      "iron": 25
+    },
+    "gems": 1000,
+    "inventory": {},
+    "buffs": {},
+    "itemCooldowns": {},
+    "civicCooldowns": {
+      "comfort": 0,
+      "levy": 0
+    },
+    "trialGiftAt": 0,
+    "ruler": "青溪城主",
+    "banner": "青",
+    "scouted": {},
+    "defenses": {
+      "trap": 0,
+      "abatis": 0,
+      "tower": 0,
+      "logs": 0,
+      "rocks": 0
+    },
+    "defenseQueue": [],
+    "landClaims": {},
+    "conquered": {},
+    "raided": {},
+    "garrisons": {},
+    "towns": {
+      "fort": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 400
+      },
+      "yellow_qingshi": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 200
+      },
+      "yellow_baisha": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 300
+      },
+      "yellow_chigang": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 400
+      },
+      "named_hanchuan": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 500
+      },
+      "named_luoshui": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 600
+      },
+      "named_baishi": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 600
+      },
+      "named_beiyuan": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 1000
+      },
+      "named_heluo": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 1000
+      },
+      "named_zhongyuan": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 1500
+      },
+      "named_luoyang": {
+        "morale": 100,
+        "unrest": 0,
+        "population": 2000
+      }
+    },
+    "openCitySites": {
+      "yellow_qingshi": {
+        "x": 26,
+        "y": 31
+      },
+      "yellow_baisha": {
+        "x": 41,
+        "y": 38
+      },
+      "yellow_chigang": {
+        "x": 21,
+        "y": 20
+      },
+      "named_hanchuan": {
+        "x": 28,
+        "y": 20
+      },
+      "named_luoshui": {
+        "x": 46,
+        "y": 22
+      },
+      "named_baishi": {
+        "x": 51,
+        "y": 20
+      },
+      "named_beiyuan": {
+        "x": 29,
+        "y": 10
+      },
+      "named_heluo": {
+        "x": 49,
+        "y": 26
+      },
+      "named_zhongyuan": {
+        "x": 39,
+        "y": 16
+      },
+      "named_luoyang": {
+        "x": 58,
+        "y": 18
+      }
+    },
+    "cooldowns": {},
+    "expedition": null,
+    "expeditions": [],
+    "battle": null,
+    "reports": [],
+    "mission": 0,
+    "stats": {
+      "trained": 0,
+      "victories": 0
+    },
+    "seen": [],
+    "tutorial": false,
+    "activityMetrics": {
+      "build": 0,
+      "field_build": 0,
+      "train": 0,
+      "train_archer": 0,
+      "train_cavalry": 0,
+      "research": 0,
+      "victory": 0,
+      "kill": 0,
+      "occupy": 0,
+      "raid_food": 0,
+      "raid_wood": 0,
+      "raid_stone": 0,
+      "raid_iron": 0,
+      "raid_gold": 0,
+      "scout": 0,
+      "civic": 0,
+      "comfort": 0,
+      "levy": 0,
+      "item": 0,
+      "defense": 0,
+      "trade": 0,
+      "capture": 0,
+      "captive_recruit": 0,
+      "train_worker": 0,
+      "train_militia": 0,
+      "train_scout": 0,
+      "train_spear": 0,
+      "train_shield": 0,
+      "train_heavy": 0,
+      "train_wagon": 0,
+      "train_ballista": 0,
+      "train_ram": 0,
+      "train_catapult": 0,
+      "city_build": 0,
+      "research_production": 0,
+      "research_military": 0,
+      "wild_victory": 0,
+      "siege_victory": 0,
+      "win_level_3": 0,
+      "win_level_5": 0,
+      "win_level_8": 0,
+      "trade_buy": 0,
+      "trade_sell": 0
+    },
+    "prestige": 0,
+    "copper": 0,
+    "jewels": {
+      "pearl": 0,
+      "coral": 0,
+      "glass": 0,
+      "amber": 0,
+      "agate": 0,
+      "crystal": 0,
+      "jadeite": 0,
+      "jade": 0,
+      "nightPearl": 0
+    },
+    "epic": {
+      "kills": 0,
+      "killRewards": 0,
+      "resources": {
+        "food": 0,
+        "wood": 0,
+        "stone": 0,
+        "iron": 0,
+        "gold": 0
+      },
+      "troops": 0,
+      "treasures": 0,
+      "legacyAccess": false
+    },
+    "progressionSchema": 1,
+    "daily": {
+      "start": 1799960400000,
+      "refillAt": 1799996400000,
+      "serial": 24,
+      "tasks": [
+        {
+          "uid": "1799960400000_0",
+          "template": "build",
+          "target": 2,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_1",
+          "template": "donate_iron",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_2",
+          "template": "fields",
+          "target": 2,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_3",
+          "template": "civic",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_4",
+          "template": "donate_gold",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_5",
+          "template": "item",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_6",
+          "template": "donate_food",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_7",
+          "template": "donate_stone",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_8",
+          "template": "donate_wood",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_9",
+          "template": "comfort",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_10",
+          "template": "levy",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_11",
+          "template": "cityBuild",
+          "target": 2,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_12",
+          "template": "build",
+          "target": 2,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_13",
+          "template": "donate_gold",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_14",
+          "template": "item",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_15",
+          "template": "comfort",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_16",
+          "template": "donate_wood",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_17",
+          "template": "cityBuild",
+          "target": 2,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_18",
+          "template": "donate_iron",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_19",
+          "template": "civic",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_20",
+          "template": "fields",
+          "target": 2,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_21",
+          "template": "donate_food",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_22",
+          "template": "levy",
+          "target": 1,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        },
+        {
+          "uid": "1799960400000_23",
+          "template": "donate_stone",
+          "target": 2000,
+          "progress": 0,
+          "status": "available",
+          "acceptedAt": 0,
+          "tier": 1
+        }
+      ],
+      "claimed": 0,
+      "exchangeClaims": [],
+      "milestoneClaims": [],
+      "brickPurchases": {
+        "goldBrick": 0,
+        "goldBrickLarge": 0
+      },
+      "rulesVersion": 3
+    },
+    "heroPoints": {
+      "lin": {
+        "atk": 0,
+        "def": 0,
+        "pol": 0,
+        "wis": 0,
+        "lead": 0
+      },
+      "su": {
+        "atk": 0,
+        "def": 0,
+        "pol": 0,
+        "wis": 0,
+        "lead": 0
+      }
+    },
+    "heroDrills": {},
+    "equipment": [],
+    "equipmentCapacity": 50,
+    "equipmentSeq": 0,
+    "heroGiftClaimed": false,
+    "wildGenerals": {
+      "version": 1,
+      "seq": 0,
+      "rumors": [],
+      "captives": [],
+      "recruited": [],
+      "portraits": []
+    },
+    "heroLoyalty": {
+      "lin": 80,
+      "su": 80
+    },
+    "cityRoles": {
+      "commander": "",
+      "counsellor": ""
+    },
+    "honors": {
+      "office": 0,
+      "noble": 0,
+      "salaryClaims": {
+        "office": 0,
+        "noble": 0
+      }
+    },
+    "gatherings": {},
+    "heritageHistory": [],
+    "cityDefense": {
+      "autoEnabled": false,
+      "nextAt": 0,
+      "wave": 0,
+      "wins": 0,
+      "incoming": null,
+      "battle": null,
+      "reports": []
+    },
+    "warCare": {
+      "version": 1,
+      "defense": {
+        "mode": "field",
+        "autoResolve": true,
+        "orders": {
+          "worker": {
+            "command": "hold",
+            "target": ""
+          },
+          "militia": {
+            "command": "hold",
+            "target": ""
+          },
+          "scout": {
+            "command": "hold",
+            "target": ""
+          },
+          "spear": {
+            "command": "hold",
+            "target": ""
+          },
+          "shield": {
+            "command": "hold",
+            "target": ""
+          },
+          "archer": {
+            "command": "hold",
+            "target": ""
+          },
+          "cavalry": {
+            "command": "hold",
+            "target": ""
+          },
+          "heavy": {
+            "command": "hold",
+            "target": ""
+          },
+          "wagon": {
+            "command": "hold",
+            "target": ""
+          },
+          "ballista": {
+            "command": "hold",
+            "target": ""
+          },
+          "ram": {
+            "command": "hold",
+            "target": ""
+          },
+          "catapult": {
+            "command": "hold",
+            "target": ""
+          }
+        }
+      },
+      "autoHeal": false,
+      "wounded": {
+        "worker": 0,
+        "militia": 0,
+        "scout": 0,
+        "spear": 0,
+        "shield": 0,
+        "archer": 0,
+        "cavalry": 0,
+        "heavy": 0,
+        "wagon": 0,
+        "ballista": 0,
+        "ram": 0,
+        "catapult": 0
+      },
+      "admitted": {
+        "worker": 0,
+        "militia": 0,
+        "scout": 0,
+        "spear": 0,
+        "shield": 0,
+        "archer": 0,
+        "cavalry": 0,
+        "heavy": 0,
+        "wagon": 0,
+        "ballista": 0,
+        "ram": 0,
+        "catapult": 0
+      },
+      "treated": {
+        "worker": 0,
+        "militia": 0,
+        "scout": 0,
+        "spear": 0,
+        "shield": 0,
+        "archer": 0,
+        "cavalry": 0,
+        "heavy": 0,
+        "wagon": 0,
+        "ballista": 0,
+        "ram": 0,
+        "catapult": 0
+      },
+      "receipts": {},
+      "archived": {
+        "counts": {
+          "worker": 0,
+          "militia": 0,
+          "scout": 0,
+          "spear": 0,
+          "shield": 0,
+          "archer": 0,
+          "cavalry": 0,
+          "heavy": 0,
+          "wagon": 0,
+          "ballista": 0,
+          "ram": 0,
+          "catapult": 0
+        },
+        "through": {}
+      }
+    },
+    "governance": {
+      "version": 1,
+      "last": 1800000000000,
+      "crisisSince": 0,
+      "starvedSince": 0,
+      "eventsEnabled": false,
+      "autoRelief": false,
+      "nextEvent": 0,
+      "eventSeq": 0,
+      "wardUntil": 0,
+      "blessingUntil": 0,
+      "log": []
+    },
+    "heroService": {
+      "version": 1,
+      "lastPay": 1800000000000,
+      "owed": {},
+      "pending": [],
+      "captives": [],
+      "seq": 0,
+      "log": []
+    },
+    "automation": {
+      "researchFocus": "balanced",
+      "researchPriority": "",
+      "reserve": {
+        "food": 0,
+        "wood": 0,
+        "stone": 0,
+        "iron": 0,
+        "gold": 0
+      },
+      "notify": true,
+      "notices": [],
+      "nextId": 1
+    },
+    "onboarding": {
+      "schema": 1,
+      "claims": [],
+      "hidden": false,
+      "lastOpen": null,
+      "firstBattle": "active"
+    },
+    "warOrders": {
+      "schema": 1,
+      "merit": 0,
+      "earned": 0,
+      "spent": 0,
+      "cleared": {
+        "field": 0,
+        "siege": 0,
+        "elite": 0
+      },
+      "wins": {
+        "field": 0,
+        "siege": 0,
+        "elite": 0
+      },
+      "nextAt": {
+        "field": 0,
+        "siege": 0,
+        "elite": 0
+      },
+      "last": null,
+      "challenges": {
+        "schema": 1,
+        "completed": {},
+        "earned": 0,
+        "lastAttempts": {}
+      }
+    },
+    "heroSkills": {},
+    "scoutQueue": [],
+    "scoutIntel": {},
+    "regionalFront": {
+      "version": 1,
+      "seq": 0,
+      "run": null,
+      "nextAt": 0,
+      "wins": {
+        "1": [
+          0,
+          0,
+          0
+        ],
+        "2": [
+          0,
+          0,
+          0
+        ],
+        "3": [
+          0,
+          0,
+          0
+        ]
+      },
+      "earnedMerit": 0,
+      "last": null
+    },
+    "heroAdministration": {
+      "schema": 1,
+      "seq": 0,
+      "prepared": null
+    },
+    "realm": {
+      "version": 1,
+      "activeCity": "capital",
+      "capital": "capital",
+      "cities": {
+        "capital": {
+          "id": "capital",
+          "name": "青溪城",
+          "node": "home",
+          "x": 32,
+          "y": 32,
+          "capital": true,
+          "createdAt": 1800000000000,
+          "data": {
+            "last": 1800000000000,
+            "res": {
+              "food": 5000,
+              "wood": 5000,
+              "stone": 5000,
+              "iron": 5000,
+              "gold": 5000
+            },
+            "buildings": {
+              "house": 0,
+              "academy": 0,
+              "inn": 0,
+              "market": 0,
+              "warehouse": 0,
+              "drill": 0,
+              "barracks": 0,
+              "tavern": 0,
+              "embassy": 0,
+              "smith": 0,
+              "workshop": 0,
+              "stable": 0,
+              "post": 0,
+              "beacon": 0,
+              "hall": 1,
+              "wall": 0
+            },
+            "cityLayout": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "hall",
+              "reserved",
+              null,
+              null,
+              null,
+              null,
+              "reserved",
+              "reserved",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "cityLevels": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "tactics": {
+              "worker": {
+                "command": "advance",
+                "target": ""
+              },
+              "militia": {
+                "command": "advance",
+                "target": ""
+              },
+              "scout": {
+                "command": "advance",
+                "target": ""
+              },
+              "spear": {
+                "command": "advance",
+                "target": ""
+              },
+              "shield": {
+                "command": "advance",
+                "target": ""
+              },
+              "archer": {
+                "command": "advance",
+                "target": ""
+              },
+              "cavalry": {
+                "command": "advance",
+                "target": ""
+              },
+              "heavy": {
+                "command": "advance",
+                "target": ""
+              },
+              "wagon": {
+                "command": "advance",
+                "target": ""
+              },
+              "ballista": {
+                "command": "hold",
+                "target": ""
+              },
+              "ram": {
+                "command": "advance",
+                "target": ""
+              },
+              "catapult": {
+                "command": "hold",
+                "target": ""
+              }
+            },
+            "plots": [
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              },
+              {
+                "type": null,
+                "level": 0
+              }
+            ],
+            "plotTemplate": {
+              "id": null,
+              "active": false,
+              "mode": "fill"
+            },
+            "army": {
+              "worker": 0,
+              "militia": 0,
+              "scout": 0,
+              "spear": 0,
+              "shield": 0,
+              "archer": 0,
+              "cavalry": 0,
+              "heavy": 0,
+              "wagon": 0,
+              "ballista": 0,
+              "ram": 0,
+              "catapult": 0
+            },
+            "captives": {
+              "worker": 0,
+              "militia": 0,
+              "scout": 0,
+              "spear": 0,
+              "shield": 0,
+              "archer": 0,
+              "cavalry": 0,
+              "heavy": 0,
+              "wagon": 0,
+              "ballista": 0,
+              "ram": 0,
+              "catapult": 0
+            },
+            "buildQueue": [],
+            "trainQueue": [],
+            "researchQueue": null,
+            "tech": {
+              "plant": 0,
+              "logging": 0,
+              "mining": 0,
+              "smelting": 0,
+              "manufacture": 0,
+              "leadership": 0,
+              "scouting": 0,
+              "training": 0,
+              "combat": 0,
+              "protection": 0,
+              "load": 0,
+              "march": 0,
+              "riding": 0,
+              "shooting": 0,
+              "storage": 0,
+              "supply": 0,
+              "construction": 0,
+              "fortification": 0,
+              "repair": 0,
+              "plunder": 0,
+              "researching": 0
+            },
+            "innCandidates": [],
+            "governor": "su",
+            "population": 0,
+            "morale": 80,
+            "unrest": 0,
+            "tax": 20,
+            "storageAllocation": {
+              "food": 25,
+              "wood": 25,
+              "stone": 25,
+              "iron": 25
+            },
+            "civicCooldowns": {
+              "comfort": 0,
+              "levy": 0
+            },
+            "defenses": {
+              "trap": 0,
+              "abatis": 0,
+              "tower": 0,
+              "logs": 0,
+              "rocks": 0
+            },
+            "defenseQueue": [],
+            "garrisons": {},
+            "expedition": null,
+            "expeditions": [],
+            "battle": null,
+            "autoUpgrade": false,
+            "autoResearch": false,
+            "automation": {
+              "researchFocus": "balanced",
+              "researchPriority": "",
+              "reserve": {
+                "food": 0,
+                "wood": 0,
+                "stone": 0,
+                "iron": 0,
+                "gold": 0
+              },
+              "notify": true,
+              "notices": [],
+              "nextId": 1
+            },
+            "cityRoles": {
+              "commander": "",
+              "counsellor": ""
+            },
+            "gatherings": {},
+            "cityDefense": {
+              "autoEnabled": false,
+              "nextAt": 0,
+              "wave": 0,
+              "wins": 0,
+              "incoming": null,
+              "battle": null,
+              "reports": []
+            },
+            "scoutQueue": [],
+            "scoutIntel": {},
+            "regionalFront": {
+              "version": 1,
+              "seq": 0,
+              "run": null,
+              "nextAt": 0,
+              "wins": {
+                "1": [
+                  0,
+                  0,
+                  0
+                ],
+                "2": [
+                  0,
+                  0,
+                  0
+                ],
+                "3": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "earnedMerit": 0,
+              "last": null
+            },
+            "heroAdministration": {
+              "schema": 1,
+              "seq": 0,
+              "prepared": null
+            },
+            "warCare": {
+              "version": 1,
+              "defense": {
+                "mode": "field",
+                "autoResolve": true,
+                "orders": {
+                  "worker": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "militia": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "scout": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "spear": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "shield": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "archer": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "cavalry": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "heavy": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "wagon": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "ballista": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "ram": {
+                    "command": "hold",
+                    "target": ""
+                  },
+                  "catapult": {
+                    "command": "hold",
+                    "target": ""
+                  }
+                }
+              },
+              "autoHeal": false,
+              "wounded": {
+                "worker": 0,
+                "militia": 0,
+                "scout": 0,
+                "spear": 0,
+                "shield": 0,
+                "archer": 0,
+                "cavalry": 0,
+                "heavy": 0,
+                "wagon": 0,
+                "ballista": 0,
+                "ram": 0,
+                "catapult": 0
+              },
+              "admitted": {
+                "worker": 0,
+                "militia": 0,
+                "scout": 0,
+                "spear": 0,
+                "shield": 0,
+                "archer": 0,
+                "cavalry": 0,
+                "heavy": 0,
+                "wagon": 0,
+                "ballista": 0,
+                "ram": 0,
+                "catapult": 0
+              },
+              "treated": {
+                "worker": 0,
+                "militia": 0,
+                "scout": 0,
+                "spear": 0,
+                "shield": 0,
+                "archer": 0,
+                "cavalry": 0,
+                "heavy": 0,
+                "wagon": 0,
+                "ballista": 0,
+                "ram": 0,
+                "catapult": 0
+              },
+              "receipts": {},
+              "archived": {
+                "counts": {
+                  "worker": 0,
+                  "militia": 0,
+                  "scout": 0,
+                  "spear": 0,
+                  "shield": 0,
+                  "archer": 0,
+                  "cavalry": 0,
+                  "heavy": 0,
+                  "wagon": 0,
+                  "ballista": 0,
+                  "ram": 0,
+                  "catapult": 0
+                },
+                "through": {}
+              }
+            },
+            "governance": {
+              "version": 1,
+              "last": 1800000000000,
+              "crisisSince": 0,
+              "starvedSince": 0,
+              "eventsEnabled": false,
+              "autoRelief": false,
+              "nextEvent": 0,
+              "eventSeq": 0,
+              "wardUntil": 0,
+              "blessingUntil": 0,
+              "log": []
+            }
+          }
+        }
+      },
+      "heroLocations": {
+        "lin": "capital",
+        "su": "capital"
+      },
+      "wildOwners": {},
+      "logistics": [],
+      "logisticsSeq": 0,
+      "logisticsReports": [],
+      "namedCities": {
+        "version": 1,
+        "developed": []
+      },
+      "supplyLines": {
+        "version": 1,
+        "nextId": 1,
+        "lines": []
+      }
+    }
+  },
+  "view": {
+    "res": {
+      "food": 5000,
+      "wood": 5000,
+      "stone": 5000,
+      "iron": 5000,
+      "gold": 5000
+    },
+    "gold": 5000,
+    "gems": 1000,
+    "caps": {
+      "food": 10000,
+      "wood": 10000,
+      "stone": 10000,
+      "iron": 10000,
+      "gold": 1000000
+    },
+    "rates": {
+      "food": 1.1666666666666667,
+      "wood": 1.1666666666666667,
+      "stone": 1.1666666666666667,
+      "iron": 1.1666666666666667,
+      "gold": 0
+    },
+    "rateUnit": "per-minute",
+    "city": {
+      "id": "capital",
+      "name": "青溪城",
+      "node": "home",
+      "x": 32,
+      "y": 32,
+      "capital": true,
+      "createdAt": 1800000000000
+    },
+    "cityList": [
+      {
+        "id": "capital",
+        "name": "青溪城",
+        "node": "home",
+        "x": 32,
+        "y": 32,
+        "capital": true,
+        "createdAt": 1800000000000,
+        "strategy": {
+          "id": "balanced",
+          "name": "均衡城",
+          "description": "资源与行军采用普通规则。主城和平地自建城保持均衡。",
+          "production": {
+            "food": 1,
+            "wood": 1,
+            "stone": 1,
+            "iron": 1,
+            "gold": 1
+          },
+          "marchFactor": 1
+        },
+        "res": {
+          "food": 5000,
+          "wood": 5000,
+          "stone": 5000,
+          "iron": 5000,
+          "gold": 5000
+        },
+        "army": {
+          "worker": 0,
+          "militia": 0,
+          "scout": 0,
+          "spear": 0,
+          "shield": 0,
+          "archer": 0,
+          "cavalry": 0,
+          "heavy": 0,
+          "wagon": 0,
+          "ballista": 0,
+          "ram": 0,
+          "catapult": 0
+        },
+        "buildings": {
+          "house": 0,
+          "academy": 0,
+          "inn": 0,
+          "market": 0,
+          "warehouse": 0,
+          "drill": 0,
+          "barracks": 0,
+          "tavern": 0,
+          "embassy": 0,
+          "smith": 0,
+          "workshop": 0,
+          "stable": 0,
+          "post": 0,
+          "beacon": 0,
+          "hall": 1,
+          "wall": 0
+        },
+        "governor": "su",
+        "population": 0,
+        "tax": 20,
+        "rates": {
+          "food": 1.1666666666666667,
+          "wood": 1.1666666666666667,
+          "stone": 1.1666666666666667,
+          "iron": 1.1666666666666667,
+          "gold": 0
+        },
+        "foodSeconds": null,
+        "regionalFront": {
+          "version": 1,
+          "seq": 0,
+          "run": null,
+          "nextAt": 0,
+          "wins": {
+            "1": [
+              0,
+              0,
+              0
+            ],
+            "2": [
+              0,
+              0,
+              0
+            ],
+            "3": [
+              0,
+              0,
+              0
+            ]
+          },
+          "earnedMerit": 0,
+          "last": null
+        },
+        "heroAdministration": {
+          "schema": 1,
+          "seq": 0,
+          "prepared": null
+        },
+        "queues": {
+          "build": 0,
+          "train": 0,
+          "research": 0
+        },
+        "garrisons": {},
+        "expeditions": [],
+        "scoutQueue": []
+      }
+    ],
+    "population": 0,
+    "maxPopulation": 0,
+    "freePopulation": 0,
+    "morale": 80,
+    "unrest": 0,
+    "tax": 20,
+    "buildings": [
+      {
+        "id": "hall",
+        "name": "官府",
+        "site": 14,
+        "level": 1,
+        "cost": {
+          "food": 2600,
+          "wood": 6225,
+          "stone": 5190,
+          "iron": 2075
+        },
+        "seconds": 2244.38202247191,
+        "requirement": "",
+        "affordable": false,
+        "queue": null
+      }
+    ],
+    "buildingSlots": [
+      {
+        "site": 0,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 1,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 2,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 3,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 4,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 5,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 6,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 7,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 8,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 9,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 10,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 11,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 12,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 13,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 14,
+        "id": "hall",
+        "level": 1,
+        "reserved": false
+      },
+      {
+        "site": 15,
+        "id": "reserved",
+        "level": 0,
+        "reserved": true
+      },
+      {
+        "site": 16,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 17,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 18,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 19,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 20,
+        "id": "reserved",
+        "level": 0,
+        "reserved": true
+      },
+      {
+        "site": 21,
+        "id": "reserved",
+        "level": 0,
+        "reserved": true
+      },
+      {
+        "site": 22,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 23,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 24,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 25,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 26,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 27,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 28,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 29,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 30,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 31,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 32,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 33,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 34,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      },
+      {
+        "site": 35,
+        "id": null,
+        "level": 0,
+        "reserved": false
+      }
+    ],
+    "buildOptions": [
+      {
+        "id": "house",
+        "name": "民房",
+        "cost": {
+          "food": 100,
+          "wood": 500,
+          "stone": 125,
+          "iron": 100
+        },
+        "seconds": 84.26966292134831,
+        "requirement": "",
+        "affordable": true
+      },
+      {
+        "id": "academy",
+        "name": "书院",
+        "cost": {
+          "food": 120,
+          "wood": 2500,
+          "stone": 1500,
+          "iron": 200
+        },
+        "seconds": 539.3258426966293,
+        "requirement": "官府 2 级",
+        "affordable": true
+      },
+      {
+        "id": "inn",
+        "name": "客栈",
+        "cost": {
+          "food": 300,
+          "wood": 2000,
+          "stone": 1000,
+          "iron": 400
+        },
+        "seconds": 269.6629213483146,
+        "requirement": "民房 2 级",
+        "affordable": true
+      },
+      {
+        "id": "market",
+        "name": "市场",
+        "cost": {
+          "food": 1000,
+          "wood": 1000,
+          "stone": 1000,
+          "iron": 1000
+        },
+        "seconds": 842.6966292134831,
+        "requirement": "",
+        "affordable": true
+      },
+      {
+        "id": "warehouse",
+        "name": "仓库",
+        "cost": {
+          "food": 100,
+          "wood": 1500,
+          "stone": 1000,
+          "iron": 500
+        },
+        "seconds": 674.1573033707865,
+        "requirement": "伐木场 2 级",
+        "affordable": true
+      },
+      {
+        "id": "drill",
+        "name": "校场",
+        "cost": {
+          "food": 100,
+          "wood": 600,
+          "stone": 2000,
+          "iron": 150
+        },
+        "seconds": 168.53932584269663,
+        "requirement": "",
+        "affordable": true
+      },
+      {
+        "id": "barracks",
+        "name": "军营",
+        "cost": {
+          "food": 800,
+          "wood": 1200,
+          "stone": 1500,
+          "iron": 1000
+        },
+        "seconds": 337.07865168539325,
+        "requirement": "校场 1 级",
+        "affordable": true
+      },
+      {
+        "id": "tavern",
+        "name": "招贤馆",
+        "cost": {
+          "food": 400,
+          "wood": 2500,
+          "stone": 1200,
+          "iron": 700
+        },
+        "seconds": 404.4943820224719,
+        "requirement": "客栈 1 级",
+        "affordable": true
+      },
+      {
+        "id": "embassy",
+        "name": "鸿胪寺",
+        "cost": {
+          "food": 250,
+          "wood": 2000,
+          "stone": 500,
+          "iron": 300
+        },
+        "seconds": 808.9887640449438,
+        "requirement": "官府 2 级",
+        "affordable": true
+      },
+      {
+        "id": "smith",
+        "name": "铁匠铺",
+        "cost": {
+          "food": 350,
+          "wood": 1000,
+          "stone": 600,
+          "iron": 1200
+        },
+        "seconds": 202.24719101123594,
+        "requirement": "铁矿 3 级",
+        "affordable": true
+      },
+      {
+        "id": "workshop",
+        "name": "工匠作坊",
+        "cost": {
+          "food": 450,
+          "wood": 1500,
+          "stone": 500,
+          "iron": 1500
+        },
+        "seconds": 606.7415730337078,
+        "requirement": "铁匠铺 2 级",
+        "affordable": true
+      },
+      {
+        "id": "stable",
+        "name": "马厩",
+        "cost": {
+          "food": 1200,
+          "wood": 2000,
+          "stone": 800,
+          "iron": 1000
+        },
+        "seconds": 303.3707865168539,
+        "requirement": "农田 5 级",
+        "affordable": true
+      },
+      {
+        "id": "post",
+        "name": "驿站",
+        "cost": {
+          "food": 1500,
+          "wood": 5000,
+          "stone": 4500,
+          "iron": 500
+        },
+        "seconds": 2022.4719101123594,
+        "requirement": "马厩 1 级、驾驭技巧 1 级",
+        "affordable": true
+      },
+      {
+        "id": "beacon",
+        "name": "烽火台",
+        "cost": {
+          "food": 150,
+          "wood": 1000,
+          "stone": 3000,
+          "iron": 300
+        },
+        "seconds": 505.61797752808985,
+        "requirement": "军营 1 级",
+        "affordable": true
+      },
+      {
+        "id": "wall",
+        "name": "城墙",
+        "cost": {
+          "food": 2500,
+          "wood": 1800,
+          "stone": 10000,
+          "iron": 1500
+        },
+        "seconds": 1348.314606741573,
+        "requirement": "官府 2 级、采石场 2 级、工匠作坊 1 级",
+        "affordable": false
+      }
+    ],
+    "plots": [
+      {
+        "index": 0,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 1,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 2,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 3,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 4,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 5,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 6,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 7,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 8,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 9,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 10,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 11,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": true,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 12,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 13,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 14,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 15,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 16,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 17,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 18,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 19,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 20,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 21,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 22,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 23,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 24,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 25,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 26,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 27,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 28,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 29,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 30,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 31,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 32,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 33,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 34,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 35,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 36,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 37,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      },
+      {
+        "index": 38,
+        "id": null,
+        "name": "空地",
+        "level": 0,
+        "unlocked": false,
+        "cost": {
+          "food": 50,
+          "wood": 300,
+          "stone": 200,
+          "iron": 150
+        },
+        "seconds": 33.70786516853933,
+        "queue": null,
+        "requirement": ""
+      }
+    ],
+    "plotOptions": [
+      {
+        "id": "farm",
+        "name": "农田"
+      },
+      {
+        "id": "lumber",
+        "name": "伐木场"
+      },
+      {
+        "id": "quarry",
+        "name": "采石场"
+      },
+      {
+        "id": "mine",
+        "name": "铁矿"
+      }
+    ],
+    "units": [
+      {
+        "id": "worker",
+        "name": "民夫",
+        "available": 0,
+        "cost": {
+          "food": 50,
+          "wood": 150,
+          "iron": 10
+        },
+        "seconds": 10.135135135135135,
+        "requirement": "军营 1级",
+        "unlocked": false,
+        "people": 1,
+        "role": "物资运输",
+        "stats": {
+          "hp": 100,
+          "atk": 5,
+          "def": 10,
+          "range": 10,
+          "speed": 180
+        }
+      },
+      {
+        "id": "militia",
+        "name": "义兵",
+        "available": 0,
+        "cost": {
+          "food": 80,
+          "wood": 100,
+          "iron": 50
+        },
+        "seconds": 13.513513513513514,
+        "requirement": "军营 1级",
+        "unlocked": false,
+        "people": 1,
+        "role": "低成本征募",
+        "stats": {
+          "hp": 200,
+          "atk": 50,
+          "def": 50,
+          "range": 20,
+          "speed": 200
+        }
+      },
+      {
+        "id": "scout",
+        "name": "斥候",
+        "available": 0,
+        "cost": {
+          "food": 120,
+          "wood": 200,
+          "iron": 150
+        },
+        "seconds": 40.54054054054054,
+        "requirement": "军营 2级、侦察技巧 1级",
+        "unlocked": false,
+        "people": 1,
+        "role": "侦察情报",
+        "stats": {
+          "hp": 100,
+          "atk": 20,
+          "def": 20,
+          "range": 20,
+          "speed": 3000
+        }
+      },
+      {
+        "id": "spear",
+        "name": "长枪兵",
+        "available": 0,
+        "cost": {
+          "food": 150,
+          "wood": 500,
+          "iron": 100
+        },
+        "seconds": 60.810810810810814,
+        "requirement": "军营 2级、战斗技巧 1级",
+        "unlocked": false,
+        "people": 1,
+        "role": "克制骑兵",
+        "stats": {
+          "hp": 300,
+          "atk": 150,
+          "def": 150,
+          "range": 50,
+          "speed": 300
+        }
+      },
+      {
+        "id": "shield",
+        "name": "刀盾兵",
+        "available": 0,
+        "cost": {
+          "food": 200,
+          "wood": 150,
+          "iron": 400
+        },
+        "seconds": 81.08108108108108,
+        "requirement": "军营 3级、防护技巧 1级",
+        "unlocked": false,
+        "people": 1,
+        "role": "抵御箭矢",
+        "stats": {
+          "hp": 350,
+          "atk": 100,
+          "def": 250,
+          "range": 30,
+          "speed": 275
+        }
+      },
+      {
+        "id": "archer",
+        "name": "弓箭兵",
+        "available": 0,
+        "cost": {
+          "food": 300,
+          "wood": 350,
+          "iron": 300
+        },
+        "seconds": 121.62162162162163,
+        "requirement": "军营 4级、抛射技巧 1级",
+        "unlocked": false,
+        "people": 2,
+        "role": "远程输出",
+        "stats": {
+          "hp": 250,
+          "atk": 120,
+          "def": 50,
+          "range": 1200,
+          "speed": 250
+        }
+      },
+      {
+        "id": "cavalry",
+        "name": "轻骑兵",
+        "available": 0,
+        "cost": {
+          "food": 1000,
+          "wood": 600,
+          "iron": 500
+        },
+        "seconds": 202.7027027027027,
+        "requirement": "军营 5级、驾驭技巧 1级",
+        "unlocked": false,
+        "people": 3,
+        "role": "快速机动",
+        "stats": {
+          "hp": 500,
+          "atk": 250,
+          "def": 180,
+          "range": 80,
+          "speed": 1000
+        }
+      },
+      {
+        "id": "heavy",
+        "name": "铁骑兵",
+        "available": 0,
+        "cost": {
+          "food": 2000,
+          "wood": 500,
+          "iron": 2500
+        },
+        "seconds": 405.4054054054054,
+        "requirement": "军营 7级、驾驭技巧 5级、防护技巧 5级",
+        "unlocked": false,
+        "people": 6,
+        "role": "重装冲锋",
+        "stats": {
+          "hp": 1000,
+          "atk": 350,
+          "def": 350,
+          "range": 70,
+          "speed": 600
+        }
+      },
+      {
+        "id": "wagon",
+        "name": "辎重车",
+        "available": 0,
+        "cost": {
+          "food": 600,
+          "wood": 1500,
+          "iron": 350
+        },
+        "seconds": 202.7027027027027,
+        "requirement": "军营 6级、负重技术 1级、制造技术 3级",
+        "unlocked": false,
+        "people": 4,
+        "role": "大宗运输",
+        "stats": {
+          "hp": 700,
+          "atk": 10,
+          "def": 60,
+          "range": 10,
+          "speed": 150
+        }
+      },
+      {
+        "id": "ballista",
+        "name": "床弩",
+        "available": 0,
+        "cost": {
+          "food": 2500,
+          "wood": 3000,
+          "iron": 1800
+        },
+        "seconds": 608.1081081081081,
+        "requirement": "军营 8级、抛射技巧 6级、制造技术 5级",
+        "unlocked": false,
+        "people": 5,
+        "role": "远程器械",
+        "stats": {
+          "hp": 450,
+          "atk": 420,
+          "def": 160,
+          "range": 1400,
+          "speed": 120
+        }
+      },
+      {
+        "id": "ram",
+        "name": "冲车",
+        "available": 0,
+        "cost": {
+          "food": 4000,
+          "wood": 6000,
+          "iron": 1500
+        },
+        "seconds": 1013.5135135135135,
+        "requirement": "军营 9级、防护技巧 8级、制造技术 7级",
+        "unlocked": false,
+        "people": 10,
+        "role": "破坏城防",
+        "stats": {
+          "hp": 5000,
+          "atk": 250,
+          "def": 600,
+          "range": 50,
+          "speed": 160
+        }
+      },
+      {
+        "id": "catapult",
+        "name": "投石车",
+        "available": 0,
+        "cost": {
+          "food": 5000,
+          "wood": 5000,
+          "stone": 8000,
+          "iron": 1200
+        },
+        "seconds": 1621.6216216216217,
+        "requirement": "军营 10级、抛射技巧 10级、制造技术 10级",
+        "unlocked": false,
+        "people": 8,
+        "role": "攻城投射",
+        "stats": {
+          "hp": 900,
+          "atk": 600,
+          "def": 200,
+          "range": 1600,
+          "speed": 100
+        }
+      }
+    ],
+    "techs": [
+      {
+        "id": "plant",
+        "name": "种植技术",
+        "description": "粮食产量每级 +10%。",
+        "level": 0,
+        "cost": {
+          "food": 500,
+          "gold": 1000
+        },
+        "seconds": 465,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "logging",
+        "name": "砍伐技术",
+        "description": "木材产量每级 +10%。",
+        "level": 0,
+        "cost": {
+          "wood": 500,
+          "iron": 100,
+          "gold": 1200
+        },
+        "seconds": 581,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "mining",
+        "name": "挖掘技术",
+        "description": "石料产量每级 +10%。",
+        "level": 0,
+        "cost": {
+          "stone": 500,
+          "iron": 200,
+          "gold": 1500
+        },
+        "seconds": 697,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "smelting",
+        "name": "冶炼技术",
+        "description": "铁锭产量每级 +10%。",
+        "level": 0,
+        "cost": {
+          "iron": 800,
+          "gold": 2000
+        },
+        "seconds": 813,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "manufacture",
+        "name": "制造技术",
+        "description": "器械生产速度每级 +10%。",
+        "level": 0,
+        "cost": {
+          "wood": 500,
+          "iron": 500,
+          "gold": 5000
+        },
+        "seconds": 1046,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "leadership",
+        "name": "统帅能力",
+        "description": "有效统治人口及带兵数量每级 +10%。",
+        "level": 0,
+        "cost": {
+          "gold": 10000
+        },
+        "seconds": 2093,
+        "requirement": "请先建造书院",
+        "affordable": false
+      },
+      {
+        "id": "scouting",
+        "name": "侦察技巧",
+        "description": "提高侦察情报的详细程度。",
+        "level": 0,
+        "cost": {
+          "food": 300,
+          "gold": 2000
+        },
+        "seconds": 348,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "training",
+        "name": "练兵技巧",
+        "description": "士兵训练速度每级 +10%。",
+        "level": 0,
+        "cost": {
+          "food": 600,
+          "wood": 100,
+          "stone": 100,
+          "iron": 150,
+          "gold": 2500
+        },
+        "seconds": 1046,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "combat",
+        "name": "战斗技巧",
+        "description": "军队攻击每级 +5%。",
+        "level": 0,
+        "cost": {
+          "food": 800,
+          "wood": 120,
+          "iron": 200,
+          "gold": 3000
+        },
+        "seconds": 1395,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "protection",
+        "name": "防护技巧",
+        "description": "军队防御每级 +5%。",
+        "level": 0,
+        "cost": {
+          "food": 700,
+          "wood": 150,
+          "iron": 300,
+          "gold": 3500
+        },
+        "seconds": 1744,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "load",
+        "name": "负重技术",
+        "description": "军队负重每级 +10%。",
+        "level": 0,
+        "cost": {
+          "food": 500,
+          "stone": 200,
+          "gold": 3000
+        },
+        "seconds": 1860,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "march",
+        "name": "行军技巧",
+        "description": "步兵速度每级 +10%。",
+        "level": 0,
+        "cost": {
+          "food": 600,
+          "gold": 3000
+        },
+        "seconds": 2093,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "riding",
+        "name": "驾驭技巧",
+        "description": "骑兵和器械速度每级 +5%。",
+        "level": 0,
+        "cost": {
+          "food": 1000,
+          "gold": 4000
+        },
+        "seconds": 2325,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "shooting",
+        "name": "抛射技巧",
+        "description": "远程射程每级 +5%。",
+        "level": 0,
+        "cost": {
+          "wood": 800,
+          "stone": 500,
+          "iron": 600,
+          "gold": 5000
+        },
+        "seconds": 2790,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "storage",
+        "name": "储存技术",
+        "description": "资源田和仓库容量每级 +10%。",
+        "level": 0,
+        "cost": {
+          "wood": 1200,
+          "stone": 1000,
+          "iron": 800,
+          "gold": 2000
+        },
+        "seconds": 1046,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "supply",
+        "name": "医疗技巧",
+        "description": "军队生命每级 +5%。",
+        "level": 0,
+        "cost": {
+          "food": 1500,
+          "gold": 3600
+        },
+        "seconds": 2093,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "construction",
+        "name": "建筑技术",
+        "description": "建筑和城防建造速度每级 +10%。",
+        "level": 0,
+        "cost": {
+          "wood": 2000,
+          "stone": 2000,
+          "iron": 2000,
+          "gold": 5000
+        },
+        "seconds": 2093,
+        "requirement": "请先建造书院",
+        "affordable": true
+      },
+      {
+        "id": "fortification",
+        "name": "城防技术",
+        "description": "城墙和城防耐久每级 +10%。",
+        "level": 0,
+        "cost": {
+          "wood": 2500,
+          "stone": 3000,
+          "iron": 1500,
+          "gold": 6000
+        },
+        "seconds": 2441,
+        "requirement": "请先建造书院",
+        "affordable": false
+      },
+      {
+        "id": "repair",
+        "name": "维修技术",
+        "description": "正式守城结束后，每级恢复 5% 受损持久城防。",
+        "level": 0,
+        "cost": {
+          "wood": 600,
+          "stone": 700,
+          "iron": 800,
+          "gold": 5500
+        },
+        "seconds": 2790,
+        "requirement": "请先建造书院",
+        "affordable": false
+      },
+      {
+        "id": "plunder",
+        "name": "掠夺技巧",
+        "description": "削弱敌方仓库保护，每级 3%。",
+        "level": 0,
+        "cost": {
+          "food": 5000,
+          "iron": 2000,
+          "gold": 10000
+        },
+        "seconds": 4186,
+        "requirement": "请先建造书院",
+        "affordable": false
+      },
+      {
+        "id": "researching",
+        "name": "研究技巧",
+        "description": "每级缩短新研究的基础工期 3%。",
+        "level": 0,
+        "cost": {
+          "food": 5000,
+          "gold": 3400
+        },
+        "seconds": 697,
+        "requirement": "请先建造书院",
+        "affordable": true
+      }
+    ],
+    "inventory": [],
+    "shop": [
+      {
+        "id": "labor",
+        "name": "徭役令",
+        "price": 50,
+        "effect": "labor",
+        "currency": "gems",
+        "description": "增加 3 个建造队列，持续 3 天；重复使用延长时间。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "population",
+        "name": "典民令",
+        "price": 20,
+        "effect": "population",
+        "currency": "gems",
+        "description": "补充相当于人口上限 20% 的居民，至少 100 人；不超过人口上限。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "peace",
+        "name": "安民告示",
+        "price": 50,
+        "effect": "peace",
+        "currency": "gems",
+        "description": "民心恢复到 100，民怨清零；同城冷却 3 天。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "blueprint",
+        "name": "建筑图纸",
+        "price": 40,
+        "effect": "blueprint",
+        "currency": "gems",
+        "description": "建筑与资源田升至 10 级时消耗 1 张。开始建设时自动扣除，不能直接使用。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "heal",
+        "name": "青囊书",
+        "price": 30,
+        "effect": "heal",
+        "currency": "gems",
+        "description": "战斗损失中额外 30% 可作为伤兵，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "politics",
+        "name": "文曲星符",
+        "price": 20,
+        "effect": "politics",
+        "currency": "gems",
+        "description": "选定将领内政 +25%，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "valor",
+        "name": "武曲星符",
+        "price": 20,
+        "effect": "valor",
+        "currency": "gems",
+        "description": "选定将领勇武 +25%，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "wisdom",
+        "name": "智多星符",
+        "price": 20,
+        "effect": "wisdom",
+        "currency": "gems",
+        "description": "选定将领智谋 +25%，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "tiger",
+        "name": "虎符",
+        "price": 30,
+        "effect": "tiger",
+        "currency": "gems",
+        "description": "选定将领有效带兵、统治人数 +50%，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "recruit",
+        "name": "招贤榜",
+        "price": 10,
+        "effect": "recruit",
+        "currency": "gems",
+        "description": "立即更换本城客栈候选将领。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "drum",
+        "name": "陷阵战鼓",
+        "price": 20,
+        "effect": "drum",
+        "currency": "gems",
+        "description": "军队攻击 +10%，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "formation",
+        "name": "八卦阵图",
+        "price": 20,
+        "effect": "formation",
+        "currency": "gems",
+        "description": "军队防御 +10%，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "drum7",
+        "name": "高级陷阵战鼓",
+        "price": 100,
+        "effect": "drum",
+        "currency": "gems",
+        "description": "军队攻击 +10%，持续 7 天。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "formation7",
+        "name": "高级八卦阵图",
+        "price": 100,
+        "effect": "formation",
+        "currency": "gems",
+        "description": "军队防御 +10%，持续 7 天。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "flag",
+        "name": "军旗",
+        "price": 20,
+        "effect": "flag",
+        "currency": "gems",
+        "description": "下一次出征的人数上限提高 25%。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "rename",
+        "name": "名帖",
+        "price": 10,
+        "effect": "rename",
+        "currency": "gems",
+        "description": "更改君主称呼，消耗一张。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "banner",
+        "name": "旌旗",
+        "price": 10,
+        "effect": "banner",
+        "currency": "gems",
+        "description": "更改主城旗号，消耗一面。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "truce",
+        "name": "免战牌",
+        "price": 30,
+        "effect": "",
+        "currency": "gems",
+        "description": "免战 12 小时，冷却 6 小时；只影响玩家之间的战争。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "move",
+        "name": "迁城令",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "迁往其他平地，在外部队存在时不可使用。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "moveAdvanced",
+        "name": "高级迁城令",
+        "price": 100,
+        "effect": "",
+        "currency": "gems",
+        "description": "迁往指定平地；迁城后 24 小时限制出征。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "tradeContract",
+        "name": "商队契约",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "定时运输，持续 3 天，仍占用市场商队。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "fire",
+        "name": "猛火油罐",
+        "price": 30,
+        "effect": "",
+        "currency": "gems",
+        "description": "将领下一次占领战胜利时破坏一座普通建筑，24 小时内有效。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "treasure",
+        "name": "藏宝图",
+        "price": 10,
+        "effect": "",
+        "currency": "gems",
+        "description": "标记宝藏位置。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "challenge",
+        "name": "请战书",
+        "price": 20,
+        "effect": "",
+        "currency": "gems",
+        "description": "重置剧情战场参战次数，恢复 5 次机会。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "warOrder",
+        "name": "军令状",
+        "price": 20,
+        "effect": "",
+        "currency": "gems",
+        "description": "战场荣誉获取变为 3 倍，持续 24 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "pardon",
+        "name": "赦免文书",
+        "price": 10,
+        "effect": "",
+        "currency": "gems",
+        "description": "将负数战场荣誉恢复至 0。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "reinforce",
+        "name": "援军令",
+        "price": 20,
+        "effect": "",
+        "currency": "gems",
+        "description": "在剧情战场临时补充军队，战后未损失援军离开。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "crusade",
+        "name": "讨伐令",
+        "price": 20,
+        "effect": "",
+        "currency": "gems",
+        "description": "用于开启 11 级以上剧情战场。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "pigeon",
+        "name": "信鸽",
+        "price": 5,
+        "effect": "",
+        "currency": "gems",
+        "description": "用于剧情战场内侦察其他据点。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "noble",
+        "name": "推恩令",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "爵位暂升最多 2 级，持续 3 天，有爵位上限。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "nobleAdvanced",
+        "name": "高级推恩令",
+        "price": 100,
+        "effect": "",
+        "currency": "gems",
+        "description": "爵位暂升最多 5 级，持续 10 天，有爵位门槛及上限。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "commission",
+        "name": "委托文书",
+        "price": 10,
+        "effect": "",
+        "currency": "gems",
+        "description": "用于发布匿名委托任务。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "patrol",
+        "name": "巡查令",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "将领历练名额增加 3 个，持续 3 天。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "soul",
+        "name": "聚魂幡",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "将武魂碎片转为对应武魂。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "incense",
+        "name": "引魂香",
+        "price": 30,
+        "effect": "",
+        "currency": "gems",
+        "description": "由画像获得武魂碎片，有机会直接获得武魂。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "talent",
+        "name": "求贤诏",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "结交名将位置增加 3 个，持续 7 天。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "edict",
+        "name": "讨逆圣旨",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "不经宣战进入玩家战争状态，持续 8 小时。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "refine",
+        "name": "炼化鼎",
+        "price": 30,
+        "effect": "",
+        "currency": "gems",
+        "description": "用于套装炼化。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "oath",
+        "name": "誓师文书",
+        "price": 10,
+        "effect": "",
+        "currency": "gems",
+        "description": "将不足 100 的逐鹿中原积分恢复到 100。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "resetHero",
+        "name": "洗髓丹",
+        "price": 20,
+        "effect": "heroReset",
+        "currency": "gems",
+        "description": "重置将领分配属性点；每高 10 级增加消耗。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "tactic",
+        "name": "锦囊",
+        "price": 5,
+        "effect": "",
+        "currency": "gems",
+        "description": "用于施放计谋。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "voice",
+        "name": "传音符",
+        "price": 1,
+        "effect": "",
+        "currency": "gems",
+        "description": "世界发言消耗 1 个，联盟群信消耗 2 个。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "alliance",
+        "name": "盟主令",
+        "price": 100,
+        "effect": "",
+        "currency": "gems",
+        "description": "将联盟成员上限提高到 100。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "rack",
+        "name": "武器架",
+        "price": 10,
+        "effect": "equipmentRack",
+        "currency": "gems",
+        "description": "永久增加 5 格装备容量，最高 500 格。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "rackAdvanced",
+        "name": "高级武器架",
+        "price": 80,
+        "effect": "equipmentRack",
+        "currency": "gems",
+        "description": "永久增加 50 格装备容量，最高 500 格。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "pearl",
+        "name": "强化宝珠",
+        "price": 10,
+        "effect": "equipmentMaterial",
+        "currency": "gems",
+        "description": "用于强化装备。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "powder",
+        "name": "化石粉",
+        "price": 10,
+        "effect": "",
+        "currency": "gems",
+        "description": "移除镶嵌宝珠并恢复凹槽。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "craft",
+        "name": "巧手符",
+        "price": 10,
+        "effect": "",
+        "currency": "gems",
+        "description": "提高材料合成成功率。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "smithCharm",
+        "name": "天工符",
+        "price": 20,
+        "effect": "",
+        "currency": "gems",
+        "description": "提高装备强化成功率。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "protectPearl",
+        "name": "乾坤宝珠",
+        "price": 30,
+        "effect": "",
+        "currency": "gems",
+        "description": "装备强化失败时保护装备。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "drillGem",
+        "name": "金刚钻",
+        "price": 20,
+        "effect": "",
+        "currency": "gems",
+        "description": "为装备开启镶嵌孔。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "drillGemAdvanced",
+        "name": "高级金刚钻",
+        "price": 50,
+        "effect": "",
+        "currency": "gems",
+        "description": "为装备开启更多镶嵌孔。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "horseCharm",
+        "name": "伯乐符",
+        "price": 20,
+        "effect": "",
+        "currency": "gems",
+        "description": "提高坐骑强化成功率。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "horseNeedle",
+        "name": "师皇针",
+        "price": 30,
+        "effect": "",
+        "currency": "gems",
+        "description": "坐骑强化失败时保护坐骑。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "life",
+        "name": "护命金丹",
+        "price": 30,
+        "effect": "",
+        "currency": "gems",
+        "description": "重伤治疗时恢复将领全部体力。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "speed_build_15m",
+        "name": "建造加速 · 15 分钟",
+        "price": 5,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项建造任务，缩短 15 分钟。城内建筑与城外资源田均可使用。超出剩余工作时间的部分不保留。",
+        "queueKind": "build",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_build_1h",
+        "name": "建造加速 · 1 小时",
+        "price": 15,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项建造任务，缩短 1 小时。城内建筑与城外资源田均可使用。超出剩余工作时间的部分不保留。",
+        "queueKind": "build",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_build_3h",
+        "name": "建造加速 · 3 小时",
+        "price": 35,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项建造任务，缩短 3 小时。城内建筑与城外资源田均可使用。超出剩余工作时间的部分不保留。",
+        "queueKind": "build",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_build_8h",
+        "name": "建造加速 · 8 小时",
+        "price": 80,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项建造任务，缩短 8 小时。城内建筑与城外资源田均可使用。超出剩余工作时间的部分不保留。",
+        "queueKind": "build",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_build_15_30h",
+        "name": "建造加速 · 随机 15–30 小时",
+        "price": 180,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项建造任务，使用时随机缩短 15–30 小时（整小时）。城内建筑与城外资源田均可使用。超出剩余工作时间的部分不保留。",
+        "queueKind": "build",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_build_30pct",
+        "name": "建造加速 · 剩余时间 30%",
+        "price": 120,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项建造任务，缩短剩余工作时间的 30%。城内建筑与城外资源田均可使用。超出剩余工作时间的部分不保留。",
+        "queueKind": "build",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_research_15m",
+        "name": "研究加速 · 15 分钟",
+        "price": 5,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项研究任务，缩短 15 分钟。适用于当前正在研究的科技。超出剩余工作时间的部分不保留。",
+        "queueKind": "research",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_research_1h",
+        "name": "研究加速 · 1 小时",
+        "price": 15,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项研究任务，缩短 1 小时。适用于当前正在研究的科技。超出剩余工作时间的部分不保留。",
+        "queueKind": "research",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_research_3h",
+        "name": "研究加速 · 3 小时",
+        "price": 35,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项研究任务，缩短 3 小时。适用于当前正在研究的科技。超出剩余工作时间的部分不保留。",
+        "queueKind": "research",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_research_8h",
+        "name": "研究加速 · 8 小时",
+        "price": 80,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项研究任务，缩短 8 小时。适用于当前正在研究的科技。超出剩余工作时间的部分不保留。",
+        "queueKind": "research",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_research_15_30h",
+        "name": "研究加速 · 随机 15–30 小时",
+        "price": 180,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项研究任务，使用时随机缩短 15–30 小时（整小时）。适用于当前正在研究的科技。超出剩余工作时间的部分不保留。",
+        "queueKind": "research",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_research_30pct",
+        "name": "研究加速 · 剩余时间 30%",
+        "price": 120,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项研究任务，缩短剩余工作时间的 30%。适用于当前正在研究的科技。超出剩余工作时间的部分不保留。",
+        "queueKind": "research",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_train_15m",
+        "name": "练兵加速 · 15 分钟",
+        "price": 5,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项练兵任务，缩短 15 分钟。支持正在练兵或等待开训的批次，后续批次同步提前。超出剩余工作时间的部分不保留。",
+        "queueKind": "train",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_train_1h",
+        "name": "练兵加速 · 1 小时",
+        "price": 15,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项练兵任务，缩短 1 小时。支持正在练兵或等待开训的批次，后续批次同步提前。超出剩余工作时间的部分不保留。",
+        "queueKind": "train",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_train_3h",
+        "name": "练兵加速 · 3 小时",
+        "price": 35,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项练兵任务，缩短 3 小时。支持正在练兵或等待开训的批次，后续批次同步提前。超出剩余工作时间的部分不保留。",
+        "queueKind": "train",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_train_8h",
+        "name": "练兵加速 · 8 小时",
+        "price": 80,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项练兵任务，缩短 8 小时。支持正在练兵或等待开训的批次，后续批次同步提前。超出剩余工作时间的部分不保留。",
+        "queueKind": "train",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_train_15_30h",
+        "name": "练兵加速 · 随机 15–30 小时",
+        "price": 180,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项练兵任务，使用时随机缩短 15–30 小时（整小时）。支持正在练兵或等待开训的批次，后续批次同步提前。超出剩余工作时间的部分不保留。",
+        "queueKind": "train",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "speed_train_30pct",
+        "name": "练兵加速 · 剩余时间 30%",
+        "price": 120,
+        "effect": "speedup",
+        "currency": "gems",
+        "description": "选择一项练兵任务，缩短剩余工作时间的 30%。支持正在练兵或等待开训的批次，后续批次同步提前。超出剩余工作时间的部分不保留。",
+        "queueKind": "train",
+        "rewardOnly": false,
+        "available": true,
+        "remaining": null
+      },
+      {
+        "id": "goldBrick",
+        "name": "金砖",
+        "price": 50,
+        "effect": "gold",
+        "currency": "gems",
+        "description": "使用后获得 50,000 黄金，可暂时超过官府黄金容量。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": 10
+      },
+      {
+        "id": "goldBrickLarge",
+        "name": "大金砖",
+        "price": 180,
+        "effect": "gold",
+        "currency": "gems",
+        "description": "使用后获得 200,000 黄金，可暂时超过官府黄金容量。",
+        "queueKind": null,
+        "rewardOnly": false,
+        "available": true,
+        "remaining": 10
+      },
+      {
+        "id": "starterJewelBox",
+        "name": "珠宝盒",
+        "price": 0,
+        "effect": "jewelBox",
+        "currency": "gems",
+        "description": "打开后随机获得一种珠宝 2–5 枚，数量等概率。种类概率可在开盒界面查看；可用于晋升或史诗进献。",
+        "queueKind": null,
+        "rewardOnly": true,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "starterEquipmentBasic",
+        "name": "普通装备盒",
+        "price": 0,
+        "effect": "equipmentBox",
+        "currency": "gems",
+        "description": "选择兵器、铠甲、头盔或佩饰，获得一件普通装备；将领 1 级可穿戴。装备库满时保留盒子。",
+        "queueKind": null,
+        "rewardOnly": true,
+        "available": false,
+        "remaining": null
+      },
+      {
+        "id": "starterEquipmentFine",
+        "name": "精良装备盒",
+        "price": 0,
+        "effect": "equipmentBox",
+        "currency": "gems",
+        "description": "选择兵器、铠甲、头盔或佩饰，获得一件精良装备；将领 5 级可穿戴。装备库满时保留盒子。",
+        "queueKind": null,
+        "rewardOnly": true,
+        "available": false,
+        "remaining": null
+      }
+    ],
+    "queueMetadata": [],
+    "autoResearch": false,
+    "autoResearchStatus": "已暂停；已开始的研究继续完成",
+    "queues": {
+      "build": [],
+      "train": [],
+      "research": [],
+      "defense": []
+    },
+    "queueLimits": {
+      "build": 2,
+      "train": 0
+    },
+    "objective": {
+      "id": "gift",
+      "title": "奉诏立城",
+      "stage": "立城补给",
+      "description": "领取新手礼包，取得第一批建城物资",
+      "reward": {
+        "food": 180,
+        "wood": 180,
+        "stone": 270,
+        "iron": 180,
+        "gold": 2400
+      },
+      "ready": false,
+      "action": "onboarding.claimAvailable",
+      "args": [],
+      "route": "gift"
+    },
+    "generals": [
+      {
+        "id": "lin",
+        "name": "林朔",
+        "title": "乡勇统领",
+        "type": "枪",
+        "atk": 64,
+        "def": 58,
+        "pol": 48,
+        "desc": "熟悉乡间地势，以长枪方阵守住阵线。",
+        "bonus": "spear",
+        "level": 1,
+        "wis": 58,
+        "lead": 10,
+        "busy": false,
+        "city": "capital",
+        "governor": false,
+        "loyalty": 80
+      },
+      {
+        "id": "su",
+        "name": "苏砚",
+        "title": "随军谋士",
+        "type": "策",
+        "atk": 48,
+        "def": 72,
+        "pol": 78,
+        "desc": "善理内政，率军时以稳健守势减少损失。",
+        "bonus": "shield",
+        "level": 1,
+        "wis": 72,
+        "lead": 10,
+        "busy": false,
+        "city": "capital",
+        "governor": true,
+        "loyalty": 80
+      }
+    ],
+    "nodes": [
+      {
+        "id": "field",
+        "x": 29,
+        "y": 35,
+        "name": "河畔荒田",
+        "terrain": "field",
+        "tileType": "field",
+        "kind": "landmark",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "description": "溃散的乡勇盘踞河岸，夺回粮田可增加粮食产量。",
+        "reward": "粮食产量 +20%",
+        "faction": "",
+        "chapter": null,
+        "namedCity": false,
+        "openCity": false,
+        "cityId": null,
+        "army": {},
+        "intel": null,
+        "dispatch": {
+          "raid": "",
+          "occupy": ""
+        }
+      },
+      {
+        "id": "yellow_qingshi",
+        "x": 26,
+        "y": 31,
+        "name": "青石黄巾城",
+        "terrain": "fort",
+        "tileType": "fort",
+        "kind": "city",
+        "level": 2,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "description": "黄巾占据青石小城，枪盾护卫弓兵。先侦察、备好前排与运输队；占领战胜利可缴获资源和黄金，连续三胜使民心降至零以下后易主。",
+        "reward": "占领缴获资源与黄金 · 民心低于 0 后归属",
+        "faction": "yellow_turban",
+        "chapter": null,
+        "namedCity": false,
+        "openCity": true,
+        "cityId": null,
+        "army": {},
+        "intel": null,
+        "dispatch": {
+          "raid": "",
+          "occupy": "爵位允许的城池数量已满，请先晋升爵位"
+        }
+      },
+      {
+        "id": "yellow_baisha",
+        "x": 41,
+        "y": 38,
+        "name": "白沙黄巾城",
+        "terrain": "fort",
+        "tileType": "fort",
+        "kind": "city",
+        "level": 3,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "description": "白沙城守军步弓混编，少量骑兵巡守外围。携带长枪兵保护弓阵，再配运输队带回战利品；占领战每胜降低 35 民心，降至零以下后易主。",
+        "reward": "占领缴获资源与黄金 · 民心低于 0 后归属",
+        "faction": "yellow_turban",
+        "chapter": null,
+        "namedCity": false,
+        "openCity": true,
+        "cityId": null,
+        "army": {},
+        "intel": null,
+        "dispatch": {
+          "raid": "",
+          "occupy": "爵位允许的城池数量已满，请先晋升爵位"
+        }
+      },
+      {
+        "id": "yellow_chigang",
+        "x": 21,
+        "y": 20,
+        "name": "赤岗黄巾城",
+        "terrain": "fort",
+        "tileType": "fort",
+        "kind": "city",
+        "level": 4,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "description": "赤岗城的枪盾与弓兵阵列较厚，城防会消耗进攻兵力。整备混编部队与运输队后再攻城；占领战每胜降低 35 民心，降至零以下后易主。",
+        "reward": "占领缴获资源与黄金 · 民心低于 0 后归属",
+        "faction": "yellow_turban",
+        "chapter": null,
+        "namedCity": false,
+        "openCity": true,
+        "cityId": null,
+        "army": {},
+        "intel": null,
+        "dispatch": {
+          "raid": "",
+          "occupy": "爵位允许的城池数量已满，请先晋升爵位"
+        }
+      }
+    ],
+    "marches": [],
+    "battle": null,
+    "reports": [],
+    "gifts": {
+      "available": [
+        {
+          "level": 1,
+          "title": "奉诏立城",
+          "resources": {
+            "food": 40000,
+            "wood": 40000,
+            "stone": 40000,
+            "iron": 40000,
+            "gold": 10000
+          },
+          "items": {
+            "speed_build_15m": 6,
+            "speed_build_1h": 2,
+            "population": 2
+          }
+        }
+      ],
+      "claimed": []
+    }
+  },
+  "worldSample": {
+    "width": 64,
+    "height": 64,
+    "home": {
+      "x": 32,
+      "y": 32
+    },
+    "tiles": [
+      {
+        "id": "yellow_chigang",
+        "x": 21,
+        "y": 20,
+        "name": "赤岗黄巾城",
+        "terrain": "fort",
+        "tileType": "fort",
+        "kind": "city",
+        "level": 4,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "yellow_turban",
+        "namedCity": false
+      },
+      {
+        "id": "wild_30_29",
+        "x": 30,
+        "y": 29,
+        "name": "草原野地 (30,29)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 2,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_31_29",
+        "x": 31,
+        "y": 29,
+        "name": "草原野地 (31,29)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_32_29",
+        "x": 32,
+        "y": 29,
+        "name": "平地野地 (32,29)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 2,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_33_29",
+        "x": 33,
+        "y": 29,
+        "name": "平地野地 (33,29)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_34_29",
+        "x": 34,
+        "y": 29,
+        "name": "平地野地 (34,29)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_29_30",
+        "x": 29,
+        "y": 30,
+        "name": "草原野地 (29,30)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_30_30",
+        "x": 30,
+        "y": 30,
+        "name": "草原野地 (30,30)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_31_30",
+        "x": 31,
+        "y": 30,
+        "name": "草原野地 (31,30)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_32_30",
+        "x": 32,
+        "y": 30,
+        "name": "平地野地 (32,30)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_33_30",
+        "x": 33,
+        "y": 30,
+        "name": "平地野地 (33,30)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_34_30",
+        "x": 34,
+        "y": 30,
+        "name": "平地野地 (34,30)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_35_30",
+        "x": 35,
+        "y": 30,
+        "name": "平地野地 (35,30)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "yellow_qingshi",
+        "x": 26,
+        "y": 31,
+        "name": "青石黄巾城",
+        "terrain": "fort",
+        "tileType": "fort",
+        "kind": "city",
+        "level": 2,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "yellow_turban",
+        "namedCity": false
+      },
+      {
+        "id": "wild_29_31",
+        "x": 29,
+        "y": 31,
+        "name": "草原野地 (29,31)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_30_31",
+        "x": 30,
+        "y": 31,
+        "name": "草原野地 (30,31)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_31_31",
+        "x": 31,
+        "y": 31,
+        "name": "草原野地 (31,31)",
+        "terrain": "grass",
+        "tileType": "grass",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_32_31",
+        "x": 32,
+        "y": 31,
+        "name": "平地野地 (32,31)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_33_31",
+        "x": 33,
+        "y": 31,
+        "name": "平地野地 (33,31)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_34_31",
+        "x": 34,
+        "y": 31,
+        "name": "平地野地 (34,31)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 2,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_35_31",
+        "x": 35,
+        "y": 31,
+        "name": "平地野地 (35,31)",
+        "terrain": "plain",
+        "tileType": "plain",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_29_32",
+        "x": 29,
+        "y": 32,
+        "name": "森林野地 (29,32)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_30_32",
+        "x": 30,
+        "y": 32,
+        "name": "森林野地 (30,32)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_31_32",
+        "x": 31,
+        "y": 32,
+        "name": "森林野地 (31,32)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "home",
+        "x": 32,
+        "y": 32,
+        "name": "青溪城",
+        "terrain": "plain",
+        "tileType": "home",
+        "kind": "city",
+        "level": 1,
+        "owned": true,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_33_32",
+        "x": 33,
+        "y": 32,
+        "name": "沼泽野地 (33,32)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_34_32",
+        "x": 34,
+        "y": 32,
+        "name": "沼泽野地 (34,32)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_35_32",
+        "x": 35,
+        "y": 32,
+        "name": "沼泽野地 (35,32)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_29_33",
+        "x": 29,
+        "y": 33,
+        "name": "森林野地 (29,33)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_30_33",
+        "x": 30,
+        "y": 33,
+        "name": "森林野地 (30,33)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 2,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_31_33",
+        "x": 31,
+        "y": 33,
+        "name": "森林野地 (31,33)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_32_33",
+        "x": 32,
+        "y": 33,
+        "name": "沼泽野地 (32,33)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_33_33",
+        "x": 33,
+        "y": 33,
+        "name": "沼泽野地 (33,33)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_34_33",
+        "x": 34,
+        "y": 33,
+        "name": "沼泽野地 (34,33)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 2,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_35_33",
+        "x": 35,
+        "y": 33,
+        "name": "沼泽野地 (35,33)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_29_34",
+        "x": 29,
+        "y": 34,
+        "name": "森林野地 (29,34)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_30_34",
+        "x": 30,
+        "y": 34,
+        "name": "森林野地 (30,34)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_31_34",
+        "x": 31,
+        "y": 34,
+        "name": "森林野地 (31,34)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_32_34",
+        "x": 32,
+        "y": 34,
+        "name": "沼泽野地 (32,34)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_33_34",
+        "x": 33,
+        "y": 34,
+        "name": "沼泽野地 (33,34)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_34_34",
+        "x": 34,
+        "y": 34,
+        "name": "沼泽野地 (34,34)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_35_34",
+        "x": 35,
+        "y": 34,
+        "name": "沼泽野地 (35,34)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "field",
+        "x": 29,
+        "y": 35,
+        "name": "河畔荒田",
+        "terrain": "field",
+        "tileType": "grass",
+        "kind": "landmark",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_30_35",
+        "x": 30,
+        "y": 35,
+        "name": "森林野地 (30,35)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_31_35",
+        "x": 31,
+        "y": 35,
+        "name": "森林野地 (31,35)",
+        "terrain": "forest",
+        "tileType": "forest",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_32_35",
+        "x": 32,
+        "y": 35,
+        "name": "沼泽野地 (32,35)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_33_35",
+        "x": 33,
+        "y": 35,
+        "name": "沼泽野地 (33,35)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "wild_34_35",
+        "x": 34,
+        "y": 35,
+        "name": "沼泽野地 (34,35)",
+        "terrain": "swamp",
+        "tileType": "swamp",
+        "kind": "wild",
+        "level": 1,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "",
+        "namedCity": false
+      },
+      {
+        "id": "yellow_baisha",
+        "x": 41,
+        "y": 38,
+        "name": "白沙黄巾城",
+        "terrain": "fort",
+        "tileType": "fort",
+        "kind": "city",
+        "level": 3,
+        "owned": false,
+        "hidden": false,
+        "selectable": true,
+        "faction": "yellow_turban",
+        "namedCity": false
+      }
+    ],
+    "marches": []
+  },
+  "serverTime": 1800000000000
+}
