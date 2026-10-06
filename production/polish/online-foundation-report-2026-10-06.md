@@ -1,6 +1,6 @@
 # 0.6账号联机基础验证
 
-2026-10-06，Godot4.7.2、Node24.21.0，版本0.6.0-dev.1。故事007为 **In Progress**：账号、数据库和部署代码已完成，本地已验证；正式Supabase游戏项目、域名与持续在线Node主机尚未开通，不能标为公网完成。原three-kingdoms/Pages保持不变。
+2026-10-06，Godot4.7.2、本机Node24.19.0（Windows包Node24.21.0），版本0.6.0-dev.1。故事007为 **In Progress**：账号、数据库和部署代码已完成，本地已验证；正式Supabase游戏项目、域名与持续在线Node主机尚未开通，不能标为公网完成。原three-kingdoms/Pages保持不变。
 
 ## 已完成的实现
 
@@ -38,10 +38,14 @@ Windows与Web PCK已按最终账号保护源码导出；随后只同步rule-serv
 | ThreeKingdoms-Godot-v0.6.0-dev.1-Web-preview.zip | 59389982 | `99273652dfce3b56f6a967466c4fee5da78149eb620a2fca86b175993780a0fc` |
 | ThreeKingdoms-Server-v0.6.0-dev.1.zip | 24383304 | `9936d9d770557da29cb299d36960b2f6049b31dfc0fa7940723de1f7dae5ed2a` |
 
-上表为本地包，无0.6公开Release。Windows EXE未在Windows实际执行，本机PCK检查不能替代该结论；Steamworks、百人负载和跨电脑实际玩家验收未进行。
+上表为本地包，无0.6公开Release。独立最终包审计1742项通过：静态496、macOS加载两份最终编译PCK1208、包内实际HTML脚本38。各PCK实际编译main与解压包HTTP完成登录、建房、canonical setTax一次提交、退出清UI、重登恢复原席位与税率；这里为本机模拟Supabase REST与隔离JSON存储，未使用实际Supabase/PG。最终PCK保留声音、对话与账号保护；两包59份规则服务文件逐字节匹配最终源码。报告为.local/cloud-package-audit-060-axck1hsi/final-report.json。
+
+Windows EXE未在Windows实际执行，本机PCK检查不能替代该结论；Steamworks、百人负载和跨电脑实际玩家验收未进行。
+
+测试fixture管理员连接补上idle error监听，避免embedded-postgres的退出hook先关库导致测试预览退出报未监听57P01；生产存储fail监听保持。真实PG12项再次通过，预览启动/健康检查/SIGTERM已观察正常signal退出（vendor hook为143）；不是生产部署验收。首轮Windows CI的配置测试使用POSIX固定路径而失败，已改为平台原生绝对路径并复测；最终CI另核对。
 
 ## 外部配置待完成
 
 等待用户选择Supabase组织，然后查询费用并取得确认后新建独立游戏项目；当前连接的其他业务数据库未写入。持续运行的Node另需服务器/容器托管账号、域名和管理员账号配置。配置后需真实Auth/数据库、HTTPS/自动重启、备份恢复与跨电脑验收，才能完成故事007。
 
-Graphify按原code-only/exclude标记本地刷新，1100节点、2954边、62社区；不上传、不加watcher/hook。SQL因缺少tree_sitter_sql未提取，.gd仍不覆盖；验证以源代码和运行结果为准。
+Graphify按原code-only/exclude标记本地刷新，1102节点、2957边、58社区；不上传、不加watcher/hook。SQL因缺少tree_sitter_sql未提取，.gd仍不覆盖；验证以源代码和运行结果为准。

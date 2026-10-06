@@ -3,7 +3,7 @@
 <!-- STATUS -->
 当前为0.6.0-dev.1账号联机开发预览，故事007仍为In Progress。Web/Godot账号入口、本人房间恢复、Supabase Auth适配、私有Postgres持久化及HTTPS部署基础已实现；原城池/兵种/自动结算规则和私人/四账号/0.5本机房间入口保留，策略重做继续暂缓。
 
-账号与PG测试使用本机真实PostgreSQL17.10和测试Supabase REST。最终1400项本地自动检查通过（Node97、SceneTree1284、HTML脚本fixture19），服务器包另128项审计通过，包括跨标签Cookie切换后的X-Expected-Account核对、账号绑定、真实SQL单实例/失败停止和离线战斗返程只结算一次；实际浏览器登录、席位恢复和390账号大厅已观察。正式Supabase游戏项目、费用和公网Node主机仍待用户选择，尚未开通或部署；不能把本地测试当作公网/跨电脑验证。
+账号与PG测试使用本机真实PostgreSQL17.10和测试Supabase REST。最终1400项本地自动检查通过（Node97、SceneTree1284、HTML脚本fixture19），独立最终包另1742项审计、服务器包128项审计通过，包括跨标签Cookie切换后的X-Expected-Account核对、账号绑定、真实SQL单实例/失败停止和离线战斗返程只结算一次；实际浏览器登录、席位恢复和390账号大厅已观察。正式Supabase游戏项目、费用和公网Node主机仍待用户选择，尚未开通或部署；不能把本地测试当作公网/跨电脑验证。
 
 0.5房间故事006继续Complete：历史1187项核心本地检查、365项独立包审计及真实Web/macOS观察保留。0.5源码与表现工具已经合并，并以e5f5c6c推送独立仓库；0.5发布包未公开发布，历史Windows运行边界不变。
 
@@ -23,7 +23,7 @@
 
 0.5会话保留记录：房间大厅 http://127.0.0.1:17343/lobby 使用 .local/room-play-050，保留空白大厅入口；不展示测试会话秘密。原生房间测试窗口已结束，私人客户端启动成功恢复青溪城。以下本机进度路径不用于0.6临时Auth/PG测试。
 
-本机独立私人预览 http://127.0.0.1:17339/ 使用 .local/play 新城进度，不覆盖它进行测试；原生私人客户端已恢复并继续使用原userdata。共享演练 http://127.0.0.1:17342/ 使用 .local/pvp-play-040，私有邀请页为该目录join-world.html；Web演练页继续可用，刷新需重新从邀请页加入。测试使用独立目录，性能基准只实例化地图与合成DTO。原仓库和原Pages保持不变，本轮没有开通Supabase或部署公网，不启用watcher、hook、语义后端或图谱上传。历史根代理确认原仓库clean／HEAD c7674df、旧vendor/bridge无差异；0.5 Graphify按原flags本地更新为726节点、2218边、40社区，仍不覆盖.gd；0.6本地最终刷新1100节点、2954边、62社区，SQL与.gd覆盖限制仍在。
+本机独立私人预览 http://127.0.0.1:17339/ 使用 .local/play 新城进度，不覆盖它进行测试；原生私人客户端已恢复并继续使用原userdata。共享演练 http://127.0.0.1:17342/ 使用 .local/pvp-play-040，私有邀请页为该目录join-world.html；Web演练页继续可用，刷新需重新从邀请页加入。测试使用独立目录，性能基准只实例化地图与合成DTO。原仓库和原Pages保持不变，本轮没有开通Supabase或部署公网，不启用watcher、hook、语义后端或图谱上传。历史根代理确认原仓库clean／HEAD c7674df、旧vendor/bridge无差异；0.5 Graphify按原flags本地更新为726节点、2218边、40社区，仍不覆盖.gd；0.6本地最终刷新1102节点、2957边、58社区，SQL与.gd覆盖限制仍在。
 
 0.3.1 [最终 Windows/Web 包已发布](https://github.com/YuJieMichael/three-kingdoms-godot/releases/tag/v0.3.1)，标签源码 `ce131a8b62941cc537d2bc7398f247ad9b796d17`，GitHub 四项资产大小／digest 均与本地一致。[源码推送 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479201825)、[标签 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479270820) 与 [正式 Windows 包启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934) 均 success，head 均为上述标签源码，Windows 同样通过 697 项检查。正式 ZIP 下载并核对 SHA256 后执行导出客户端 headless smoke，收到 `GODOT_SMOKE_OK canonical_revision=0 tiles=4096`，日志 `.local/windows031-ci.log`。动态分层、图集、正式美术、完整名将／招降、完整联盟界面、计谋及各州扩容留待后续；当前先完成共享攻防闭环；账号权威服务与 Steamworks 尚未配置。
 

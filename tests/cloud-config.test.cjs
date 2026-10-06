@@ -1,12 +1,14 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
+const path=require('node:path');
 const env={TK_PUBLIC_ORIGIN:'https://game.example.test',SUPABASE_URL:'https://game.supabase.co',
   SUPABASE_PUBLISHABLE_KEY:'sb_publishable_example',DATABASE_URL:'postgresql://server:example@database.test:5432/postgres?sslmode=verify-full',
   TK_ALLOWED_EMAILS:'Player@example.test,friend@example.test'};
 test('production config validates and keeps credentials server-side',async()=>{
-  const {loadCloudConfig}=await import('../scripts/cloud-config.mjs');const c=loadCloudConfig(env,'/game');
+  const {loadCloudConfig}=await import('../scripts/cloud-config.mjs');
+  const root=path.resolve('cloud-config-fixture');const c=loadCloudConfig(env,root);
   assert.equal(c.publicOrigin,env.TK_PUBLIC_ORIGIN);assert.equal(c.host,'127.0.0.1');
-  assert.deepEqual(c.allowedEmails,['player@example.test','friend@example.test']);assert.equal(c.webDir,'/game/build/web-online');
+  assert.deepEqual(c.allowedEmails,['player@example.test','friend@example.test']);assert.equal(c.webDir,path.join(root,'build','web-online'));
 });
 test('production config rejects unsafe or incomplete setup without echoing secrets',async()=>{
   const {loadCloudConfig}=await import('../scripts/cloud-config.mjs');

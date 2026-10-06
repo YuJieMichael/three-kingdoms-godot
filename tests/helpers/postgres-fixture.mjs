@@ -19,7 +19,11 @@ export async function startPostgresFixture() {
   let db,closed=false;
   const close=async()=>{if(closed)return;closed=true;await db?.end().catch(()=>{});await cluster.stop();await fs.rm(directory,{recursive:true,force:true});};
   try{
-    await cluster.initialise();await cluster.start();db=new Client({connectionString});await db.connect();
+    await cluster.initialise();await cluster.start();db=new Client({connectionString});
+    // EmbeddedPostgres also handles process shutdown signals. The fixture's
+    // setup session may therefore see its server stop before our async cleanup.
+    // Queries still reject; production store sessions keep their own fail guard.
+    db.on('error',()=>{});await db.connect();
     await db.query('create role anon;create role authenticated');
     const migrations=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../supabase/migrations');
     const migration=(await fs.readdir(migrations)).find(name=>name.endsWith('_private_room_state.sql'));
