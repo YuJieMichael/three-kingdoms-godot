@@ -110,7 +110,7 @@ func _test_enrollment_retry() -> void:
 
 func _test_validation() -> void:
 	var api: LobbyProbe = _new_lobby()
-	for url: String in ["https://127.0.0.1:17343", "http://example.com:17343", "http://127.0.0.1:0", "http://127.0.0.1:70000", "http://127.0.0.1:17343/api", "http://127.0.0.1:17343/?token=secret", "http://user:password@localhost:17343"]:
+	for url: String in ["https://example.com/api", "http://example.com:17343", "http://127.0.0.1:0", "http://127.0.0.1:70000", "http://127.0.0.1:17343/api", "http://127.0.0.1:17343/?token=secret", "http://user:password@localhost:17343"]:
 		_assert(not api.configure_url(url), "Room rehearsal rejects unsafe/non-local service URL: " + url)
 	_assert(api.configure_url("http://[::1]:17343"), "Native IPv6 loopback origin is accepted")
 	_assert(not api.create_room("", 4, "甲") and not api.create_room("房间", 9, "甲") and not api.create_room("房间", 1, "") and api.sent.is_empty(), "Incomplete create forms cannot reach the service")

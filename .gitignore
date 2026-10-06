@@ -10,3 +10,9 @@ graphify-out/
 docs/**/*.import
 .claude/
 docs/engine-reference/
+node_modules/
+.env
+.env.*
+*.env
+supabase/.temp/
+tools/

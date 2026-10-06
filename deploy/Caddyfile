@@ -1,0 +1,10 @@
+{$TK_GAME_DOMAIN} {
+	encode zstd gzip
+	header {
+		Referrer-Policy no-referrer
+		X-Content-Type-Options nosniff
+		Strict-Transport-Security "max-age=31536000"
+	}
+	# Keep the Node backend private; no access log containing cookies or headers.
+	reverse_proxy 127.0.0.1:3080
+}

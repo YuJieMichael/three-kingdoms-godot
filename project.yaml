@@ -1,10 +1,10 @@
 schema_version: 1
 project:
   name: 三国城志 Godot
-  version: 0.5.0
+  version: 0.6.0-dev.1
   genre: 2D strategy
   stage: Pre-Production
-  description: Independent Godot client with local 1–8 member rooms and canonical shared PvP.
+  description: Independent Godot client with account-bound rooms and a deployable authoritative service; cloud configuration pending.
 engine:
   name: Godot
   version: 4.7.2

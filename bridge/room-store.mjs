@@ -31,7 +31,7 @@ export function cleanName(value,maximum,label) {
   return name;
 }
 
-function validateStored(stored,now) {
+export function validateStored(stored,now) {
   const corrupt=message=>{throw new GameError('ROOM_SAVE_CORRUPT',message+'，原文件已保留',500);};
   if(!object(stored)||stored.schema!==1||stored.profile!==ROOM_PROFILE.id||!Array.isArray(stored.rooms)||!Array.isArray(stored.requests))corrupt('房间存档结构无效');
   const seenRooms=new Set(),seenMembers=new Set(),seenAuthorities=new Set(),seenSecrets=new Set(),seenRequests=new Set();
@@ -40,11 +40,15 @@ function validateStored(stored,now) {
     if(!object(room)||!roomId(room.id)||seenRooms.has(room.id)||!Number.isInteger(room.capacity)||room.capacity<1||room.capacity>8||!Array.isArray(room.members)||room.members.length<1||room.members.length>room.capacity||!Number.isSafeInteger(room.createdAt)||room.createdAt<0||room.profile!==ROOM_PROFILE.id)corrupt('房间资料无效');
     try{if(cleanName(room.name,40,'房间名称')!==room.name)corrupt('房间名称无效');}catch{corrupt('房间名称无效');}
     seenRooms.add(room.id);takeSecret(room.inviteCode);
-    const seats=new Set(),members=new Set();
+    const seats=new Set(),members=new Set(),accounts=new Set();
     for(const member of room.members){
       if(!object(member)||!memberId(member.id)||seenMembers.has(member.id)||!uuid(member.authorityId)||seenAuthorities.has(member.authorityId)||!Number.isInteger(member.seat)||member.seat<1||member.seat>room.capacity||seats.has(member.seat)||member.team!==(member.seat%2?'blue':'red'))corrupt('房间成员无效');
       try{if(cleanName(member.name,20,'城主名称')!==member.name)corrupt('城主名称无效');}catch{corrupt('城主名称无效');}
       seenMembers.add(member.id);members.add(member.id);seenAuthorities.add(member.authorityId);seats.add(member.seat);
+      if(member.accountId!==undefined){
+        if(!uuid(member.accountId)||accounts.has(member.accountId.toLowerCase()))corrupt('房间账号绑定无效');
+        accounts.add(member.accountId.toLowerCase());
+      }
       takeSecret(member.accessToken);takeSecret(member.recoveryKey);
     }
     if(!object(room.data)||!object(room.data.allianceVersions))corrupt('房间世界结构无效');
@@ -83,6 +87,7 @@ function validateStored(stored,now) {
     if(!object(request)||!validSecret(request.id)||seenRequests.has(request.id)||!['create','join'].includes(request.operation)||!validSecret(request.hash)||!object(request.response))corrupt('房间加入回执无效');
     const room=stored.rooms.find(value=>value.id===request.roomId),member=room?.members.find(value=>value.id===request.actorId);
     if(!room||!member||request.response.room?.id!==room.id||request.response.actor?.id!==member.id||request.response.authorityId!==member.authorityId||request.response.accessToken!==member.accessToken||request.response.recoveryKey!==member.recoveryKey||request.response.inviteCode!==room.inviteCode)corrupt('房间加入身份回执无效');
+    if(request.accountId!==undefined&&!uuid(request.accountId)||member.accountId!==undefined&&(typeof request.accountId!=='string'||request.accountId.toLowerCase()!==member.accountId.toLowerCase())||member.accountId===undefined&&request.accountId!==undefined)corrupt('房间加入账号回执无效');
     seenRequests.add(request.id);
   }
 }
@@ -122,14 +127,20 @@ export async function openRoomStore(dataDir,now) {
   };
 }
 
-export async function createRoom(candidate,input,now) {
+export async function createRoom(candidate,input,now,accountId=undefined) {
   const room={id:id('room_'),name:input.roomName,capacity:input.capacity,createdAt:now,
     profile:ROOM_PROFILE.id,inviteCode:secret(),members:[],data:new MemoryStore().data};
-  candidate.rooms.push(room);return joinRoom(room,input.playerName,now);
+  candidate.rooms.push(room);return joinRoom(room,input.playerName,now,accountId);
 }
-export async function joinRoom(room,name,now) {
+export async function joinRoom(room,name,now,accountId=undefined) {
+  if(accountId!==undefined){
+    if(!uuid(accountId))throw new GameError('BAD_ACCOUNT','账号绑定编号无效',400);
+    accountId=accountId.toLowerCase();
+    const existing=room.members.find(member=>member.accountId?.toLowerCase()===accountId);
+    if(existing)return memberSession(room,existing);
+  }
   if(room.members.length>=room.capacity)throw new GameError('ROOM_FULL','房间已满，请使用恢复密钥返回已有席位',409);
   const seat=Array.from({length:room.capacity},(_,index)=>index+1).find(value=>!room.members.some(member=>member.seat===value)),
-    member={id:id('member_'),name,seat,team:seat%2?'blue':'red',authorityId:crypto.randomUUID(),accessToken:secret(),recoveryKey:secret()};
+    member={id:id('member_'),name,seat,team:seat%2?'blue':'red',authorityId:crypto.randomUUID(),accessToken:secret(),recoveryKey:secret(),...(accountId===undefined?{}:{accountId})};
   await addPreparedMember(room,member,now);room.members.push(member);return memberSession(room,member);
 }

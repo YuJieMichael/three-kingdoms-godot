@@ -1,6 +1,6 @@
 # 三国城志 · Godot
 
-Godot 4.7.2＋GDScript 的独立迁移试玩，当前本地版本为 **0.5.0 1–8人房间演练**：创建房间、邀请码加入、自己的席位恢复，以及玩家城池、盟友援军、服务器自动战斗与返程入库。0.3.1 大地图更新继续保留。面向 Windows 和网页，Steamworks 与正式公网账号服务在后续接入。
+Godot 4.7.2＋GDScript 的独立迁移试玩，当前开发版本为 **0.6.0-dev.1 账号联机基础**：在0.5.0的1–8人房间、玩家城池、盟友援军、自动战斗与返程入库上，增加账号登录、自己的房间列表与Postgres持久化。正式Supabase项目和公网Node托管仍待配置，尚未上线。0.3.1大地图与原有本机试玩继续保留，目标为Windows、网页及后续Steam。
 
 开发分支已接入声音管理、菜单分页和可编辑新手剧情，使用方式与验证见 [表现工具说明](docs/PRESENTATION-TOOLS.zh.md)。游戏内从“菜单”进入声音、按键、引导、存档和连接设置；当前音乐及音效为原创合成示范素材。
 
@@ -23,9 +23,22 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，当前本地版本为 **0.5.0 1�
 
 0.5.0已完成 **1187项核心本地检查和365项独立包审计**，真实Web/macOS房间、390大厅及战报实际交付已观察；Windows/Web本地包已导出。尚未公开发布或在Windows执行0.5.0 EXE，正式跨电脑后台待配置。见 [房间验证报告](production/polish/room-lobby-report-2026-10-06.md)。
 
+0.5源码与声音、菜单、对话工具已合并并推送到独立仓库，检查点为 [e5f5c6c](https://github.com/YuJieMichael/three-kingdoms-godot/commit/e5f5c6c)。源码推送不代表新版本发布包或正式在线服务已上线。
+
+## 0.6 账号联机开发预览
+
+已准备Web与Godot账号登录、创建/加入房间和“我的房间”。同一账号再次加入满员房间会恢复原席位；正式在线模式按已验证账号恢复城池，本机0.5恢复密钥入口仍保留。网页与原生客户端的未确认请求绑定原账号，`X-Expected-Account`核对会阻止跨标签切换账号后误创建或退出另一账号。
+
+Supabase Auth负责账号验证，Postgres负责世界持久化，独立Node服务继续执行既有规则和离线行军、战斗、返程。房间成员、资源、兵力与操作回执在一个数据库事务保存；同一世界只允许一个规则服务，数据库失联后停止使用旧缓存。密码与Supabase访问/刷新令牌不写入游戏存档或客户端包，服务重启后需要重新登录，原城池保留。
+
+本轮已在本机使用真实临时PostgreSQL与测试Supabase REST验证账号隔离、跨标签切换、离线结算、重启恢复及指令重放。没有开通真实游戏Supabase项目，也没有完成公网或跨电脑验收。正式开通还需要用户选择Supabase组织、确认费用，并提供持续运行的Node托管地址；现有其他业务项目未用于游戏。
+
+HTTPS反向代理、服务守护、健康检查、私有配置与备份恢复脚本已准备。配置步骤和运行边界见 [账号联机与服务部署](docs/ONLINE-SERVICE.zh.md)，接口见 [桥接协议](bridge/README.md)。
+
 ## 当前内容
 
 - 本机1–8人房间：服务器生成城主与独立世界，创建、邀请与满员恢复，重复登记去重、容量并发保护及原子存档。网页与桌面大厅均可使用；正式跨电脑服务尚未配置。
+- 0.6账号联机基础：登录、本人房间恢复、账号与房间双重验证，以及可注入的私有Postgres存储；本机模拟Auth和真实Postgres测试已通过，正式云项目与部署待配置。
 - 本机四账号共享攻防：两组联盟与四座各自保存的城池；派兵掠夺、盟友援军、驻扎召回和行军倒计时。到时由服务器自动交战，战报显示双方幸存、永久损失、伤兵与缴获，返城后显示实际入库。演练兵力与战争状态为虚构预置，沿用原作规则。
 - 可配置电脑输入：WASD / 方向键移动大地图，`=` / 小键盘 `+` 放大，`-` / 小键盘 `-` 缩小，H / Home 定位主城；1–5 分别切换城池、大地图、军队、将领和战报，T 打开事务、O 存档、K 按键设置。打开弹窗或编辑文字时暂停游戏快捷键；Tab、Enter、Esc 保留原生界面操作。
 - 按键设置允许改键、显示冲突并恢复默认，单独在本机保存；配置损坏回退默认，保存失败保留原绑定，游戏进度不受影响。设置按钮和事务入口仍可用鼠标与触屏打开。
@@ -37,7 +50,7 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，当前本地版本为 **0.5.0 1�
 - 同一套既有规则负责费用、解锁、队列、行军和结算；回执持久化、重连核对、重复操作去重及版本冲突处理。
 - 电脑与窄屏布局；网页高分屏按逻辑像素适配。
 
-当前客户端仍处于迁移试玩阶段。原游戏的联盟、计谋、完整名将/招降、安抚祭祀等其余城池管理界面仍需继续迁移。当前界面采用程序绘制的场景和图标，后续可以换成正式美术资源；各州扩容、正式跨电脑账号服务与 Steamworks 也尚未接入。
+当前客户端仍处于迁移试玩阶段。原游戏的联盟、计谋、完整名将/招降、安抚祭祀等其余城池管理界面仍需继续迁移。当前界面采用程序绘制的场景和图标，后续可以换成正式美术资源；各州扩容和Steamworks尚未接入，正式跨电脑服务仍待云项目、主机与实际验收。
 
 0.3.1 的 **697 项本地与 Windows CI 检查已通过**（原有 482＋新增地图 215），[源码推送 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479201825) 已成功。最终原生与 Web 桌面/390 窄屏已观察地图拖动、远景、缩放、回城及当前任务点侧栏；浏览器 warn/error 日志为空。Windows/Web 已导出并发布，四项资产校验通过；[标签 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479270820) 与 [正式 Windows 包启动 CI](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37479418934) 均成功，故事 004 已完成。
 
@@ -47,10 +60,12 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，当前本地版本为 **0.5.0 1�
 
 ## 开发
 
-安装标准版 **Godot 4.7.2 stable**（GDScript）和 Node。用 Godot 导入 `project.godot`。通过环境变量 `TK_NODE` 指定 Node 完整路径，运行项目即可自动启动本地规则服务；也可在连接窗口填写服务地址。
+安装标准版 **Godot 4.7.2 stable**（GDScript）和 **Node 24**。用 Godot 导入 `project.godot`。通过环境变量 `TK_NODE` 指定 Node 完整路径，运行项目即可自动启动本地规则服务；也可在连接窗口填写服务地址。完整Node测试需安装开发依赖，其中Postgres用例启动独立临时数据库，不读取玩家进度。HTML脚本验证同样需要将`TK_NODE`设置为本机Node完整路径。
 
 ```sh
-node --test tests/bridge.test.cjs tests/shared-bridge.test.cjs tests/room-bridge.test.cjs
+npm ci
+node -e "require('node:fs').writeFileSync('node_modules/.gdignore','')"
+npm test
 godot --headless --path . --editor --import
 godot --headless --path . --script tests/world_map_test.gd
 godot --headless --path . --script tests/battle_view_test.gd
@@ -62,6 +77,9 @@ godot --headless --path . --script tests/pvp_api_test.gd
 godot --headless --path . --script tests/pvp_ui_test.gd
 godot --headless --path . --script tests/lobby_api_test.gd
 godot --headless --path . --script tests/lobby_ui_test.gd
+godot --headless --path . --script tests/cloud_lobby_api_test.gd
+godot --headless --path . --script tests/cloud_lobby_ui_test.gd
+godot --headless --path . --script tests/cloud_lobby_html_test.gd
 godot --headless --path . -- --smoke
 ```
 

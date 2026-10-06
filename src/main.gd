@@ -133,8 +133,8 @@ func _initialize_presentation() -> void:
 	_menu.input_requested.connect(_show_input_settings)
 	_menu.guide_requested.connect(_guide.start)
 	_menu.save_requested.connect(_save_dialog)
-	_menu.connection_requested.connect(_connection_dialog)
-	if not _smoke:
+	_menu.connection_requested.connect(_show_lobby)
+	if not _smoke and not Array(OS.get_cmdline_user_args()).any(func(value: String) -> bool: return value.begins_with("--lobby=")):
 		_menu.call_deferred("open_menu")
 
 func _open_menu() -> void:
@@ -1132,14 +1132,18 @@ func _web_room_invitation() -> String:
 	var value: Variant = JavaScriptBridge.eval("(() => { const hash = window.location.hash; if (!hash.startsWith('#room=')) return ''; let value = ''; try { value = decodeURIComponent(hash.slice(6)); } catch (_) {} window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search); return /^[a-f0-9]{64}$/.test(value) ? value : ''; })()", true)
 	return value if value is String else ""
 
+func _new_lobby_service() -> KingdomLobbyApi:
+	return LobbyApiScript.new() as KingdomLobbyApi
+
 func _show_lobby(invite_code: String = "", service_url: String = "") -> void:
 	_stop_keyboard_pan()
 	for window: Window in [_dialog, _pvp, _management, _input_settings_dialog]:
 		if is_instance_valid(window):
 			window.hide()
 	if not is_instance_valid(_lobby_api):
-		_lobby_api = LobbyApiScript.new() as KingdomLobbyApi
+		_lobby_api = _new_lobby_service()
 		add_child(_lobby_api)
+		_lobby_api.account_signed_out.connect(func() -> void: api.disconnect_account())
 	if not service_url.is_empty():
 		_lobby_api.configure_url(service_url)
 	if not is_instance_valid(_lobby):
@@ -1147,7 +1151,7 @@ func _show_lobby(invite_code: String = "", service_url: String = "") -> void:
 		add_child(_lobby)
 		_lobby.setup(_lobby_api)
 		_lobby.connection_requested.connect(func(url: String, access_token: String, expected_identity: Dictionary) -> void:
-			api.connect_to(url, access_token, expected_identity))
+			api.connect_to(url, access_token, expected_identity, _lobby_api.account_session))
 		_lobby.advanced_requested.connect(_connection_dialog)
 		_lobby.reconnect_requested.connect(func() -> void:
 			if api.token.is_empty():

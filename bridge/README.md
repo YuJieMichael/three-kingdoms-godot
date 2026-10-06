@@ -71,7 +71,7 @@ The map preserves the existing 64 × 64 coordinates. Future task sites are repre
 
 ## Current boundary
 
-This service exposes canonical private-save JSON to its authenticated local client and is deliberately loopback-only. It has no public player identities, multi-account authorization, global-world database, hosted Supabase project or Steamworks integration. The local token and authority UUID do not stand in for those systems. Keep private saves, ready files and token files outside the web resource tree. Public multiplayer needs a separate authenticated service and shared-world transaction model.
+The private `bridge/server.mjs` service exposes canonical private-save JSON to its authenticated local client and is deliberately loopback-only. It has no public player identities, multi-account authorization, global-world database, hosted Supabase project or Steamworks integration. The local token and authority UUID do not stand in for those systems. Keep private saves, ready files and token files outside the web resource tree. The separate account-bound room service described below does not change private-save import/export.
 
 The original browser JSON import/export format is maintained. The Godot interface exposes the current migration's playable flows; retaining the full canonical save does not imply that every original system already has a finished native interface. Windows export and actual Windows-device playtesting are distinct validation steps.
 
@@ -95,3 +95,29 @@ Bearer credentials select the live member and room on the server, with unique pe
 The private `rooms.json` atomically commits room registry, credentials, candidate MemoryStore worlds and original request receipts. Startup validates persisted data and preserves corrupt files. Existing private/four-account data directories are rejected. Automatic settlement runs while the service is open; restart catches overdue marches. This does not implement hosted accounts, cross-machine identity or Steamworks.
 
 The lobby retains an uncertain signup request only in the current window's memory. It warns that closing/refreshing can lose recovery of a committed but unconfirmed new seat. Clients do not persist signup or login credentials. In-game noncredential command journals retain the existing per-authority/member replay semantics.
+
+## Account-bound room service (0.6.0-dev.1)
+
+This development preview adds Supabase Auth and private PostgreSQL storage to the existing canonical room service. The original private bridge, four-account rehearsal and local 0.5 recovery-key rooms remain separate and compatible. The 0.5/presentation merge checkpoint `e5f5c6c` is pushed to the independent repository; no real game Supabase project or public Node deployment has been opened or verified.
+
+| Method | Path | Account-mode result |
+|---|---|---|
+| GET | `/auth/config` | `{enabled:true}`; local mode returns `false` |
+| POST | `/auth/login` | `{email,password}` → `{ok,sessionToken,user:{id,email}}` and a Web session cookie |
+| GET | `/auth/me` | `{ok,user}` after fresh provider verification |
+| POST | `/auth/logout` | Empty JSON body; revoke this opaque session |
+| GET | `/lobby/mine` | `{ok,rooms:[{room,seat,actor,authorityId}]}` without room credentials |
+| POST | `/lobby/account-resume` | `{roomId}` → the authenticated account's existing member session |
+| GET | `/readyz` | Public `{ok,settlement}`; 503 when durable storage or settlement is unavailable |
+
+The server derives account identity from Supabase `getUser`, never from request fields or `user_metadata`. Provider access/refresh tokens remain in server RAM. Clients receive an opaque 64-hex session, supplied through `X-Account-Session` by native clients or a same-origin `HttpOnly; Secure; SameSite=Strict` cookie by Web clients. Every protected lobby/game request rechecks the provider. Native account sessions are not persisted; restarting the service requires a fresh login, then the same account can recover its permanent room seat.
+
+`Authorization: Bearer <room accessToken>` remains required for game APIs and must belong to the verified account. Create/join retain the 0.5 JSON shapes but bind the permanent member to that account. A repeated join by the same account returns its original seat before capacity checks. Cloud mode disables recovery-key `/lobby/resume`; an invite or room bearer cannot replace account authentication. Room metadata never publishes account IDs or credentials.
+
+Protected requests may include `X-Expected-Account: <previously verified user.id>` as an account-context precondition. It is checked against the fresh verified identity, not used as authority. A mismatch returns `ACCOUNT_CHANGED` with 401 before enrollment, receipt replay or game access. Web/native clients retain this expected account with an uncertain request, so another tab changing the cookie cannot move the retry to a different account. Logout checks the same precondition before revoking RAM authorization or clearing the cookie; a mismatch leaves the other account signed in. The header remains optional for API compatibility.
+
+`startRoomsServer({cloudAccount:{auth,publicOrigin,limits},storageFactory})` uses the injected store; the production launcher creates Auth with a publishable key and opens `game_private.room_worlds` through a server-only database connection. PostgreSQL saves each namespace's members, credentials, canonical room worlds and receipts in one transaction. A dedicated session holds the namespace's advisory lock. Lost connection/lock or an uncertain COMMIT stops reads and writes; restart reloads committed receipts instead of falling back to JSON. Backups retain the namespace and checksum, require private output paths, and restore only while the game service is stopped.
+
+Production requires Node 24, an exact HTTPS public origin, verified database TLS with a direct/session connection, a closed email allowlist, and a separate persistent Node host. The launcher cannot select the loopback test Auth provider or local JSON fallback. Request and room limits, HTTPS proxy/systemd/container examples, readiness and backup tools are prepared in [online service instructions](../docs/ONLINE-SERVICE.zh.md). User selection of the Supabase organization/cost and public Node hosting address is still pending; these files are a deployment foundation, not evidence of a live service.
+
+Local evidence uses real temporary PostgreSQL 17.10 and a test-only loopback Supabase REST provider. `tests/cloud-bridge.test.cjs` checks account/origin/context boundaries; `tests/postgres-room-store.test.cjs` checks actual SQL persistence, locking and failure behavior; `tests/cloud-postgres.test.cjs` covers offline winning raids, return delivery and exact retry across restarts. Production code does not import these fixtures. Run the complete Node suite after `npm ci` with `npm test`.

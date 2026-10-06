@@ -15,3 +15,7 @@ Dialogue Manager 4.1.0 by Nathan Hoad is MIT licensed; pinned upstream commit `8
 The paginated tab container from Maaack's Game Template is MIT licensed; pinned upstream commit `6849d6c352dafe8ed54b5fa4f4b9774adfca31c8`. Source: https://github.com/Maaack/Godot-Game-Template. Only this standalone component is imported, in addons/maaacks_menu; the rest of the template is not installed. License: docs/licenses/maaack-menu-MIT.txt.
 
 The demonstration synthesized music and cues in src/presentation_audio.gd are original project code; they contain no downloaded recordings.
+
+## node-postgres
+
+Cloud room persistence uses node-postgres (`pg` 8.23.1), licensed under MIT. The license is included at [docs/licenses/node-postgres-MIT.txt](docs/licenses/node-postgres-MIT.txt). It is installed on the Node server; account passwords and database credentials are not included in exported clients.

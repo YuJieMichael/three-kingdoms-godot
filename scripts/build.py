@@ -4,7 +4,7 @@ import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.5.0'
+VERSION = '0.6.0-dev.1'
 GODOT_VERSION = '4.7.2'
 NODE_WINDOWS_SHA256 = '158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541'
 
@@ -44,11 +44,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--godot', default=os.environ.get('GODOT_BIN','godot'))
 parser.add_argument('--node-win-zip', type=Path, required=True)
 parser.add_argument('--skip-export', action='store_true')
+parser.add_argument('--output-dir', type=Path, default=ROOT/'build')
 args = parser.parse_args()
 actual = subprocess.check_output([args.godot,'--version'], text=True).strip()
 if not actual.startswith(GODOT_VERSION+'.stable'): raise SystemExit('Requires Godot '+GODOT_VERSION+' stable')
 if digest(args.node_win_zip) != NODE_WINDOWS_SHA256: raise SystemExit('Node Windows archive checksum mismatch')
-build = ROOT/'build'; build.mkdir(exist_ok=True)
+build = args.output_dir.resolve(); build.mkdir(exist_ok=True)
 (build/'.gdignore').touch()
 windows = build/'windows'; web = build/'web'
 windows.mkdir(exist_ok=True); web.mkdir(exist_ok=True)

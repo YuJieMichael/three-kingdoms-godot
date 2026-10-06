@@ -35,6 +35,20 @@ var _form_controls: Array[Control] = []
 var _entry_sent: bool = false
 var _close_notice: AcceptDialog
 var _allow_hide: bool = false
+var _intro: Label
+var _auth_box: VBoxContainer
+var _email: LineEdit
+var _password: LineEdit
+var _login: Button
+var _logout: Button
+var _account_label: Label
+var _rooms_box: VBoxContainer
+var _key_controls: Array[Control] = []
+var _join_hint: Label
+var _result_hint: Label
+var _room_heading: Label
+var _inspected_url: String = ""
+var _account_was_signed_in: bool = false
 
 func _ready() -> void:
 	if get_parent() is Control and (get_parent() as Control).theme != null:
@@ -55,7 +69,8 @@ func _ready() -> void:
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 10)
 	_scroll.add_child(_content)
-	_content.add_child(_label("创建或加入 1～8 人的独立房间。当前用于本机演练，跨电脑联网尚未开放。"))
+	_intro = _label("创建或加入 1～8 人的独立房间。本机演练无需账号；在线服务需使用内测账号登录。")
+	_content.add_child(_intro)
 	_current = _label("尚未连接房间")
 	_content.add_child(_current)
 	_content.add_child(_button("重连当前城主", func() -> void: reconnect_requested.emit()))
@@ -63,6 +78,35 @@ func _ready() -> void:
 	_server = _field(_content, "http://127.0.0.1:17343")
 	_form_controls.erase(_server)
 	_server.editable = not OS.has_feature("web")
+	_content.add_child(_button("检查服务 / 切换地址", func() -> void:
+		if _api != null and _api.configure_url(_server.text):
+			_clear_result()
+			_api.inspect_service()))
+	_auth_box = VBoxContainer.new()
+	_content.add_child(_auth_box)
+	_account_label = _label("在线内测：请输入已开通的账号，当前不能自行注册。")
+	_auth_box.add_child(_account_label)
+	_email = _field(_auth_box, "内测账号邮箱", 254)
+	_password = _field(_auth_box, "密码", 4096)
+	_password.secret = true
+	_form_controls.erase(_email)
+	_form_controls.erase(_password)
+	_login = _button("登录内测账号", func() -> void:
+		if _api != null:
+			_api.login(_email.text, _password.text)
+		_password.clear())
+	_auth_box.add_child(_login)
+	_logout = _button("退出账号并停止游戏连接", func() -> void:
+		_password.clear()
+		if _api != null:
+			_api.logout())
+	_auth_box.add_child(_logout)
+	_auth_box.add_child(_button("刷新我的房间", func() -> void:
+		if _api != null:
+			_api.refresh_rooms()))
+	_rooms_box = VBoxContainer.new()
+	_auth_box.add_child(_rooms_box)
+	_auth_box.hide()
 	_action = OptionButton.new()
 	for text: String in ["创建房间", "邀请码加入", "恢复自己的席位"]:
 		_action.add_item(text)
@@ -95,7 +139,8 @@ func _ready() -> void:
 	_invite = _field(join_form, "由房间创建者提供", 128)
 	join_form.add_child(_label("你的城主名"))
 	_join_name = _field(join_form, "加入会分配一个新席位", KingdomLobbyApi.PLAYER_NAME_MAX)
-	join_form.add_child(_label("邀请码用于新城主加入。返回已有城池请使用自己的恢复密钥。", 14))
+	_join_hint = _label("邀请码用于新城主加入。返回已有城池请使用自己的恢复密钥。", 14)
+	join_form.add_child(_join_hint)
 	var resume_form: VBoxContainer = VBoxContainer.new()
 	_forms.append(resume_form)
 	_content.add_child(resume_form)
@@ -124,22 +169,30 @@ func _ready() -> void:
 	_result_box.add_child(HSeparator.new())
 	_result_title = _label("你的房间席位", 20)
 	_result_box.add_child(_result_title)
-	_result_box.add_child(_label("房间编号 · 恢复席位时需要"))
+	_room_heading = _label("房间编号 · 恢复席位时需要")
+	_result_box.add_child(_room_heading)
 	_result_room = _field(_result_box, "")
 	_result_room.editable = false
 	_result_box.add_child(_label("邀请码 · 可交给其他城主加入"))
 	_result_invite = _field(_result_box, "")
 	_result_invite.editable = false
 	_result_box.add_child(_button("复制邀请码", func() -> void: DisplayServer.clipboard_set(_result_invite.text)))
-	_result_box.add_child(_label("你的恢复密钥 · 仅自己保存"))
+	var key_heading: Label = _label("你的恢复密钥 · 仅自己保存")
+	_result_box.add_child(key_heading)
+	_key_controls.append(key_heading)
 	_result_key = _field(_result_box, "")
 	_result_key.editable = false
 	_result_key.secret = true
+	_key_controls.append(_result_key)
 	_result_box.add_child(_button("显示 / 隐藏恢复密钥", func() -> void: _result_key.secret = not _result_key.secret))
 	_result_box.add_child(_button("复制房间编号与自己的密钥", func() -> void:
 		DisplayServer.clipboard_set(_result_room.text + "\n" + _result_key.text)
 		_status.text = "已复制自己的恢复信息，请保存到私人位置；不要交给其他玩家"))
-	_result_box.add_child(_label("关闭客户端或刷新网页后，需要房间编号＋自己的恢复密钥才能回到原城池。共享邀请码不能恢复已有席位。", 14))
+	# The two recovery buttons and heading must never be exposed in cloud mode.
+	_key_controls.append(_result_box.get_child(_result_box.get_child_count() - 1))
+	_key_controls.append(_result_box.get_child(_result_box.get_child_count() - 2))
+	_result_hint = _label("关闭客户端或刷新网页后，需要房间编号＋自己的恢复密钥才能回到原城池。共享邀请码不能恢复已有席位。", 14)
+	_result_box.add_child(_result_hint)
 	_enter = _button("保存恢复信息后进入房间", _enter_room)
 	_result_box.add_child(_enter)
 	_result_box.hide()
@@ -187,10 +240,17 @@ func setup(service: KingdomLobbyApi) -> void:
 		_api.request_succeeded.disconnect(_received_result)
 		_api.status_changed.disconnect(_lobby_status)
 		_api.request_failed.disconnect(_show_error)
+		_api.account_changed.disconnect(_account_changed)
+		_api.account_status.disconnect(_account_status)
+		_api.rooms_received.disconnect(_rooms_received)
 	_api = service
 	_api.request_succeeded.connect(_received_result)
 	_api.status_changed.connect(_lobby_status)
 	_api.request_failed.connect(_show_error)
+	_api.account_changed.connect(_account_changed)
+	_api.account_status.connect(_account_status)
+	_api.rooms_received.connect(_rooms_received)
+	_account_changed(_api.account_user, _api.cloud_enabled)
 	_server.text = _api.base_url
 	_lobby_status("创建或加入后，请自行保存恢复密钥；客户端不会保存密钥", _api.busy, _api.needs_retry)
 
@@ -202,6 +262,9 @@ func show_lobby(actor: Dictionary = {}, room: Dictionary = {}, connected: bool =
 		_update_form()
 	_fit_window()
 	popup_centered(size)
+	if _api != null and _inspected_url != _api.base_url:
+		_inspected_url = _api.base_url
+		_api.inspect_service()
 
 func _fit_window() -> void:
 	var available: Vector2 = Vector2(get_tree().root.get_visible_rect().size)
@@ -279,10 +342,10 @@ func _received_result(payload: Dictionary) -> void:
 	_result_title.text = "%s · %s · 席位 %d\n%s" % [str(payload.room.name), str(payload.actor.name), own_seat, "初始青组" if own_seat % 2 == 1 else "初始赤组"]
 	_result_room.text = str(payload.room.id)
 	_result_invite.text = str(payload.inviteCode)
-	_result_key.text = str(payload.recoveryKey)
+	_result_key.text = "" if _api.cloud_enabled else str(payload.recoveryKey)
 	_resume_key.clear()
 	_result_key.secret = true
-	_enter.text = "保存恢复信息后进入房间"
+	_enter.text = "进入自己的房间" if _api.cloud_enabled else "保存恢复信息后进入房间"
 	_enter.disabled = false
 	_result_box.show()
 	call_deferred("_scroll_to_result")
@@ -303,11 +366,14 @@ func _enter_room() -> void:
 	_entry_sent = true
 	_enter.disabled = true
 	_status.text = "正在核对自己的房间身份…"
-	connection_requested.emit(_result_url, str(_result.accessToken), {"actorId": str(_result.actor.id), "authorityId": str(_result.authorityId), "roomId": str(_result.room.id)})
+	var identity: Dictionary = {"actorId": str(_result.actor.id), "authorityId": str(_result.authorityId), "roomId": str(_result.room.id)}
+	if _api.cloud_enabled and not _api.account_user.is_empty():
+		identity["accountId"] = str(_api.account_user.id)
+	connection_requested.emit(_result_url, str(_result.accessToken), identity)
 
 func _lobby_status(message: String, busy: bool, needs_retry: bool) -> void:
 	_status.text = message
-	_submit.disabled = busy or needs_retry
+	_submit.disabled = busy or needs_retry or _api != null and _api.cloud_enabled and _api.account_user.is_empty()
 	_retry.visible = needs_retry
 	_cancel.visible = needs_retry
 	_retry.disabled = busy
@@ -351,3 +417,50 @@ func _button(text: String, callback: Callable) -> Button:
 	button.clip_text = true
 	button.pressed.connect(callback)
 	return button
+
+func _account_changed(user: Dictionary, cloud: bool) -> void:
+	title = "联机大厅 · 在线内测" if cloud else "联机大厅 · 本机房间演练"
+	_auth_box.visible = cloud
+	_action.set_item_disabled(2, cloud)
+	if cloud and _action.selected == 2:
+		_action.select(0)
+	_update_form()
+	_join_hint.text = "邀请码用于加入房间。已有城池请登录原账号，从我的房间恢复。" if cloud else "邀请码用于新城主加入。返回已有城池请使用自己的恢复密钥。"
+	_result_hint.text = "在线进度绑定账号。下次登录原账号，在我的房间恢复城池；客户端不会保存密码和会话。" if cloud else "关闭客户端或刷新网页后，需要房间编号＋自己的恢复密钥才能回到原城池。共享邀请码不能恢复已有席位。"
+	_room_heading.text = "房间编号" if cloud else "房间编号 · 恢复席位时需要"
+	for control: Control in _key_controls:
+		control.visible = not cloud
+	var signed_in: bool = not user.is_empty()
+	_account_label.text = "已登录：%s · 会话仅保存在本次运行内存" % str(user.get("email", "")) if signed_in else "在线内测：请输入已开通的账号，当前不能自行注册。"
+	_email.visible = not signed_in
+	_password.visible = not signed_in
+	_login.visible = not signed_in
+	_logout.visible = signed_in
+	if not signed_in:
+		if cloud or _account_was_signed_in:
+			_clear_result()
+		_rooms_received([])
+	_account_was_signed_in = signed_in
+	_lobby_status("请登录内测账号" if cloud and not signed_in else "请选择房间操作", _api.busy if _api != null else false, _api.needs_retry if _api != null else false)
+
+func _account_status(message: String, busy: bool) -> void:
+	_login.disabled = busy
+	_email.editable = not busy
+	_password.editable = not busy
+	_logout.disabled = busy
+	if _api != null and not _api.busy and not _api.needs_retry:
+		_status.text = message
+
+func _rooms_received(rooms: Array) -> void:
+	for child: Node in _rooms_box.get_children():
+		_rooms_box.remove_child(child)
+		child.queue_free()
+	_rooms_box.add_child(_label("我的房间 · 登录原账号恢复原城主"))
+	if rooms.is_empty():
+		_rooms_box.add_child(_label("暂无已有房间，可创建房间或用邀请码加入。", 14))
+	for entry: Dictionary in rooms:
+		var room_id: String = str(entry.room.id)
+		var button: Button = _button("%s · %s · 席位 %d" % [str(entry.room.name), str(entry.actor.name), int(entry.seat)], func() -> void:
+			if _api != null and _api.resume_account_room(room_id):
+				_clear_result())
+		_rooms_box.add_child(button)

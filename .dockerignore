@@ -1,0 +1,17 @@
+.git
+.godot
+.local
+node_modules
+tools
+tests
+docs
+production
+.claude
+supabase
+*.env
+.env*
+build/*
+!build/web-online
+runtime
+outputs
+graphify-out

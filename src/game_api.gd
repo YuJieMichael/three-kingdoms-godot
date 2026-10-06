@@ -13,6 +13,8 @@ signal mode_changed(mode: String)
 
 var base_url: String = "http://127.0.0.1:17337"
 var token: String = ""
+# Account session is RAM only; it never enters pending-command journals.
+var account_session: String = ""
 var revision: int = 0
 var connected: bool = false
 var last_snapshot: Dictionary = {}
@@ -56,9 +58,10 @@ func _ready() -> void:
 	_poll.timeout.connect(_poll_state)
 	add_child(_poll)
 
-func connect_to(url: String, access_token: String = "", expected_identity: Dictionary = {}) -> void:
+func connect_to(url: String, access_token: String = "", expected_identity: Dictionary = {}, session: String = "") -> void:
 	base_url = url.trim_suffix("/")
 	token = access_token
+	account_session = session
 	_expected_identity = expected_identity.duplicate(true)
 	_stash_unconfirmed()
 	_queue.clear()
@@ -156,7 +159,7 @@ func refresh() -> void:
 
 func retry_last() -> void:
 	# Re-check authority before replaying the exact original operation.
-	connect_to(base_url, token, _expected_identity)
+	connect_to(base_url, token, _expected_identity, account_session)
 
 func _load_pending() -> void:
 	if mode == "shared" and not _pending_namespace.is_empty():
@@ -434,15 +437,15 @@ func _pump() -> void:
 	if not _current.is_empty() or _queue.is_empty():
 		return
 	_current = _queue.pop_front()
-	var headers: PackedStringArray = PackedStringArray(["Content-Type: application/json"])
-	if not token.is_empty():
-		headers.append("Authorization: Bearer " + token)
+	var headers: PackedStringArray = _request_headers()
 	var body: String = "" if _current.body.is_empty() else JSON.stringify(_current.body)
 	var error: Error = _http.request(base_url + "/" + str(_current.path), headers, _current.method, body)
 	if error != OK:
 		_fail_transport("请求无法开始：" + str(error))
 
 func _on_completed(result: int, code: int, _headers: PackedStringArray, bytes: PackedByteArray) -> void:
+	if _current.is_empty():
+		return
 	var request: Dictionary = _current.duplicate(true)
 	if result != HTTPRequest.RESULT_SUCCESS or code == 0:
 		_fail_transport("连接中断。可重连；未确认的操作会用原编号重试")
@@ -639,3 +642,32 @@ func _fail_transport(message: String) -> void:
 func _exit_tree() -> void:
 	if _local_pid > 0:
 		OS.kill(_local_pid)
+
+func disconnect_account() -> void:
+	_stash_unconfirmed()
+	_http.cancel_request()
+	_current.clear()
+	_queue.clear()
+	_poll.stop()
+	token = ""
+	account_session = ""
+	_expected_identity.clear()
+	connected = false
+	actor.clear()
+	room.clear()
+	last_snapshot.clear()
+	shared_world.clear()
+	revision = 0
+	_authority = ""
+	mode_changed.emit(mode)
+	status_changed.emit("账号已退出，请重新登录后选择自己的房间", false)
+
+func _request_headers() -> PackedStringArray:
+	var headers: PackedStringArray = PackedStringArray(["Content-Type: application/json"])
+	if not token.is_empty():
+		headers.append("Authorization: Bearer " + token)
+	if not account_session.is_empty():
+		headers.append("X-Account-Session: " + account_session)
+	if not str(_expected_identity.get("accountId", "")).is_empty():
+		headers.append("X-Expected-Account: " + str(_expected_identity.accountId))
+	return headers
