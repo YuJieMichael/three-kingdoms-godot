@@ -1,6 +1,6 @@
 # 三国城志 · Godot
 
-Godot 4.7.2＋GDScript 的独立迁移试玩，版本 **0.1.0**。面向 Windows 和网页，Steamworks 在客户端验证后接入。
+Godot 4.7.2＋GDScript 的独立迁移试玩，版本 **0.1.1**。面向 Windows 和网页，Steamworks 在客户端验证后接入。
 
 原 [three-kingdoms 仓库](https://github.com/YuJieMichael/three-kingdoms) 与 [网页版](https://yujiemichael.github.io/three-kingdoms/) 保持不变。本仓库从 `c7674df45b9595405e57907524e737e633b0ff63` 保存规则快照，不直接同步或部署原仓库。
 
