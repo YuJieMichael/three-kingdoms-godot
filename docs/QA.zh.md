@@ -2,6 +2,8 @@
 
 2026-10-06，Godot `4.7.2.stable.official.ed1daf0bf`，标准版 GDScript。
 
+0.1.1 修正变量字体的整数轴标签，实际渲染坐标确认字重 500；新增直接读取 TextServer 字体坐标的回归检查。初版建设/行军/战斗链路截图保留，当前新城与手机截图已更新为 0.1.1。
+
 ## 已完成
 
 - 原仓库 HEAD `c7674df45b9595405e57907524e737e633b0ff63`，工作区干净；没有修改或部署原 GitHub Pages。
@@ -15,7 +17,7 @@
 
 ## 发布验证
 
-Windows GitHub Actions 源码验证通过：[运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37420521752)。从本次发布下载 Windows ZIP、核对 SHA256、解压、直接启动导出的 `ThreeKingdoms.exe --headless -- --smoke`，实际运行成功并连接随包规则服务，收到 `GODOT_SMOKE_OK`：[发布包运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37420714887)。导出成功和 headless 启动不等于 Windows 桌面交互试玩已完成。
+Windows GitHub Actions 源码验证通过：[运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37421609588)。从本次发布下载 Windows ZIP、核对 SHA256、解压、直接启动导出的 `ThreeKingdoms.exe --headless -- --smoke`，实际运行成功并连接随包规则服务，收到 `GODOT_SMOKE_OK`：[发布包运行记录](https://github.com/YuJieMichael/three-kingdoms-godot/actions/runs/37421796832)。导出成功和 headless 启动不等于 Windows 桌面交互试玩已完成。
 
 ## 测试边界
 
@@ -34,3 +36,7 @@ Graphify 0.9.76 当前未识别 GDScript `.gd`；生成的图主要覆盖规则�
 ![手机战斗布局与恢复](screenshots/battle-mobile.jpg)
 
 ![实际战损和入库战报](screenshots/report-mobile.jpg)
+
+![0.1.1 新城预览](screenshots/new-city-preview.jpg)
+
+![0.1.1 手机字体和布局](screenshots/new-city-mobile.jpg)
