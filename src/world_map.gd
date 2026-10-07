@@ -33,7 +33,8 @@ const WATER: Color = Color("4b6465")
 
 var world: Dictionary = {"width": 64, "height": 64, "home": {"x": 32, "y": 32}, "tiles": [], "marches": []}
 var camera_center: Vector2 = Vector2(32.5, 32.5)
-var zoom: float = 0.80
+var zoom: float = 1.05
+var show_grid: bool = false
 var selected_tile: Dictionary = {}
 var filter_kind: String = "all"
 var regions: Array = []
@@ -48,6 +49,8 @@ var _server_clock_ms: float = 0.0
 var _server_clock_tick: int = 0
 var _map_art_texture: Texture2D
 var _map_art_sprites: Dictionary = {}
+var _terrain_art_sprites: Dictionary = {}
+var _hover_coordinate: Vector2i = Vector2i(-1, -1)
 var _map_label_rects: Array[Rect2] = []
 var _landscape_pass_complete: bool = false
 var _landform_mesh: ArrayMesh
@@ -81,6 +84,11 @@ func _ready() -> void:
 		if parsed is Dictionary and parsed.get("regions", []) is Array:
 			regions = parsed.get("regions", [])
 	_load_map_art()
+	_load_terrain_art()
+	mouse_exited.connect(func() -> void:
+		_hover_coordinate = Vector2i(-1, -1)
+		tooltip_text = ""
+		queue_redraw())
 	resized.connect(_on_resized)
 	set_process(true)
 	queue_redraw()
@@ -119,6 +127,53 @@ func _load_map_art(path: String = "res://data/world-map-art-atlas.json") -> void
 
 func map_art_loaded() -> bool:
 	return _map_art_sprites.size() == 6
+
+
+func _load_terrain_art() -> void:
+	_terrain_art_sprites.clear()
+	var path: String = "res://data/world-terrain-art-atlas.json"
+	if not FileAccess.file_exists(path):
+		return
+	var metadata: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not metadata is Dictionary:
+		return
+	var texture_path: String = str(metadata.get("texture", ""))
+	if not ResourceLoader.exists(texture_path, "Texture2D"):
+		return
+	var texture: Texture2D = load(texture_path) as Texture2D
+	for id: Variant in metadata.get("regions", {}):
+		var row: Array = metadata.regions[id]
+		if row.size() != 4:
+			continue
+		var region: Rect2 = Rect2(float(row[0]), float(row[1]), float(row[2]), float(row[3]))
+		if region.size.x <= 0 or region.size.y <= 0 or not Rect2(Vector2.ZERO, texture.get_size()).encloses(region):
+			continue
+		var sprite: AtlasTexture = AtlasTexture.new()
+		sprite.atlas = texture
+		sprite.region = region
+		sprite.filter_clip = true
+		_terrain_art_sprites[str(id)] = sprite
+
+
+func _draw_terrain_sprite(terrain: String, center: Vector2, coordinates: Vector2i) -> bool:
+	var variant: String = "a" if (coordinates.x * 17 + coordinates.y * 7) % 3 == 0 else "b"
+	var normalized: String = str({"field":"plain", "farm":"plain", "food":"grass", "wood":"forest", "woods":"forest", "stone":"mountain", "iron":"mountain", "desert":"hill", "wasteland":"hill"}.get(terrain, terrain))
+	var key: String = "%s_%s" % [normalized, variant]
+	if not _terrain_art_sprites.has(key):
+		return false
+	var sprite: AtlasTexture = _terrain_art_sprites[key]
+	# Small deterministic offsets break identical rows while staying inside the
+	# authoritative cell: tapping the image still selects its actual location.
+	var pixels: float = cell_pixels()
+	var offset: Vector2 = Vector2(sin(float(coordinates.x * 29 + coordinates.y * 13)) * 0.045, 0.10 + cos(float(coordinates.x * 7 + coordinates.y * 19)) * 0.025) * pixels
+	var extent: Vector2 = Vector2.ONE * pixels * (0.83 + sin(float(coordinates.x * 11 + coordinates.y * 31)) * 0.035)
+	draw_texture_rect(sprite, _map_sprite_rect(sprite, center + offset, extent), false)
+	return true
+
+
+func set_grid_visible(enabled: bool) -> void:
+	show_grid = enabled
+	queue_redraw()
 
 
 func map_art_regions() -> Dictionary:
@@ -361,6 +416,16 @@ func _gui_input(event: InputEvent) -> void:
 		if _pointer_down:
 			_move_pointer(motion.position)
 			accept_event()
+		else:
+			var point: Vector2 = screen_to_world(motion.position)
+			var coordinate: Vector2i = Vector2i(floori(point.x), floori(point.y))
+			if coordinate != _hover_coordinate:
+				_hover_coordinate = coordinate
+				var tile: Dictionary = _tile_at(coordinate)
+				var visible_target: bool = not bool(tile.get("hidden", false)) and bool(tile.get("selectable", true)) and coordinate.x >= 0 and coordinate.y >= 0 and coordinate.x < int(world.width) and coordinate.y < int(world.height)
+				tooltip_text = "%s\n%d级 · 点击查看详情" % [str(tile.get("name", "野地")), int(tile.get("level", 0))] if visible_target else ""
+				mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if visible_target else Control.CURSOR_ARROW
+				queue_redraw()
 	elif event is InputEventScreenTouch:
 		var touch: InputEventScreenTouch = event
 		if touch.pressed:
@@ -545,10 +610,9 @@ func _draw() -> void:
 				_draw_tile_landscape(_tile_at(coordinate), coordinate)
 	_landscape_pass_complete = true
 	if not selected_tile.is_empty() and not bool(selected_tile.get("hidden", false)):
-		var selected_position: Vector2 = Vector2(float(selected_tile.get("x", 0)), float(selected_tile.get("y", 0)))
-		var rectangle: Rect2 = Rect2(world_to_screen(selected_position) + Vector2(3, 3), Vector2.ONE * cell_pixels() - Vector2(6, 6))
-		draw_rect(rectangle, Color(GOLD, 0.12), true)
-		draw_rect(rectangle, GOLD, false, 2.0)
+		_draw_target_halo(Vector2i(int(selected_tile.get("x", 0)), int(selected_tile.get("y", 0))), true)
+	if _hover_coordinate != Vector2i(-1,-1) and not bool(_tile_at(_hover_coordinate).get("hidden", false)):
+		_draw_target_halo(_hover_coordinate, false)
 	if zoom < 0.46:
 		# At overview scale wilderness decorations are already hidden. Visit only
 		# landmarks, retaining the same row order and current snapshot contents.
@@ -560,13 +624,24 @@ func _draw() -> void:
 			for x: int in range(min_x, max_x + 1):
 				var coordinates: Vector2i = Vector2i(x, y)
 				_draw_tile_features(_tile_at(coordinates), coordinates)
-	if zoom >= 1.05:
+	if show_grid and zoom >= 0.65:
 		_draw_grid(min_x, max_x, min_y, max_y)
 	_landscape_pass_complete = false
 	_draw_marches()
 	_draw_compass()
 	_draw_map_status()
 	draw_rect(Rect2(Vector2.ZERO, size), BORDER, false, 1.0)
+
+
+func _draw_target_halo(coordinates: Vector2i, selected: bool) -> void:
+	var center: Vector2 = world_to_screen(Vector2(coordinates) + Vector2(0.5, 0.68))
+	var ring: PackedVector2Array = PackedVector2Array()
+	for i: int in range(33):
+		var angle: float = TAU * float(i) / 32.0
+		ring.append(center + Vector2(cos(angle) * 0.43, sin(angle) * 0.24) * cell_pixels())
+	if selected:
+		draw_colored_polygon(ring, Color(GOLD, 0.14))
+	draw_polyline(ring, GOLD if selected else Color(TEXT, 0.45), 2.5 if selected else 1.2, true)
 
 
 func _draw_landform(min_x: int, max_x: int, min_y: int, max_y: int) -> void:
@@ -714,23 +789,26 @@ func _draw_tile_features(tile: Dictionary, coordinates: Vector2i) -> void:
 			_draw_city(center, tile, is_home)
 	elif is_task and zoom >= 0.43 and filter_kind in ["all", "tasks"]:
 		_draw_task(center, tile)
-	elif zoom >= 0.80 and filter_kind == "resources":
-		var short_label: String = "粮"
-		match terrain:
-			"forest", "wood", "woods":
-				short_label = "木"
-			"stone", "hill":
-				short_label = "石"
-			"mountain", "iron":
-				short_label = "铁"
-		_draw_badge(center + Vector2(0, -3), short_label, Color("514a39"))
-	if tile_kind == "wild" and zoom >= 0.80 and filter_kind in ["all", "resources"] and bool(world.get("wildRefresh", {}).get("enabled", false)):
+	elif tile_kind == "wild" and zoom >= 0.70 and filter_kind in ["all", "resources"]:
 		var names: Dictionary = {"plain":"平地", "grass":"草原", "forest":"森林", "hill":"荒漠", "mountain":"山地", "lake":"湖泊", "swamp":"沼泽"}
-		var name: String = str(names.get(terrain, "野地"))
-		if zoom < 1.05:
-			name = name.left(1)
-		var label: String = "%s·%d" % [name, int(tile.get("level", 0))]
-		_draw_map_label(label, center + Vector2(0, cell_pixels() * 0.35), 11, GOLD if bool(tile.get("owned", false)) else TEXT, tile == selected_tile)
+		var active: bool = str(tile.get("id", "")) == str(selected_tile.get("id", ""))
+		if active:
+			var caption: String = "%s · %d级" % [names.get(terrain, "野地"), int(tile.get("level", 0))]
+			var half_width: float = _font.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x * 0.5 + 9
+			var point: Vector2 = center + Vector2(0, cell_pixels() * 0.50 + 12)
+			point.x = clampf(point.x, half_width, maxf(half_width, size.x - half_width))
+			point.y = clampf(point.y, 24, maxf(24, size.y - 42))
+			_draw_map_label(caption, point, 14, GOLD, true)
+		elif show_grid or filter_kind == "resources":
+			var name: String = str(names.get(terrain, "野地"))
+			if filter_kind == "resources":
+				name = str({"forest":"木", "hill":"石", "mountain":"铁"}.get(terrain, "粮"))
+			_draw_map_label("%s·%d" % [name, int(tile.get("level", 0))], center + Vector2(0, cell_pixels() * 0.35), 12, TEXT)
+		if bool(tile.get("owned", false)):
+			var flag: Vector2 = center + Vector2(cell_pixels() * 0.28, -cell_pixels() * 0.16)
+			draw_line(flag, flag + Vector2(0, 15), GOLD, 1.5)
+			draw_colored_polygon(PackedVector2Array([flag, flag + Vector2(10, 3), flag + Vector2(0, 7)]), GOLD)
+
 
 
 func _draw_tile_landscape(tile: Dictionary, coordinates: Vector2i) -> void:
@@ -741,6 +819,8 @@ func _draw_tile_landscape(tile: Dictionary, coordinates: Vector2i) -> void:
 		return
 	var center: Vector2 = world_to_screen(Vector2(coordinates) + Vector2.ONE * 0.5)
 	var terrain: String = str(tile.get("terrain", _terrain_at(coordinates)))
+	if _draw_terrain_sprite(terrain, center, coordinates):
+		return
 	if bool(world.get("wildRefresh", {}).get("enabled", false)):
 		if terrain in ["lake", "swamp"]:
 			_draw_wild_water(center, coordinates, terrain == "swamp")
@@ -929,9 +1009,14 @@ static func city_flag_color(tile: Dictionary, is_home: bool) -> Color:
 
 
 func _draw_task(center: Vector2, tile: Dictionary) -> void:
+	if str(tile.get("terrain", "")) in ["camp", "fort"] and _draw_terrain_sprite("camp", center, Vector2i(int(tile.get("x",0)), int(tile.get("y",0)))):
+		if zoom >= 0.75:
+			_draw_map_label(str(tile.get("name", "任务据点")), center + Vector2(0, cell_pixels() * 0.37 + 15), 14, TEXT, tile == selected_tile)
+		return
 	var radius: float = clampf(cell_pixels() * 0.16, 5.0, 12.0)
-	draw_colored_polygon(PackedVector2Array([center + Vector2(0, -radius), center + Vector2(radius, 0), center + Vector2(0, radius), center + Vector2(-radius, 0)]), Color("aa8452"))
-	draw_polyline(PackedVector2Array([center + Vector2(0, -radius), center + Vector2(radius, 0), center + Vector2(0, radius), center + Vector2(-radius, 0), center + Vector2(0, -radius)]), GOLD, 1.0, true)
+	var flag: Vector2 = center + Vector2(cell_pixels() * 0.23, -radius)
+	draw_line(flag, flag + Vector2(0, radius * 2), Color("6a5036"), 2)
+	draw_colored_polygon(PackedVector2Array([flag, flag + Vector2(radius, radius * 0.27), flag + Vector2(0, radius * 0.62)]), Color("d7b575"))
 	if zoom >= 0.75:
 		_draw_map_label(str(tile.get("name", "任务据点")), center + Vector2(0, radius + 15), 12, TEXT, tile == selected_tile)
 

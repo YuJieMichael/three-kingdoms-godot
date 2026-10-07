@@ -10,6 +10,7 @@ signal defense_selected
 const GOLD: Color = Color("c6aa71")
 const LABEL: Color = Color("eee3c9")
 const CHINESE_FONT: Font = preload("res://assets/fonts/UI.tres")
+const OpenLandArt: Script = preload("res://src/resource_plot_art.gd")
 const TAP_TRAVEL: float = 10.0
 const CITY_ART_PATH: String = "res://assets/environment/city/city_rts_core_v1.png"
 const CITY_ART_METADATA: String = "res://data/city-rts-art-atlas.json"
@@ -782,13 +783,11 @@ func _draw_parcel_ground(lot: Dictionary, reserved: bool = false) -> void:
 	if reserved:
 		earth = Color(0.48, 0.45, 0.34, 0.13)
 	draw_rect(patch, earth)
-	# Low-contrast surveyed boundaries preserve each hit target without
-	# surrounding every structure with a bright table-cell rectangle.
-	draw_rect(patch, Color(0.33, 0.30, 0.21, 0.25), false, 0.8)
-	for corner: Vector2 in [patch.position, Vector2(patch.end.x, patch.position.y), patch.end, Vector2(patch.position.x, patch.end.y)]:
-		draw_line(corner, corner - Vector2(0.0, 2.0), Color(0.71, 0.63, 0.44, 0.65), 1.2)
-	draw_rect(Rect2(rect.position + Vector2(4.0, 3.0), Vector2(25.0, 17.0)), Color(0.16, 0.20, 0.15, 0.66))
-	_text(rect.position + Vector2(8.0, 16.0), "%02d" % (int(lot.site) + 1), 11, Color("e6d8b4"))
+	# Canonical parcels retain their hit targets; site numbers appear on focus
+	# instead of surrounding every structure with a table-cell rectangle.
+	if lot.key == _selected or lot.key == _hover or (_keyboard_focus and lot.key == _focus_key):
+		draw_rect(Rect2(rect.position + Vector2(4.0, 3.0), Vector2(25.0, 19.0)), Color(0.16, 0.20, 0.15, 0.66))
+		_text(rect.position + Vector2(7.0, 18.0), "%02d" % (int(lot.site) + 1), 14, Color("e6d8b4"))
 
 func _draw_reserved_lot(lot: Dictionary) -> void:
 	var rect: Rect2 = lot.rect
@@ -834,13 +833,19 @@ func _draw_empty_lot(lot: Dictionary) -> void:
 	var yard: Rect2 = rect.grow(-11.0)
 	_ground_grain(yard, 12)
 	# A surveyed construction plot, with a direct and legible action.
-	for corner: Vector2 in [yard.position, Vector2(yard.end.x, yard.position.y), yard.end, Vector2(yard.position.x, yard.end.y)]:
-		draw_line(corner, corner - Vector2(0.0, 4.0), Color("c1b084"), 2.0)
 	var center: Vector2 = rect.get_center() - Vector2(0.0, 7.0)
-	draw_circle(center, 15.0, Color(0.20, 0.27, 0.18, 0.72))
-	draw_line(center - Vector2(6.0, 0.0), center + Vector2(6.0, 0.0), Color("e4d4a7"), 1.8)
-	draw_line(center - Vector2(0.0, 6.0), center + Vector2(0.0, 6.0), Color("e4d4a7"), 1.8)
-	_center_text(center + Vector2(0.0, 35.0), "建造", 13, Color("eee0bb"))
+	var texture: Texture2D = OpenLandArt.open_land(int(lot.site))
+	if texture != null:
+		var ratio: float = minf(rect.size.x * 0.63 / texture.get_width(), rect.size.y * 0.48 / texture.get_height())
+		var dimensions: Vector2 = texture.get_size() * ratio
+		var offset: Vector2 = Vector2(sin(float(lot.site) * 2.4) * 7, cos(float(lot.site) * 3.1) * 5)
+		draw_texture_rect(texture, Rect2(center + offset - dimensions * 0.5, dimensions), false, Color(1,1,1,0.46))
+	draw_line(center + Vector2(0,5), center + Vector2(0,22), Color("68553a"), 4.0)
+	draw_colored_polygon(PackedVector2Array([center + Vector2(-14,-8), center + Vector2(15,-6), center + Vector2(14,8), center + Vector2(-13,7)]), Color("bea374"))
+	draw_line(center + Vector2(-6,4), center + Vector2(5,-5), Color("6a573b"), 2.5)
+	draw_line(center + Vector2(1,-7), center + Vector2(8,-1), Color("545c57"), 4.0)
+	if lot.key == _selected or lot.key == _hover or (_keyboard_focus and lot.key == _focus_key):
+		_center_text(center + Vector2(0.0, 39.0), "点击建造", 14, Color("eee0bb"))
 	if lot.key == _selected or lot.key == _hover:
 		_selection(rect)
 
@@ -917,9 +922,11 @@ func _draw_building(lot: Dictionary) -> void:
 		_scaffold(yard)
 	var label: String = "城防营署" if id == "wall" else str(SHORT_NAMES.get(id, lot.get("name", id)))
 	var font_size: int = 12 if grid_columns() == 3 else 13
-	var strip: Rect2 = Rect2(rect.position.x + 3.0, rect.end.y - 25.0, rect.size.x - 6.0, 22.0)
+	var caption: String = "%s · %d级" % [label, level]
+	var text_width: float = CHINESE_FONT.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	var strip: Rect2 = Rect2(rect.get_center().x - text_width * 0.5 - 5, rect.end.y - 25.0, text_width + 10, 22.0)
 	draw_rect(strip, Color(0.14, 0.20, 0.14, 0.82))
-	_center_text(Vector2(rect.get_center().x, rect.end.y - 9.0), "%s · %d级" % [label, level], font_size, LABEL)
+	_center_text(Vector2(rect.get_center().x, rect.end.y - 9.0), caption, font_size, LABEL)
 	if active:
 		_selection(rect)
 	if queued:

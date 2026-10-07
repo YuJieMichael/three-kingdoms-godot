@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "texture": "res://assets/environment/world-map/world_terrain_icons_v1.png",
+  "size": [
+    1254,
+    1254
+  ],
+  "regions": {
+    "plain_a": [
+      15,
+      69,
+      295,
+      223
+    ],
+    "plain_b": [
+      319,
+      66,
+      301,
+      232
+    ],
+    "grass_a": [
+      629,
+      79,
+      308,
+      224
+    ],
+    "grass_b": [
+      959,
+      67,
+      281,
+      240
+    ],
+    "forest_a": [
+      10,
+      315,
+      303,
+      301
+    ],
+    "forest_b": [
+      313,
+      325,
+      311,
+      287
+    ],
+    "mountain_a": [
+      637,
+      332,
+      302,
+      280
+    ],
+    "mountain_b": [
+      939,
+      323,
+      307,
+      288
+    ],
+    "hill_a": [
+      12,
+      659,
+      295,
+      280
+    ],
+    "hill_b": [
+      321,
+      649,
+      298,
+      290
+    ],
+    "lake_a": [
+      633,
+      657,
+      306,
+      282
+    ],
+    "lake_b": [
+      939,
+      636,
+      305,
+      261
+    ],
+    "swamp_a": [
+      8,
+      939,
+      305,
+      265
+    ],
+    "swamp_b": [
+      313,
+      939,
+      311,
+      256
+    ],
+    "camp_a": [
+      637,
+      939,
+      302,
+      262
+    ],
+    "camp_b": [
+      939,
+      942,
+      305,
+      256
+    ]
+  },
+  "sourceSha256": "8158ca980fcbc32f74e00296acb2baab164308219e8b6288c104d3812735268d",
+  "layout": "4x4 generated atlas; alpha bounds measured independently in each source cell; pixels unchanged.",
+  "render": "preserve-alpha; contain; bottom-anchor; no rectangular frames"
+}

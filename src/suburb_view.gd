@@ -326,7 +326,7 @@ func _rebuild_hit_boxes() -> void:
 		var row: int = int(slot / columns)
 		var column: int = slot % columns
 		var cell: Vector2 = Vector2(map.size.x / float(columns), 172.0)
-		var jitter: Vector2 = Vector2(sin(float(slot) * 2.7) * 3.0, cos(float(slot) * 1.8) * (1.0 if _capacity > 12 else 3.0))
+		var jitter: Vector2 = Vector2(sin(float(slot) * 2.7) * minf(9.0, cell.x * 0.035), cos(float(slot) * 1.8) * 5.0)
 		var margins: Vector2 = Vector2(14.0, 8.0 if _capacity > 12 else 12.0)
 		var rect: Rect2 = Rect2(map.position + Vector2(float(column) * cell.x, float(row) * cell.y) + Vector2(7.0, 3.0 if _capacity > 12 else 5.0) + jitter, cell - margins)
 		_hit_boxes[index] = rect
@@ -415,8 +415,14 @@ func _road_x(y: float, w: float, h: float) -> float:
 
 func _draw_site(index: int, row: Dictionary, rect: Rect2) -> void:
 	var selected: bool = index == _selected
-	draw_rect(rect, Color("343c2d"))
-	draw_rect(rect, GOLD if selected else Color("849078"), false, 2 if selected else 1)
+	var active: bool = selected or index == _hover
+	if active:
+		var halo: PackedVector2Array = PackedVector2Array()
+		for i: int in range(33):
+			var angle: float = TAU * float(i) / 32.0
+			halo.append(rect.position + rect.size * Vector2(0.5,0.54) + Vector2(cos(angle) * rect.size.x * 0.43, sin(angle) * rect.size.y * 0.28))
+		draw_colored_polygon(halo, Color(GOLD, 0.12))
+		draw_polyline(halo, GOLD if selected else Color(TEXT,0.5), 2.0, true)
 	var art_id: String = str(row.get("id", "")) if row.get("id") != null else ""
 	var job: Variant = row.get("queue")
 	if art_id.is_empty() and job is Dictionary:
@@ -432,8 +438,8 @@ func _draw_site(index: int, row: Dictionary, rect: Rect2) -> void:
 	var name: String = str(row.get("name", "空地"))
 	if row.get("id") == null and job is Dictionary:
 		name = {"farm":"农田", "lumber":"伐木场", "quarry":"采石场", "mine":"铁矿"}.get(art_id, "空地")
-	var label: String = "%d号 %s%s" % [index + 1, name, " · %d级" % int(row.get("level", 0)) if row.get("id") != null else ""]
-	_text(rect.position + Vector2(8, rect.size.y - 32), _elide(label, rect.size.x - 16, 14), 14, GOLD if selected else TEXT)
+	var label: String = "%s%s" % [name, " · %d级" % int(row.get("level", 0)) if row.get("id") != null else ""]
+	_floating_caption(rect, label, rect.end.y - 32, GOLD if selected else TEXT)
 	var effect: Variant = row.get("effect")
 	var benefit: String = "点击选择资源产业"
 	if effect is Dictionary:
@@ -442,7 +448,15 @@ func _draw_site(index: int, row: Dictionary, rect: Rect2) -> void:
 			benefit = "缺少人口 · 先发展民房"
 	if job is Dictionary:
 		benefit = "升级中 · " + benefit if row.get("id") != null else "施工中 · 完成后开始产出"
-	_text(rect.position + Vector2(8, rect.size.y - 11), _elide(benefit, rect.size.x - 16, 12), 12, MUTED)
+	if active or job is Dictionary:
+		_floating_caption(rect, benefit, rect.end.y - 11, MUTED)
+
+func _floating_caption(rect: Rect2, value: String, baseline: float, color: Color) -> void:
+	var text: String = _elide(value, rect.size.x - 12, 14)
+	var width: float = CHINESE_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	var point: Vector2 = Vector2(rect.get_center().x - width * 0.5, baseline)
+	draw_rect(Rect2(point - Vector2(5,14), Vector2(width + 10,20)), Color(0.15,0.19,0.13,0.8))
+	_text(point, text, 14, color)
 
 func _draw_farm(rect: Rect2, index: int) -> void:
 	var p: Vector2 = rect.position
@@ -512,19 +526,17 @@ func _draw_ironworks(rect: Rect2) -> void:
 		_oval(p + Vector2(d.x * 0.16 + float(i % 3) * 7.0, d.y * 0.88 - float(i / 3) * 4.0), Vector2(5, 3), Color("5e5b4e"))
 
 func _draw_unbuilt(rect: Rect2, index: int) -> void:
-	var p: Vector2 = rect.position
-	var d: Vector2 = rect.size
-	_polygon([p + Vector2(d.x * 0.05, d.y * 0.13), p + Vector2(d.x * 0.90, 0), p + Vector2(d.x, d.y * 0.88), p + Vector2(0, d.y)], Color("929076"))
-	for i: int in range(6):
-		var grass: Vector2 = p + Vector2(d.x * (0.13 + float(i % 3) * 0.31), d.y * (0.37 + float(i / 3) * 0.34))
-		draw_line(grass, grass + Vector2(-2, -4), Color("667451"), 1.0)
-		draw_line(grass, grass + Vector2(2, -5), Color("737e57"), 1.0)
-	for corner: Vector2 in [p + Vector2(d.x * 0.05, d.y * 0.13), p + Vector2(d.x * 0.90, 0), p + Vector2(d.x, d.y * 0.88), p + Vector2(0, d.y)]:
-		draw_line(corner, corner - Vector2(0, 6), Color("c0ab7f"), 2.0)
-	var stake: Vector2 = p + Vector2(d.x * 0.51, d.y * 0.58)
-	draw_line(stake, stake + Vector2(0, 10), Color("6e6047"), 2.0)
-	draw_rect(Rect2(stake - Vector2(10, 9), Vector2(20, 12)), Color("c2b58e"))
-	_text(stake + Vector2(-7.0, 1.0), str(index + 1), 10, Color("484c3c"))
+	var texture: Texture2D = PlotArt.open_land(index)
+	var dimensions: Vector2 = Vector2.ZERO
+	if texture != null:
+		var ratio: float = minf(rect.size.x * 0.74 / texture.get_width(), rect.size.y * 0.88 / texture.get_height())
+		dimensions = texture.get_size() * ratio
+		draw_texture_rect(texture, Rect2(rect.get_center() - dimensions * 0.5, dimensions), false, Color(1,1,1,0.78))
+	var stake: Vector2 = rect.get_center() + Vector2(0, dimensions.y * 0.14)
+	draw_line(stake, stake + Vector2(0, 14), Color("6e6047"), 3.0)
+	draw_rect(Rect2(stake - Vector2(13, 10), Vector2(26, 16)), Color("c2b58e"))
+	_text(stake + Vector2(-7, 3), "+", 16, Color("484c3c"))
+
 
 func _draw_house(base: Vector2, dimensions: Vector2, thatch: bool) -> void:
 	var w: float = dimensions.x

@@ -100,6 +100,7 @@ var _map_toolbar: HFlowContainer
 var _wild_refresh_label: Label
 var _map_filter: OptionButton
 var _map_filter_kind: String = "all"
+var _map_tactical_marks: bool = false
 var _input_window_active: bool = true
 var _pan_key_active: bool = false
 var _pvp: KingdomPvpDialog
@@ -941,6 +942,7 @@ func _show_page(page: String) -> void:
 			_map.tile_selected.connect(_select_tile)
 			if not _world.is_empty():
 				_map.set_world(_world)
+			_map.set_grid_visible(_map_tactical_marks)
 			_map.set_filter(_map_filter_kind)
 		"city":
 			_city_toolbar = HFlowContainer.new()
@@ -1073,6 +1075,16 @@ func _build_map_toolbar() -> void:
 		if is_instance_valid(_map):
 			_map.set_filter(_map_filter_kind))
 	heading.add_child(_map_filter)
+	var marks: CheckButton = CheckButton.new()
+	marks.text = "战术标注"
+	marks.custom_minimum_size.y = 44.0
+	marks.button_pressed = _map_tactical_marks
+	marks.tooltip_text = "需要选目标时，可显示格线和野地等级；关闭后以地貌图案为主。"
+	marks.toggled.connect(func(enabled: bool) -> void:
+		_map_tactical_marks = enabled
+		if is_instance_valid(_map):
+			_map.set_grid_visible(enabled))
+	heading.add_child(marks)
 	var navigation: HBoxContainer = HBoxContainer.new()
 	navigation.add_theme_constant_override("separation", 4)
 	_map_toolbar.add_child(navigation)
