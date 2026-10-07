@@ -44,6 +44,10 @@ func _render() -> void:
 	_label("资源交付见战后收支；当前物品、装备与将领状态可从下方查看。", "MutedLabel")
 	_render_counts("itemDrops", "缴获道具", "item")
 	_render_counts("jewelDrops", "获得珠宝", "jewel")
+	var conquest: Variant = _report.get("conquestSupply")
+	if conquest is Dictionary:
+		_label("征战补给 · 首次占领", "SectionLabel")
+		_label("元宝 +%d · %s ×1\n已自动收入元宝账户和背包。" % [int(conquest.get("gems", 0)), str(conquest.get("item", {}).get("name", "商城道具"))])
 	_render_equipment()
 	_render_general()
 	_render_capacity()

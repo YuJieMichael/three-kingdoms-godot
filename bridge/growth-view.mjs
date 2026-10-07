@@ -175,6 +175,7 @@ export function growthView(runtime, options = {}) {
     if (count) addAdvice('earned-rewards', `已有 ${count} 项主线奖励达成，领取后可补充物资；路线仍按真实占领进度推进。`, navigation('missions', '', '查看已达成奖励'));
   }
   if (runtime.WarOrders.unlocked(state)) addAdvice('campaign-development', '战役军令已开放：野战、攻坚与精锐路线可反复讨伐，首次普通通关与首次战术达标有额外军功。军功在将领专长与补给兑换之间共用，请保留准备培养所需的份额。', navigation('campaign', '', '查看军令与战术挑战'));
+  if (!state.conquestSupply?.enabled) addAdvice('conquest-supply-mode', '可开启征战补给模式：未来首次真正占领野地／据点或城池，可自动获得元宝和随机可用商城道具。已占领地点不补发，放弃重占不重复发放。', navigation('conquest', '', '查看征战补给模式'));
   if (!result.current) currentStep('route', '查看成长进度', '当前目标将在进度刷新后显示。', navigation('missions', '', '查看进度'));
   result.speedup = speedupView();
   return result;

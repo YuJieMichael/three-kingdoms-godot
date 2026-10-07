@@ -964,6 +964,7 @@ func _show_page(page: String) -> void:
 			_center.add_child(_label("军队 · 城防与出征", 22))
 			if api == null or api.mode != "shared":
 				_center.add_child(_button("战役军令 · 长期征战与挑战", _show_progression.bind("campaign")))
+				_center.add_child(_button("征战补给模式 · 占领获得元宝与道具", _show_progression.bind("conquest")))
 				_center.add_child(_button("借调演练 · 比较三种战术", _show_practice))
 			_battle = BattleScript.new() as KingdomBattleView
 			_battle.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1806,10 +1807,15 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 			"exchangeCopper": "铜钱兑换已结算，请核对珍宝库存", "applyPlotTemplate": "经营方案已安排，请查看施工队列",
 			"supplies.buy": "军需包已入背包", "supplies.open": "军需包已打开，奖励已入库",
 			"supplies.claimStarter": "首战工程补给已领取，请按成长路线安排并加速工程",
+			"conquest.setEnabled": "征战补给模式设置已保存",
 			"setBattleOrders": "全军军令已更新", "setBattleOrder": "兵队军令已更新", "battleRound": "本回合已结算",
 			"recall": "部队已开始返程"
 		}
 		var message: String = str(messages.get(type, "操作已完成"))
+		if type == "battleRound" and _payload.get("result") is Dictionary:
+			var conquest: Variant = _payload.result.get("conquestSupply")
+			if conquest is Dictionary:
+				message += "\n占领额外补给：元宝 +%d · %s ×1，已入背包" % [int(conquest.get("gems", 0)), str(conquest.get("item", {}).get("name", "商城道具"))]
 		if type in ["supplies.open", "supplies.claimStarter"]:
 			var rewards: PackedStringArray = []
 			var result: Dictionary = _payload.get("result", {}) if _payload.get("result") is Dictionary else {}
@@ -2683,7 +2689,7 @@ func _route_objective(route: String, target: String = "") -> void:
 		"campaign": _prepare_campaign_target(target)
 		"plans": _show_realm("plans")
 		"gift": _show_progression("gifts")
-		"epic", "honors", "chapters", "missions", "daily", "preparation":
+		"epic", "honors", "chapters", "missions", "daily", "preparation", "conquest":
 			_show_progression(route)
 			if route == "epic" and target == "exchange":
 				_progression.select_filter(3)

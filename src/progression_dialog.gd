@@ -6,7 +6,7 @@ extends AcceptDialog
 signal command_requested(type: String, args: Array)
 signal route_requested(route: String, target: String)
 
-const TITLES: Dictionary = {"missions": "主线任务", "daily": "每日任务", "epic": "黄巾史诗", "honors": "官职爵位", "preparation": "晋升筹备", "chapters": "征战章节", "campaign": "战役军令", "gifts": "十阶礼包"}
+const TITLES: Dictionary = {"missions": "主线任务", "daily": "每日任务", "epic": "黄巾史诗", "honors": "官职爵位", "preparation": "晋升筹备", "chapters": "征战章节", "campaign": "战役军令", "conquest": "征战补给", "gifts": "十阶礼包"}
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 var _view: Dictionary = {}
 var _section: String = "missions"
@@ -68,6 +68,7 @@ func update_view(view: Dictionary) -> void:
 			"honors": _honor_records(progression, records)
 			"preparation": _preparation_records(progression, records)
 			"campaign": _campaign_records(records)
+			"conquest": _conquest_records(records)
 			"chapters": _chapter_records(progression, records)
 			"gifts": _gift_records(progression, records)
 	_sync_rows(records)
@@ -144,6 +145,7 @@ func _build_section() -> void:
 		"daily": filter_names.assign(["全部任务", "已接取", "可接取"])
 		"epic": filter_names.assign(["捐献资源", "捐献部队", "进献珍宝", "铜钱兑换"])
 		"campaign": filter_names.assign(["野战破阵", "攻坚拔寨", "精锐会战", "军功兑换"])
+		"conquest": filter_names.assign(["玩法规则", "所得补给", "道具概率"])
 	if not filter_names.is_empty():
 		_filter = OptionButton.new()
 		_filter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -323,6 +325,27 @@ func _chapter_records(progression: Dictionary, records: Array[Dictionary]) -> vo
 		for node: Dictionary in chapter.get("visibleNodes", []):
 			body += "\n" + str(node.name) + (" · 已占领" if node.get("conquered", false) else " · 当前开放")
 		records.append(_record("chapter-" + str(chapter.chapter), str(chapter.title), body, actions))
+
+
+func _conquest_records(records: Array[Dictionary]) -> void:
+	var mode: Dictionary = _view.get("conquestSupply", {})
+	if mode.get("shared", false):
+		records.append(_record("conquest-shared", "本机征战模式", str(mode.get("reason", "请切回本机进度"))))
+		return
+	var enabled: bool = bool(mode.get("enabled", false))
+	records.append(_record("conquest-mode", "征战补给 · " + ("已开启" if enabled else "未开启"), "通过征战获得元宝与可用商城道具。开启后未来首占自动结算，暂停保留已得补给。", [_action("暂停额外补给" if enabled else "开启征战补给", mode.get("command", {})), _navigate("前往世界地图", "world"), _navigate("查看商城与背包", "inventory")]))
+	match int(_filters.get("conquest", 0)):
+		0:
+			records.append(_record("conquest-rules", "试玩奖励规则", "野地／据点：元宝 = 3 + 等级 ×2（5–23）。\n城池：元宝 = 20 + 等级 ×5（25–70）。\n每次符合条件的首占额外随机获得1件可用商城道具，包括创新军需包；不同道具权重见概率页。\n等级按1–10计，数值为试玩设定。"))
+			records.append(_record("conquest-conditions", "何时发放", "只有真实战斗以占领方式获胜且领地实际易主才发放。打破城门、降低民心、掠夺获胜、演练和军令讨伐不计首占。\n初次开启时已拥有的领地不补发；暂停期间发生的首占也不补发。放弃后重占、切城与重复请求不会再得一份。重复作战继续按原规则获得战利品。"))
+		1:
+			records.append(_record("conquest-total", "征战所得", "已奖励 %d 处首占 · 累计元宝 +%d\n以下为最近8次真实额外补给；元宝进入账户，道具直接收入背包，不占部队负重。" % [int(mode.get("rewarded", 0)), int(mode.get("earnedGems", 0))]))
+			for row: Dictionary in mode.get("history", []):
+				records.append(_record("conquest-history-" + str(row.node), str(row.get("name", row.node)), "元宝 +%d · %s ×1" % [int(row.get("gems", 0)), str(row.get("itemName", "商城道具"))]))
+		2:
+			records.append(_record("conquest-probability", "每次额外抽取1件", "这里是占领额外补给的独立道具池，原战斗掉落另算。高级价格道具权重较低；普通商城道具直接入库，军需包需在背包开包使用。"))
+			for item: Dictionary in mode.get("pool", []):
+				records.append(_record("conquest-pool-" + str(item.id), str(item.get("name", item.id)), "获得概率 %.2f%% · 1件" % float(item.get("percent", 0))))
 
 
 func _campaign_records(records: Array[Dictionary]) -> void:

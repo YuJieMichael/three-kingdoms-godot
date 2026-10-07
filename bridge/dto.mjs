@@ -11,6 +11,7 @@ import {buildingComparisons} from './building-comparison.mjs';
 import {raidTargetsView} from './raid-targets-view.mjs';
 import {battleReview} from './battle-review.mjs';
 import {campaignView} from './campaign-view.mjs';
+import {conquestSupplyView, conquestReportReceipt} from './conquest-supply.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
@@ -215,7 +216,8 @@ export function gameView(game, now, runtime = null, options = {}) {
   const management = runtime ? {
     heroes: heroView(runtime, {...options, now}), progression: progressionView(runtime, {...options, now}),
     warManagement: warView(runtime, {...options, now}), realmManagement: realmView(runtime, {...options, now}),
-    inventoryManagement: inventoryView(runtime, {...options, now}), campaign: campaignView(runtime, {...options, now})} : {};
+    inventoryManagement: inventoryView(runtime, {...options, now}), campaign: campaignView(runtime, {...options, now}),
+    conquestSupply: conquestSupplyView(runtime, {...options, now})} : {};
   if (runtime) {
     management.growth = growthView(runtime, {...options, now, progression: management.progression});
     management.raidTargets = raidTargetsView(game, management.growth, {...options, now});
@@ -241,6 +243,7 @@ export function gameView(game, now, runtime = null, options = {}) {
     objective, generals, nodes: game.nodes.filter(node => game.landmarkVisible(node.id)).map(node => nodeView(game, game.getNode(node.id), now, options)),
     marches: marchesView(game, now, options), battle: copy(game.currentBattle()),
     reports: state.reports.map(report => ({...copy(report),
+      ...(runtime && !options.shared ? {conquestSupply: conquestReportReceipt(runtime, report)} : {}),
       ...(runtime ? {economy: reportEconomy(runtime, report)} : {}),
       review: battleReview(report, {battle: battleForReport(game, report)})})),
     gifts: {available: game.onboarding.available(state), claimed: copy(state.onboarding.claims)},

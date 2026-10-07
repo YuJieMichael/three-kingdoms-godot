@@ -225,6 +225,9 @@ func receive_quote(payload: Dictionary) -> void:
 			for text: String in formation.get(category, []):
 				analysis_lines.append(("优势：" if category == "strengths" else "风险：" if category == "risks" else "建议：") + text)
 		analysis_lines.append(str(formation.get("note", "")))
+		var conquest: Dictionary = _dictionary(_march_quote.get("conquestReward"))
+		if conquest.get("eligible", false):
+			analysis_lines.append("占领补给：元宝 +%d、随机商城道具 ×1（实际取得领地后）" % int(conquest.get("gems", 0)) if conquest.get("enabled", false) and conquest.get("first", false) else "占领补给：" + str(conquest.get("reason", "请查看征战补给模式")))
 		_formation_label.text = "\n".join(analysis_lines)
 		_formation_label.visible = true
 	lines.append(reason if not reason.is_empty() else "确认后扣除粮草并派遣，抵达后进入战斗。" if not _march_command.is_empty() else "预览缺少合法命令或费用，请重新预览。")
@@ -423,7 +426,7 @@ func _march_gate() -> String:
 	var node: Dictionary = _march_node()
 	var intel: Dictionary = _dictionary(node.get("intel"))
 	var expired: bool = str(intel.get("precision", "")) != "public" and _number(intel.get("expiresAt")) and _now_ms >= float(intel.expiresAt)
-	return JSON.stringify([node.get("id", ""), node.get("hidden", false), node.get("selectable", true), node.get("owned", false), node.get("shared", false), node.get("player", false), node.get("playerId", ""), intel, expired])
+	return JSON.stringify([node.get("id", ""), node.get("hidden", false), node.get("selectable", true), node.get("owned", false), node.get("shared", false), node.get("player", false), node.get("playerId", ""), intel, expired, _view.get("conquestSupply", {}).get("enabled", false)])
 
 
 func _march_usable() -> bool:

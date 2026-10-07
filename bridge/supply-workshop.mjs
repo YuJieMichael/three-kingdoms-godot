@@ -1,4 +1,5 @@
 import {copy, GameError, validateInput} from '../vendor/legacy/online/runtime.mjs';
+import {earnedConquestBundles} from './conquest-supply-data.mjs';
 
 // Optional prototype items. Native item IDs, resource caps and queues stay in Game.
 const offers = [
@@ -30,7 +31,15 @@ export function validSupplyWorkshop(state) {
   return object(r) && Object.keys(r).length === 4 && r.version === 1 && typeof r.starterClaimed === 'boolean' &&
     object(r.stock) && object(r.purchases) && Object.entries(r.purchases).every(([id, n]) => ids.has(id) && int(n) && n <= ids.get(id).limit) &&
     Object.entries(r.stock).every(([id, n]) => ids.has(id) && int(n) &&
-      n <= (r.purchases[id] || 0) + (r.starterClaimed && id === 'supply_choice' ? 1 : 0));
+      n <= (r.purchases[id] || 0) + (r.starterClaimed && id === 'supply_choice' ? 1 : 0) + earnedConquestBundles(state, id));
+}
+
+export function grantEarnedSupplyBundle(game, id) {
+  if (!ids.has(id)) throw new GameError('BAD_SUPPLIES', '未知军需包');
+  const r = copy(game.state.supplyWorkshop || empty());
+  r.stock[id] = (r.stock[id] || 0) + 1;
+  game.state.supplyWorkshop = r;
+  if (!validSupplyWorkshop(game.state)) throw new GameError('BAD_SUPPLIES', '所得军需包无法通过来源校验');
 }
 
 function contentsReason(game, contents) {
