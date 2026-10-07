@@ -3,6 +3,7 @@ extends Control
 
 ## Presentation only: the canonical runtime resolves every command and round.
 signal action_requested(type: String, args: Array)
+signal presentation_settled
 
 const GOLD: Color = Color("c4a168")
 const PLAYER: Color = Color("70c1ec")
@@ -61,6 +62,13 @@ var _target_dirty: Dictionary = {}
 var _paused_focus: Control
 var _logs: RichTextLabel
 var _buttons: Array[Button] = []
+var _compact_field: bool = false
+
+func set_compact_field(enabled: bool) -> void:
+	_compact_field = enabled
+	if _built:
+		_layout_controls()
+		_redraw()
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(320.0, 540.0)
@@ -193,6 +201,8 @@ func _feedback_preferences_changed() -> void:
 	_refresh_controls()
 	_layout_controls()
 	_redraw()
+	if _reduced_motion:
+		presentation_settled.emit()
 
 func _build_controls() -> void:
 	if _built:
@@ -518,7 +528,7 @@ func _layout_controls() -> void:
 	_title.size = Vector2(content_width, 32)
 	_subtitle.position = Vector2(18, 46)
 	_subtitle.size = Vector2(content_width, 40 if narrow else 22)
-	_field_canvas.custom_minimum_size = Vector2(240, maxf(320, float(_unit_ids.size()) * 124))
+	_field_canvas.custom_minimum_size = Vector2(240, maxf(320, float(_unit_ids.size()) * (104 if _compact_field else 124)))
 	_field_scroll.position = Vector2(0, _field_top())
 	_field_scroll.size = Vector2(size.x, 420)
 	_summary.position = Vector2(18, _field_scroll.position.y + _field_scroll.size.y + 8)
@@ -556,6 +566,7 @@ func _process(delta: float) -> void:
 	_redraw()
 	if _animation_elapsed >= _animation_end:
 		set_process(false)
+		presentation_settled.emit()
 
 func _field_rect() -> Rect2:
 	var field_height: float = maxf(280, _field_canvas.size.y - 30)
@@ -656,18 +667,20 @@ func _draw_formation(side: String, row: Dictionary, _row_height: float) -> void:
 	var hp: float = _visual_hp(side, id, float(row.get("hp", 0)))
 	var stats: Dictionary = row.get("stats", {})
 	var count: int = ceili(hp / maxf(1, float(stats.get("hp", 1))))
-	var card: Rect2 = Rect2(p - Vector2(58, 33), Vector2(116, 66))
+	var card_height: float = 54 if _compact_field else 66
+	var card: Rect2 = Rect2(p - Vector2(58, card_height / 2), Vector2(116, card_height))
 	_painter.draw_rect(card.grow(2), GOLD if side == "player" and id == _selected else color)
 	_painter.draw_rect(card, Color("20251e"))
 	var cell: int = TROOP_CELLS.find(id)
 	if cell >= 0:
 		var source_size: Vector2 = TROOP_ART.get_size() / Vector2(4, 3)
 		var source: Rect2 = Rect2(Vector2(cell % 4, floori(float(cell) / 4.0)) * source_size, source_size)
-		_painter.draw_texture_rect_region(TROOP_ART, Rect2(card.position + Vector2(4, 4), Vector2(48, 48)), source, Color(1, 1, 1, 1 if hp > 0 else 0.3))
+		var portrait_size: float = 40 if _compact_field else 48
+		_painter.draw_texture_rect_region(TROOP_ART, Rect2(card.position + Vector2(4, 4), Vector2(portrait_size, portrait_size)), source, Color(1, 1, 1, 1 if hp > 0 else 0.3))
 	_text(card.position + Vector2(56, 20), _unit_name(id), 14, color)
-	_text(card.position + Vector2(56, 48), str(count), 23 if count < 10000 else 17, PAPER)
-	_painter.draw_rect(Rect2(card.position + Vector2(4, 58), Vector2(108, 5)), Color("111810"))
-	_painter.draw_rect(Rect2(card.position + Vector2(4, 58), Vector2(108 * clampf(hp / maxf(1, float(row.get("maxHp", hp))), 0, 1), 5)), color)
+	_text(card.position + Vector2(56, 39 if _compact_field else 48), str(count), 19 if _compact_field else 23 if count < 10000 else 17, PAPER)
+	_painter.draw_rect(Rect2(card.position + Vector2(4, card_height - 8), Vector2(108, 5)), Color("111810"))
+	_painter.draw_rect(Rect2(card.position + Vector2(4, card_height - 8), Vector2(108 * clampf(hp / maxf(1, float(row.get("maxHp", hp))), 0, 1), 5)), color)
 	if side == "player":
 		_hit_boxes[id] = card.grow(4)
 	if animation_phase() == "impact":

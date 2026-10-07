@@ -3,6 +3,7 @@ class_name KingdomPresentationMenu extends AcceptDialog
 signal input_requested
 signal guide_requested
 signal practice_requested
+signal opening_requested
 signal save_requested
 signal connection_requested
 
@@ -26,7 +27,7 @@ func _ready() -> void:
 	message.text = "进度自动保存。菜单打开时，建设与行军仍按时间推进。"
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	general.add_child(message)
-	for entry: Array in [["借调演练 · 先练一战", practice_requested], ["新手引导", guide_requested], ["按键设置", input_requested], ["存档与备份", save_requested], ["连接设置", connection_requested]]:
+	for entry: Array in [["开场示范战 · 学习指挥", opening_requested], ["借调演练 · 三种战术", practice_requested], ["新手引导", guide_requested], ["按键设置", input_requested], ["存档与备份", save_requested], ["连接设置", connection_requested]]:
 		var action: Signal = entry[1]
 		var button: Button = Button.new()
 		button.text = str(entry[0])

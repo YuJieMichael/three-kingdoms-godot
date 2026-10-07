@@ -170,6 +170,7 @@ var _county_battle_pending: Dictionary = {}
 var _first_steps: HFlowContainer
 var _beginner_guide: KingdomBeginnerGuide
 var _welcome_authority: String = ""
+var _opening_battle_authority: String = ""
 var _combat_window: KingdomCombatWindow
 var _combat_opened_identity: String = ""
 
@@ -247,6 +248,7 @@ func _initialize_presentation() -> void:
 	_menu.input_requested.connect(_show_input_settings)
 	_menu.guide_requested.connect(_open_beginner_guide)
 	_menu.practice_requested.connect(_show_practice)
+	_menu.opening_requested.connect(_show_practice.bind(true))
 	_menu.save_requested.connect(_save_dialog)
 	_menu.connection_requested.connect(_show_lobby)
 	_menu.visibility_changed.connect(_on_popup_visibility.bind(_menu))
@@ -564,7 +566,7 @@ func _build_shell() -> void:
 	var first_steps: HFlowContainer = HFlowContainer.new()
 	_first_steps = first_steps
 	root.add_child(first_steps)
-	_practice_button = _button("先练一战 · 借调部队", _show_practice)
+	_practice_button = _button("开场示范战 · 学习指挥", _show_practice.bind(true))
 	_practice_button.theme_type_variation = "PrimaryButton"
 	_practice_button.tooltip_text = "先用借调部队学习军令，再准备30弓首次自主出征"
 	first_steps.add_child(_practice_button)
@@ -1888,6 +1890,16 @@ func _sync_beginner_guide() -> void:
 	_beginner_guide.visible = api.mode == "local" and not first.is_empty() and not bool(first.get("complete", false))
 	_beginner_guide.update_view(_view, api.connected, api._has_mutation())
 	var authority: String = str(api.last_snapshot.get("authorityId", ""))
+	if _beginner_guide.visible and not authority.is_empty() and _opening_battle_authority != authority and not api._has_mutation() and _view.get("battle") == null and _state.get("expedition") == null and int(first.get("victories", 0)) == 0:
+		var opening_config: ConfigFile = ConfigFile.new()
+		opening_config.load("user://beginner-guide.cfg")
+		if not bool(opening_config.get_value("demonstrated", authority, false)):
+			_opening_battle_authority = authority
+			_welcome_authority = authority
+			call_deferred("_open_opening_battle")
+			return
+	if _opening_battle_authority == authority:
+		return
 	if not _beginner_guide.visible or authority.is_empty() or _welcome_authority == authority:
 		return
 	_welcome_authority = authority
@@ -1897,6 +1909,26 @@ func _sync_beginner_guide() -> void:
 		config.set_value("welcomed", authority, true)
 		config.save("user://beginner-guide.cfg")
 		call_deferred("_open_beginner_guide")
+
+func _open_opening_battle() -> void:
+	if api == null or not api.connected or api._has_mutation() or api.mode != "local":
+		_opening_battle_authority = ""
+		_welcome_authority = ""
+		return
+	_show_practice(true)
+
+func _finish_opening_battle() -> void:
+	var authority: String = str(api.last_snapshot.get("authorityId", "")) if api != null else ""
+	if authority.is_empty() or authority != _opening_battle_authority or api.mode != "local":
+		_opening_battle_authority = ""
+		return
+	var config: ConfigFile = ConfigFile.new()
+	config.load("user://beginner-guide.cfg")
+	config.set_value("demonstrated", authority, true)
+	config.set_value("welcomed", authority, true)
+	config.save("user://beginner-guide.cfg")
+	_opening_battle_authority = ""
+	call_deferred("_open_beginner_guide")
 
 func _open_beginner_guide() -> void:
 	if api == null or not api.connected:
@@ -1910,7 +1942,7 @@ func _open_beginner_guide() -> void:
 	content.add_child(_label("你当前要做：" + str(current.get("title", "查看任务")), 18))
 	content.add_child(_button("从当前步骤开始", _beginner_next))
 	content.add_child(_button("查看任务奖励和新手礼包", func() -> void: _dialog.hide(); _show_progression("gifts")))
-	content.add_child(_button("先学习战斗指挥", func() -> void: _dialog.hide(); _show_practice()))
+	content.add_child(_button("先学习战斗指挥", func() -> void: _dialog.hide(); _show_practice(true)))
 	content.add_child(_label("顶部的新手指导会跟随真实进度更新；不需要自己猜下一步。菜单中可随时重新打开。", 14))
 
 func _beginner_next() -> void:
@@ -2071,7 +2103,7 @@ func _show_growth_route() -> void:
 	_sync_growth_route()
 	call_deferred("_watch_buttons", _growth_route)
 
-func _show_practice() -> void:
+func _show_practice(opening: bool = false) -> void:
 	if api == null or api.mode != "local" or not api.connected or api._has_mutation():
 		_show_toast("连接本机进度并等待当前操作确认后，可借调部队演练。")
 		return
@@ -2080,9 +2112,14 @@ func _show_practice() -> void:
 		_practice.api = api
 		add_child(_practice)
 		_practice.campaign_requested.connect(_show_growth_route)
+		_practice.opening_finished.connect(_finish_opening_battle)
+		_practice.visibility_changed.connect(_sync_combat_music)
 		_practice.visibility_changed.connect(_on_popup_visibility.bind(_practice))
 	_prepare_feature_panel(_practice)
-	_practice.open_practice()
+	if opening:
+		_practice.open_opening_battle()
+	else:
+		_practice.open_practice()
 
 func _campaign_identity() -> String:
 	return api.base_url + "|" + api._authority + "|" + api.mode if api != null else ""

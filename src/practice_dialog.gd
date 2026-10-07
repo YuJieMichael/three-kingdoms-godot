@@ -3,6 +3,13 @@ extends AcceptDialog
 
 ## A separate borrowed army. Only /practice receives these battle actions.
 signal campaign_requested
+signal opening_finished
+var _guided: bool = false
+var _guide: Label
+var _column: VBoxContainer
+var _scenario_row: HBoxContainer
+var _boundary: Label
+var _guided_next: Button
 
 const BattleScript: Script = preload("res://src/battle_view.gd")
 const ReviewScript: Script = preload("res://src/battle_review_view.gd")
@@ -27,17 +34,23 @@ func _ready() -> void:
 	title = "借调演练 · 先学会统兵"
 	ok_button_text = "返回游戏"
 	wrap_controls = false
-	var column: VBoxContainer = VBoxContainer.new()
-	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	add_child(column)
+	_column = VBoxContainer.new()
+	_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	add_child(_column)
+	var column: VBoxContainer = _column
+	_guide = _label(column, "", "")
+	_guide.add_theme_font_size_override("font_size", 16)
+	_guide.visible = false
+	_scenario_row = HBoxContainer.new()
+	column.add_child(_scenario_row)
 	_scenario = OptionButton.new()
 	_scenario.custom_minimum_size.y = 44
 	_scenario.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	for id: String in SCENARIOS:
 		_scenario.add_item(str(SCENARIOS[id]))
 		_scenario.set_item_metadata(_scenario.item_count - 1, id)
-	column.add_child(_scenario)
-	_start = _button(column, "开始借调演练", _start_practice, true)
+	_scenario_row.add_child(_scenario)
+	_start = _button(_scenario_row, "开始借调演练", _start_practice, true)
 	var scroll: ScrollContainer = ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -46,15 +59,19 @@ func _ready() -> void:
 	var content: VBoxContainer = VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(content)
-	var note: Label = _label(content, "借调部队只用于演练，奖励、战损和胜场不进入城池。建设与正式行军仍按原时间推进。", "MutedLabel")
+	var note: Label = _label(column, "借调部队只用于演练，奖励、战损和胜场不进入城池。建设与正式行军仍按原时间推进。", "MutedLabel")
 	note.name = "PracticeBoundary"
+	_boundary = note
+	column.move_child(note, 2)
 	_intro = _label(content, "选择演练，先看目标，再为全军或单队下达军令。", "MutedLabel")
 	_battle = BattleScript.new() as KingdomBattleView
 	_battle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(_battle)
 	_battle.action_requested.connect(_battle_action)
+	_battle.presentation_settled.connect(_refresh_actions)
 	_review = ReviewScript.new() as KingdomBattleReviewView
 	content.add_child(_review)
+	_review.visible = false
 	_status = _label(column, "", "MutedLabel")
 	_status.max_lines_visible = 2
 	var retry_row: HFlowContainer = HFlowContainer.new()
@@ -62,8 +79,12 @@ func _ready() -> void:
 	_retry = _button(retry_row, "重试原操作", _retry_request)
 	var next_row: HFlowContainer = HFlowContainer.new()
 	column.add_child(next_row)
+	_guided_next = _button(next_row, "下一回合 · 观察移动与攻击", func() -> void: _battle_action("battleRound", []), true)
 	_end = _button(next_row, "结束演练", _end_practice)
 	_campaign = _button(next_row, "准备自主出征", _open_campaign, true)
+	visibility_changed.connect(func() -> void:
+		if not visible and _guided:
+			_finish_opening())
 	get_tree().root.size_changed.connect(_fit_window)
 	if api != null:
 		api.practice_received.connect(_receive_practice)
@@ -74,6 +95,8 @@ func _ready() -> void:
 
 
 func open_practice() -> void:
+	_guided = false
+	_update_guide()
 	_identity = _api_identity()
 	_fit_window()
 	popup_centered(size)
@@ -82,6 +105,53 @@ func open_practice() -> void:
 		_start.grab_focus()
 	elif _retry.visible and not _retry.disabled:
 		_retry.grab_focus()
+
+
+func open_opening_battle() -> void:
+	open_practice()
+	_guided = true
+	_scenario.select(0)
+	title = "开场示范战 · 刀盾护弓"
+	ok_button_text = "跳过示范，进入城池"
+	_update_guide()
+	if not _start.disabled:
+		_start_practice()
+
+
+func _finish_opening() -> void:
+	if not _guided:
+		return
+	_guided = false
+	_update_guide()
+	opening_finished.emit()
+
+
+func _update_guide() -> void:
+	if not is_instance_valid(_guide):
+		return
+	_guide.visible = _guided
+	_battle.set_compact_field(_guided)
+	_scenario_row.visible = not _guided
+	_guided_next.visible = _guided and not bool(_session.get("battle", {}).get("finished", false))
+	_campaign.text = "返回城池开始建设" if _guided else "准备自主出征"
+	_intro.visible = not _guided
+	_boundary.text = "借调部队用于示范；可以随时跳过。战损不扣除你的兵力。" if _guided else "借调部队只用于演练，奖励、战损和胜场不进入城池。"
+	if not _guided:
+		title = "借调演练 · 先学会统兵"
+		ok_button_text = "返回游戏"
+		return
+	var battle: Dictionary = _session.get("battle", {})
+	var round_number: int = int(battle.get("round", 0))
+	if bool(battle.get("finished", false)):
+		_guide.text = "示范结束 · 看下方战术复盘，再返回城池准备自己的部队。"
+		ok_button_text = "完成示范，进入城池"
+	elif round_number == 0:
+		_guide.text = "① 刀盾前进、弓兵坚守。蓝色我军在左，红色敌军在右；点下方「下一回合」观察移动和攻击。"
+	elif round_number < 3:
+		_guide.text = "② 弓兵只攻击射程内目标。点兵种图查看军令，再推进下一回合，观察距离与伤亡。"
+	else:
+		_guide.text = "③ 选一队尝试前进、坚守或后退；军令下回合生效，比较位置和人数变化。"
+	call_deferred("_fit_window")
 
 
 func _start_practice() -> void:
@@ -145,11 +215,15 @@ func _receive_practice(payload: Dictionary) -> void:
 		_intro.text = str(_session.get("description", "")) + "\n目标：" + str(_session.get("objective", ""))
 		_battle.set_battle(_session.get("battle"), _session.get("units", {}))
 		_review.set_review(_session.get("review", {}))
+		_review.visible = bool(_session.get("battle", {}).get("finished", false))
 		_status.text = "演练已结束，可换军令重开比较；正式城池未获得奖励。" if _session.get("battle", {}).get("finished", false) else "军令下回合生效；演练可手动推进下一回合。"
 	else:
 		clear_context()
 		_status.text = "演练已结束。"
+		if _guided:
+			hide()
 	_status.tooltip_text = _status.text
+	_update_guide()
 	_refresh_actions()
 
 
@@ -187,8 +261,10 @@ func _connection_changed(_message: String, connected: bool) -> void:
 func _open_campaign() -> void:
 	if _busy:
 		return
+	var was_opening: bool = _guided
 	hide()
-	campaign_requested.emit()
+	if not was_opening:
+		campaign_requested.emit()
 
 
 func clear_context() -> void:
@@ -198,6 +274,7 @@ func clear_context() -> void:
 	if is_instance_valid(_battle):
 		_battle.set_battle(null)
 		_review.set_review({})
+		_review.visible = false
 	_refresh_actions()
 
 
@@ -206,6 +283,7 @@ func _refresh_actions() -> void:
 		return
 	var available: bool = api != null and api.connected and api.mode == "local" and not api._has_mutation() and _api_identity() == _identity
 	var unconfirmed: bool = not _last_request.is_empty()
+	_guided_next.disabled = not available or _busy or unconfirmed or _session.is_empty() or _battle.animation_phase() != "settled"
 	_status.tooltip_text = _status.text
 	_start.text = "重新借调演练" if not _session.is_empty() else "开始借调演练"
 	_start.disabled = not available or _busy or unconfirmed
@@ -229,7 +307,9 @@ func _api_identity() -> String:
 func _fit_window() -> void:
 	var viewport: Vector2 = get_tree().root.get_visible_rect().size
 	min_size = Vector2i(280, 340)
-	size = Vector2i(int(minf(1380.0, viewport.x - 24.0)), int(minf(800.0, viewport.y - 54.0)))
+	size = Vector2i(int(minf(1380.0, viewport.x - 24.0)), int(minf(940.0, viewport.y - 54.0)))
+	_column.position = Vector2(14, 14)
+	_column.size = Vector2(size.x - 28, size.y - 74)
 	if visible:
 		position = Vector2i((viewport - Vector2(size)) / 2.0)
 
