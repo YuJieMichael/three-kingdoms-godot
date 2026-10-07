@@ -12,6 +12,7 @@ import {raidTargetsView} from './raid-targets-view.mjs';
 import {battleReview} from './battle-review.mjs';
 import {campaignView} from './campaign-view.mjs';
 import {conquestSupplyView, conquestReportReceipt} from './conquest-supply.mjs';
+import {plotEffect} from './plot-effects.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
@@ -155,6 +156,9 @@ export function gameView(game, now, runtime = null, options = {}) {
     return {index, id: plot.type, name: plot.type ? game.buildings[id].name : '空地', level: plot.level,
       unlocked: index < game.unlockedPlots(), cost: copy(record?.cost || {}),
       seconds: record ? game.plotTime(index, id) : 0, queue: queue ? copy(queue) : null,
+      affordable: !!record && game.canPay(record.cost),
+      effect: plot.type ? plotEffect(game, plot, plot.type, plot.level < game.plotMaxLevel() && record ? next : null) : null,
+      constructionEffect: queue ? plotEffect(game, plot, queue.id, queue.level) : null,
       requirement: !record ? '已达最高等级' : game.buildingRequirements(id, next)};
   });
   // Empty land can become any resource type. Its existing farm-default projection
@@ -162,7 +166,7 @@ export function gameView(game, now, runtime = null, options = {}) {
   const plotOptions = Object.keys(game.plotTypes).map(id => {
     const cost = game.buildRecord(id, 1).cost;
     return {id, name: game.buildings[id].name, cost: copy(cost), seconds: game.buildSeconds(id, 1),
-      requirement: game.buildingRequirements(id, 1), affordable: game.canPay(cost)};
+      requirement: game.buildingRequirements(id, 1), affordable: game.canPay(cost), effect: plotEffect(game, null, id, 1)};
   });
   const units = Object.entries(game.units).map(([id, unit]) => ({id, name: unit.name,
     available: state.army[id], cost: game.trainCost(id, 1), seconds: game.trainSeconds(id, 1),
@@ -176,6 +180,7 @@ export function gameView(game, now, runtime = null, options = {}) {
       buy: copy(game.tradeQuote(id, true)), sell: copy(game.tradeQuote(id, false))}))};
   const governance = {governorId: state.governor,
     population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),
+    productionPopulation: {current: state.population, required: game.workers()},
     morale: state.morale, unrest: state.unrest, tax: state.tax,
     targetMorale: game.governanceStatus().moraleTarget, goldPerMinute: rates.gold,
     // These two presentation multipliers mirror engine.js productionBoost/buildSeconds.

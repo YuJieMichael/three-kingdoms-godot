@@ -2043,7 +2043,7 @@ func _show_management(section: String) -> void:
 	call_deferred("_watch_buttons", _management)
 
 func _plots_dialog() -> void:
-	_show_realm("plots")
+	_show_city_zone("outer")
 
 func _research_dialog() -> void:
 	var content: VBoxContainer = _open_dialog("研究")
@@ -2754,7 +2754,7 @@ func _route_objective(route: String, target: String = "") -> void:
 				_buildings_dialog()
 			elif not target.is_empty():
 				_building_dialog(target)
-		"outer": _show_realm("plots")
+		"outer": _show_city_zone("outer")
 		"army":
 			_show_page("army")
 			var chosen: Dictionary = {}

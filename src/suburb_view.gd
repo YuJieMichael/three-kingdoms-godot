@@ -4,6 +4,7 @@ extends Control
 ## The landscape is presentation only. Availability, identity and levels are bridge data.
 signal plot_selected(index: int)
 
+const PlotArt: Script = preload("res://src/resource_plot_art.gd")
 const CHINESE_FONT: Font = preload("res://assets/fonts/UI.tres")
 const TEXT: Color = Color("efe7d5")
 const MUTED: Color = Color("c8c4ae")
@@ -72,8 +73,8 @@ func set_view(view: Dictionary) -> void:
 	# A parcel's location depends only on its canonical index, including across UI recreation.
 	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.index) < int(b.index))
-	var mobile_columns: int = 3 if _capacity > 12 else 2
-	var wide_columns: int = 4 if _capacity > 12 else 3
+	var mobile_columns: int = 2
+	var wide_columns: int = 4
 	_mobile_slot_columns = mobile_columns
 	_wide_slot_columns = wide_columns
 	_assign_slots(rows, _site_slots, mobile_columns)
@@ -117,7 +118,7 @@ func _update_minimum_height() -> void:
 func recommended_minimum_height(width: float) -> float:
 	var columns: int = _wide_slot_columns if width >= 530.0 else _mobile_slot_columns
 	var row_count: int = int(ceil(float(_capacity) / float(columns)))
-	var row_height: float = 58.0 if _capacity > 12 else 77.0 if columns == 2 else 83.0
+	var row_height: float = 172.0
 	return maxf(430.0, 140.0 + float(row_count) * row_height)
 
 func _kind(row: Dictionary) -> String:
@@ -126,25 +127,10 @@ func _kind(row: Dictionary) -> String:
 		return "empty"
 	return str({"lumber": "wood", "quarry": "stone", "mine": "iron"}.get(str(value), str(value)))
 
-func _assign_slots(rows: Array[Dictionary], slots: Dictionary, columns: int) -> void:
+func _assign_slots(rows: Array[Dictionary], slots: Dictionary, _columns: int) -> void:
 	slots.clear()
-	var order: Array[int] = []
-	var row_count: int = int(ceil(float(_capacity) / float(columns)))
-	for row: int in range(row_count - 1, -1, -1):
-		for column: int in range(columns):
-			var slot: int = row * columns + column
-			if slot < _capacity:
-				order.append(slot)
-	var used: Dictionary = {}
 	for row: Dictionary in rows:
-		var index: int = int(row.index)
-		var seed: int = index % _capacity
-		for offset: int in range(_capacity):
-			var slot: int = order[(seed + offset) % _capacity]
-			if not used.has(slot):
-				slots[index] = slot
-				used[slot] = true
-				break
+		slots[int(row.index)] = int(row.index)
 
 func _gui_input(event: InputEvent) -> void:
 	if _handle_focus_input(event):
@@ -339,7 +325,7 @@ func _rebuild_hit_boxes() -> void:
 		var slot: int = int(slots.get(index, 0))
 		var row: int = int(slot / columns)
 		var column: int = slot % columns
-		var cell: Vector2 = Vector2(map.size.x / float(columns), map.size.y / float(row_count))
+		var cell: Vector2 = Vector2(map.size.x / float(columns), 172.0)
 		var jitter: Vector2 = Vector2(sin(float(slot) * 2.7) * 3.0, cos(float(slot) * 1.8) * (1.0 if _capacity > 12 else 3.0))
 		var margins: Vector2 = Vector2(14.0, 8.0 if _capacity > 12 else 12.0)
 		var rect: Rect2 = Rect2(map.position + Vector2(float(column) * cell.x, float(row) * cell.y) + Vector2(7.0, 3.0 if _capacity > 12 else 5.0) + jitter, cell - margins)
@@ -428,53 +414,35 @@ func _road_x(y: float, w: float, h: float) -> float:
 	return w * (0.50 + sin((y / h) * 5.6) * 0.034)
 
 func _draw_site(index: int, row: Dictionary, rect: Rect2) -> void:
-	var kind: String = _kind(row)
-	var ground: Rect2 = Rect2(rect.position + Vector2(4.0, 7.0), rect.size - Vector2(8.0, 29.0))
-	var base: Vector2 = ground.position + Vector2(ground.size.x * 0.5, ground.size.y * 0.75)
 	var selected: bool = index == _selected
-	if selected or index == _hover:
-		_oval(ground.get_center(), Vector2(ground.size.x * 0.55, ground.size.y * 0.55), Color(0.87, 0.75, 0.46, 0.18))
-	if kind == "farm":
-		_draw_farm(ground, index)
-	elif kind == "wood":
-		_draw_woodlot(ground)
-	elif kind == "stone":
-		_draw_quarry(ground)
-	elif kind == "iron":
-		_draw_ironworks(ground)
+	draw_rect(rect, Color("343c2d"))
+	draw_rect(rect, GOLD if selected else Color("849078"), false, 2 if selected else 1)
+	var art_id: String = str(row.get("id", "")) if row.get("id") != null else ""
+	var job: Variant = row.get("queue")
+	if art_id.is_empty() and job is Dictionary:
+		art_id = str(job.get("id", ""))
+	var texture: Texture2D = PlotArt.texture(art_id)
+	var art_rect: Rect2 = Rect2(rect.position + Vector2(8, 7), Vector2(rect.size.x - 16, rect.size.y - 57))
+	if texture != null:
+		var ratio: float = minf(art_rect.size.x / texture.get_width(), art_rect.size.y / texture.get_height())
+		var dimensions: Vector2 = texture.get_size() * ratio
+		draw_texture_rect(texture, Rect2(art_rect.get_center() - dimensions * 0.5, dimensions), false)
 	else:
-		_draw_unbuilt(ground, index)
-	if row.get("queue") != null:
-		# A work marker reports an actual queue, without inventing production motion.
-		var marker: Vector2 = base + Vector2(ground.size.x * 0.31, -ground.size.y * 0.62)
-		draw_line(marker, marker + Vector2(0, 20), Color("62513c"), 2.0)
-		_polygon([marker, marker + Vector2(12, 3), marker + Vector2(10, 11), marker + Vector2(0, 9)], Color("b9a36e"))
-	if selected:
-		var outline: PackedVector2Array = PackedVector2Array()
-		for i: int in range(25):
-			var angle: float = TAU * float(i) / 24.0
-			outline.append(ground.get_center() + Vector2(cos(angle) * ground.size.x * 0.54, sin(angle) * ground.size.y * 0.56))
-		draw_polyline(outline, GOLD, 2.0, true)
-	var constructed: bool = kind != "empty"
+		_draw_unbuilt(art_rect, index)
 	var name: String = str(row.get("name", "空地"))
-	var label: String = "%d %s · %d级" % [index + 1, name, int(row.get("level", 0))] if constructed else "%d 空地 · 未建" % (index + 1)
-	if row.get("queue") != null:
-		label = "%d %s · 建设中" % [index + 1, name]
-	if rect.size.x < 105.0:
-		label = "%d%s·%d级" % [index + 1, name, int(row.get("level", 0))] if constructed else "%d空地·未建" % (index + 1)
-		if row.get("queue") != null:
-			label = "%d%s·在建" % [index + 1, name]
-	var font_size: int = 11 if rect.size.x < 105.0 else 13 if size.x >= 530.0 else 12
-	label = _elide(label, rect.size.x - 10.0, font_size)
-	var text_width: float = CHINESE_FONT.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var plaque: Rect2 = Rect2(Vector2(rect.get_center().x - text_width * 0.5 - 3.0, rect.end.y - 19.0), Vector2(text_width + 6.0, 18.0))
-	if selected or index == _hover:
-		draw_rect(plaque, Color(0.18, 0.21, 0.17, 0.72))
-	if selected:
-		draw_line(plaque.position, plaque.position + Vector2(plaque.size.x, 0), GOLD, 2.0)
-	var baseline: Vector2 = plaque.position + Vector2(3.0, 14.0)
-	draw_string_outline(CHINESE_FONT, baseline, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 2, Color(0.19, 0.22, 0.17, 0.91))
-	_text(baseline, label, font_size, GOLD if selected else TEXT if constructed else MUTED)
+	if row.get("id") == null and job is Dictionary:
+		name = {"farm":"农田", "lumber":"伐木场", "quarry":"采石场", "mine":"铁矿"}.get(art_id, "空地")
+	var label: String = "%d号 %s%s" % [index + 1, name, " · %d级" % int(row.get("level", 0)) if row.get("id") != null else ""]
+	_text(rect.position + Vector2(8, rect.size.y - 32), _elide(label, rect.size.x - 16, 14), 14, GOLD if selected else TEXT)
+	var effect: Variant = row.get("effect")
+	var benefit: String = "点击选择资源产业"
+	if effect is Dictionary:
+		benefit = "%s +%.1f /小时" % [effect.get("resourceName", "产量"), float(effect.get("currentPerHour", 0))]
+		if float(effect.get("currentPerHour", 0)) <= 0 and float(effect.get("laborRatioAfter", 1)) < 1:
+			benefit = "缺少人口 · 先发展民房"
+	if job is Dictionary:
+		benefit = "升级中 · " + benefit if row.get("id") != null else "施工中 · 完成后开始产出"
+	_text(rect.position + Vector2(8, rect.size.y - 11), _elide(benefit, rect.size.x - 16, 12), 12, MUTED)
 
 func _draw_farm(rect: Rect2, index: int) -> void:
 	var p: Vector2 = rect.position
@@ -597,6 +565,11 @@ func _draw_headings(w: float, h: float) -> void:
 		if counts.has(kind):
 			counts[kind] += 1
 	var summary: String = "田 %d · 林 %d · 石 %d · 铁 %d · 空 %d" % [counts.farm, counts.wood, counts.stone, counts.iron, counts.empty]
+	var labor: Dictionary = _view.get("governance", {}).get("productionPopulation", {})
+	if not labor.is_empty():
+		summary += " · 人口 %.0f /生产需 %.0f" % [float(labor.get("current", 0)), float(labor.get("required", 0))]
+		if float(labor.get("current", 0)) < float(labor.get("required", 0)):
+			summary += "（人口不足，先建设民房）"
 	_text(Vector2(14, 48), _elide(summary, w - 28.0, 13), 13, MUTED)
 	draw_rect(Rect2(0, h - 18, w, 18), Color("3d483d"))
 	var hint: String = "点击地块查看建设 · 可用 %d 块" % _plots_by_index.size()
