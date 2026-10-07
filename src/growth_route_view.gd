@@ -7,7 +7,7 @@ signal speedup_requested(item_id: String, target_key: String)
 
 # Immediate supplies and resource recovery are useful before spending on a gap.
 # This only orders the service's advice; it never derives a reward or a rule.
-const ADVICE_PRIORITY: Array[String] = ["unclaimed-gifts", "earned-rewards", "resource-recovery", "county-preparation", "promotion-preparation"]
+const ADVICE_PRIORITY: Array[String] = ["first-preparation", "unclaimed-gifts", "earned-rewards", "resource-recovery", "county-preparation", "promotion-preparation"]
 
 var _view: Dictionary = {}
 var _connected: bool = true

@@ -1,4 +1,5 @@
 import {copy, createGameRuntime} from '../vendor/legacy/online/runtime.mjs';
+import {supplyWorkshopView} from './supply-workshop.mjs';
 
 /** Inventory projections select existing commands; opening a preview never rolls a box. */
 export function inventoryView(runtime, {shared = false, now = Date.now()} = {}) {
@@ -47,6 +48,8 @@ export function inventoryView(runtime, {shared = false, now = Date.now()} = {}) 
         costs: Array.from({length: 99}, (_, index) => item.price * (index + 1))},
       use: {reason, targetKind, targets, maxLength: item.effect === 'rename' ? 12 : item.effect === 'banner' ? 2 : null, route}};
   });
+  const workshop = supplyWorkshopView(runtime, {shared});
+  items.push(...workshop.items);
   const opened = s.onboarding.lastOpen;
   let lastOpen = null;
   if (opened?.kind === 'jewel') lastOpen = {kind: 'jewel', name: runtime.Progression.jewels[opened.id].name, count: opened.count};
@@ -55,5 +58,5 @@ export function inventoryView(runtime, {shared = false, now = Date.now()} = {}) 
     lastOpen = {kind: 'equipment', name: equipment ? hero.itemName(equipment) : '装备', count: 1};
   }
   return copy({items, categories: [...new Set(items.map(item => item.category))], gems: s.gems, shared, lastOpen,
-    owned, slots: hero.slots});
+    owned, slots: hero.slots, starterSupply: workshop.starter});
 }

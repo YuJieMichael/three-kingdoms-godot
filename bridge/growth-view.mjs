@@ -1,4 +1,5 @@
 import {progressionView} from './progression-view.mjs';
+import {starterSupplyQuote} from './supply-workshop.mjs';
 
 const copy = value => JSON.parse(JSON.stringify(value));
 const SHARED_REASON = '共享演练尚未接入私人据点成长路线，请切换本机进度继续';
@@ -17,6 +18,7 @@ export function growthView(runtime, options = {}) {
   const progression = options.progression || progressionView(runtime, {...options, now});
   const result = {shared: false, reason: '', stage: null, current: null,
     source: null, gaps: [], advice: [], speedup: null, combat: null};
+  const starter = starterSupplyQuote(runtime);
   const gap = (id, label, current, required, unit = '') => ({id, label, current, required,
     missing: Math.max(0, required - current), unit});
   const addAdvice = (id, text, navigate) => result.advice.push({id, text, ...(navigate ? {navigate} : {})});
@@ -142,6 +144,7 @@ export function growthView(runtime, options = {}) {
   }
 
   result.gaps.push(...resourceGaps(cost));
+  if (!starter.reason) addAdvice('first-preparation', starter.description, navigation('gift', '', '领取免费首战工程补给'));
   const missingJewels = result.gaps.filter(row => row.id.startsWith('jewel:'));
   const coralGap = missingJewels.find(row => row.id === 'jewel:coral');
   const preparation = progression.epic.exchanges.find(row => row.id === 'growth_coral');

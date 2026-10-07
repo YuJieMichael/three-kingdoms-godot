@@ -166,7 +166,7 @@ export function gameView(game, now, runtime = null, options = {}) {
   const units = Object.entries(game.units).map(([id, unit]) => ({id, name: unit.name,
     available: state.army[id], cost: game.trainCost(id, 1), seconds: game.trainSeconds(id, 1),
     requirement: game.unitRequirements(id), unlocked: game.unitUnlocked(id),
-    people: unit.people || 1, role: unit.role, stats: copy(game.unitStats(id))}));
+    people: unit.people || 1, role: unit.role, carry: game.carry({[id]: 1}), stats: copy(game.unitStats(id))}));
   const generals = state.generals.map(id => ({...game.general(id), busy: game.generalBusy(id),
     city: game.heroCity(id), governor: state.governor === id, loyalty: state.heroLoyalty[id]}));
   const rates = game.rates(), governor = game.general(state.governor);

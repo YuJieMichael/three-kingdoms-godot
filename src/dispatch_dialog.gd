@@ -7,6 +7,7 @@ var _tabs: TabContainer
 var _march_scroll: ScrollContainer
 var _march_content: VBoxContainer
 var _march_footer: VBoxContainer
+var _formation_label: Label
 var _scout_footer: VBoxContainer
 var _march_intro: Label
 var _march_intel: KingdomIntelPanel
@@ -59,6 +60,8 @@ func _ready() -> void:
 	_march_intro = _march_label(_march_content, "请选择目标", "SectionLabel")
 	_march_intel = IntelScript.new() as KingdomIntelPanel
 	_march_content.add_child(_march_intel)
+	_formation_label = _march_label(_march_content, "", "MutedLabel")
+	_formation_label.visible = false
 	var scout_link: Button = _march_button(_march_content, "先侦察目标", false)
 	scout_link.pressed.connect(show_tab.bind("scout"))
 	_march_label(_march_content, "将领与兵力", "SectionLabel")
@@ -211,6 +214,19 @@ func receive_quote(payload: Dictionary) -> void:
 	lines.append("行军 %s · 返城 %s" % [_duration(_march_quote.get("seconds")), _duration(_march_quote.get("returnSeconds"))])
 	lines.append("最慢兵种 %s · 速度 %s" % [_quoted_slowest_name(), _stat_text(_march_quote.get("speed"))])
 	lines.append("预计抵达：" + _arrival_text(_march_quote.get("seconds")))
+	var formation: Dictionary = _dictionary(_march_quote.get("formation"))
+	if not formation.is_empty():
+		var analysis_lines: PackedStringArray = ["阵容分析 · %d 人" % int(formation.get("total", 0))]
+		var composition: PackedStringArray = []
+		for row: Dictionary in formation.get("enemy", []):
+			composition.append(str(row.get("name", "")) + " ×" + str(int(row.get("count", 0))))
+		analysis_lines.append("当前可见守军：" + "、".join(composition) if formation.get("known", false) else "当前无精确守军情报")
+		for category: String in ["strengths", "risks", "suggestions"]:
+			for text: String in formation.get(category, []):
+				analysis_lines.append(("优势：" if category == "strengths" else "风险：" if category == "risks" else "建议：") + text)
+		analysis_lines.append(str(formation.get("note", "")))
+		_formation_label.text = "\n".join(analysis_lines)
+		_formation_label.visible = true
 	lines.append(reason if not reason.is_empty() else "确认后扣除粮草并派遣，抵达后进入战斗。" if not _march_command.is_empty() else "预览缺少合法命令或费用，请重新预览。")
 	_march_quote_label.text = "\n".join(lines)
 	_march_error = ""
@@ -343,7 +359,7 @@ func _unit_decision_text(unit: Dictionary) -> String:
 	var stats: Dictionary = _dictionary(unit.get("stats"))
 	var role: Variant = unit.get("role")
 	var role_text: String = role.strip_edges() if role is String else ""
-	return "定位：%s\n射程 %s · 速度 %s" % [role_text if not role_text.is_empty() else "未提供", _stat_text(stats.get("range")), _stat_text(stats.get("speed"))]
+	return "定位：%s\n射程 %s · 速度 %s · 单兵负重 %s" % [role_text if not role_text.is_empty() else "未提供", _stat_text(stats.get("range")), _stat_text(stats.get("speed")), _stat_text(unit.get("carry"))]
 
 
 func _stat_text(value: Variant) -> String:
@@ -489,6 +505,9 @@ func _submit_march() -> void:
 
 
 func _invalidate_march(message: String = "先预览当前粮草费用、行军耗时与抵达时间。") -> void:
+	if is_instance_valid(_formation_label):
+		_formation_label.text = ""
+		_formation_label.visible = false
 	_march_quote_id = ""
 	_march_quote_fingerprint = ""
 	_march_quote.clear()

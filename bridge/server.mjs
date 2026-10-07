@@ -9,6 +9,7 @@ import {managementQuote} from './management-quotes.mjs';
 import {executeGrowthSupport, validGrowthSupport, isGrowthSupportOffer} from './growth-support.mjs';
 import {PracticeSessions} from './practice-session.mjs';
 import {plotPlanKey} from './plot-plan-key.mjs';
+import {executeSupplyCommand, isSupplyCommand, validSupplyWorkshop} from './supply-workshop.mjs';
 
 const MAX_BODY = 16 * 1024 * 1024;
 const RECEIPT_LIMIT = 32;
@@ -75,7 +76,7 @@ async function lockDirectory(dataDir) {
 }
 
 function runtimeFor(snapshot, now, seed = 1) {
-  if (!validGrowthSupport(snapshot)) throw new GameError('BAD_SAVE', '县城筹备兑换记录无效，原文件已保留');
+  if (!validGrowthSupport(snapshot) || !validSupplyWorkshop(snapshot)) throw new GameError('BAD_SAVE', '筹备或军需记录无效，原文件已保留');
   try { return createGameRuntime({snapshot, now, random: seededRandom(seed)}); }
   catch { throw new GameError('BAD_SAVE', '存档无法通过原游戏规则校验，原文件已保留', 400); }
 }
@@ -246,7 +247,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             if (Object.keys(input).some(key => !['commandId', 'expectedRevision', 'type', 'args', 'sourceCity'].includes(key))) throw new GameError('CLIENT_SNAPSHOT_FORBIDDEN', '操作不能替换客户端存档');
             validateInput(input);
             // Also reject inherited namespace names before the legacy dispatcher reads its plain object.
-            if (!gameActions.has(input.type) && !/^(wild|hero|heritage|war|onboarding)\.[a-zA-Z]+$/.test(input.type))
+            if (!gameActions.has(input.type) && !isSupplyCommand(input.type) && !/^(wild|hero|heritage|war|onboarding)\.[a-zA-Z]+$/.test(input.type))
               throw new GameError('COMMAND_NOT_ALLOWED', '服务器不支持此操作');
             if (input.sourceCity !== undefined && (typeof input.sourceCity !== 'string' || input.sourceCity.length > 100)) throw new GameError('BAD_CITY', '出发城市格式无效');
             runtime = runtimeFor(stored.state, now, Number.parseInt(fingerprint.slice(0, 8), 16));
@@ -262,7 +263,8 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
               if (typeof key !== 'string' || !/^[a-f0-9]{64}$/.test(key) || key !== plotPlanKey(runtime.Game, quote))
                 throw new GameError('PLAN_CHANGED', '配田方案或受影响田地等级已变化，请重新预览');
             }
-            const executed = input.type === 'exchangeCopper' && isGrowthSupportOffer(input.args[0]) ?
+            const executed = isSupplyCommand(input.type) ? executeSupplyCommand(runtime, input, now) :
+              input.type === 'exchangeCopper' && isGrowthSupportOffer(input.args[0]) ?
               executeGrowthSupport(runtime, input, now) : executeGame(stored.state, input, now, null, runtime);
             state = executed.state; actionResult = executed.result;
           }

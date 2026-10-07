@@ -1804,10 +1804,28 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 			"wild.recruit": "俘将招降已结算", "hero.equip": "装备穿戴已结算", "hero.forge": "装备打造已结算",
 			"trainGeneralSkill": "将领专长训练已结算", "war.exchange": "军功兑换已结算，请在背包查看",
 			"exchangeCopper": "铜钱兑换已结算，请核对珍宝库存", "applyPlotTemplate": "经营方案已安排，请查看施工队列",
+			"supplies.buy": "军需包已入背包", "supplies.open": "军需包已打开，奖励已入库",
+			"supplies.claimStarter": "首战工程补给已领取，请按成长路线安排并加速工程",
 			"setBattleOrders": "全军军令已更新", "setBattleOrder": "兵队军令已更新", "battleRound": "本回合已结算",
 			"recall": "部队已开始返程"
 		}
-		_show_toast(str(messages.get(type, "操作已完成")) + " · 进度已保存")
+		var message: String = str(messages.get(type, "操作已完成"))
+		if type in ["supplies.open", "supplies.claimStarter"]:
+			var rewards: PackedStringArray = []
+			var result: Dictionary = _payload.get("result", {}) if _payload.get("result") is Dictionary else {}
+			for item_id: String in result.get("items", {}):
+				var item_name: String = item_id
+				for item: Dictionary in _view.get("inventoryManagement", {}).get("items", []):
+					if str(item.get("id", "")) == item_id:
+						item_name = str(item.get("name", item_id))
+				rewards.append(item_name + " ×" + str(int(result.items[item_id])))
+			for id: String in result.get("resources", {}):
+				rewards.append(str(RES_NAMES.get(id, id)) + " +" + str(int(result.resources[id])))
+			if not result.get("bundles", {}).is_empty():
+				rewards.append("百工调拨令 ×1")
+			if not rewards.is_empty():
+				message += "\n" + "、".join(rewards)
+		_show_toast(message + " · 进度已保存")
 	_sync_objective_actions()
 	if type == "battleRound":
 		_celebrate_county_receipt(_payload)
@@ -2661,6 +2679,7 @@ func _route_objective(route: String, target: String = "") -> void:
 		"wildGenerals": _show_heroes("wild")
 		"heroes": _show_heroes("equipment" if target == "equipment" else "generals")
 		"specialization": _show_heroes("specializations")
+		"growth": _show_growth_route()
 		"campaign": _prepare_campaign_target(target)
 		"plans": _show_realm("plans")
 		"gift": _show_progression("gifts")

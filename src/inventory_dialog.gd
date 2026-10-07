@@ -414,8 +414,8 @@ func _build_detail() -> void:
 		_count.get_line_edit().text_changed.connect(func(_value: String) -> void: _refresh())
 	else:
 		var kind: String = str(item.get("use", {}).get("targetKind", "none"))
-		if kind in ["hero", "speedup", "slot"]:
-			_detail.add_child(_label("选择将领" if kind == "hero" else "选择加速队列" if kind == "speedup" else "选择装备部位", 14))
+		if kind in ["hero", "speedup", "slot", "choice"]:
+			_detail.add_child(_label("选择调拨方向" if kind == "choice" else "选择将领" if kind == "hero" else "选择加速队列" if kind == "speedup" else "选择装备部位", 14))
 			_target = OptionButton.new()
 			_target.clip_text = true
 			_target.custom_minimum_size.y = 44
@@ -486,11 +486,13 @@ func _action() -> Dictionary:
 		var quantity: int = _quantity()
 		var reason: String = str(item.get("purchase", {}).get("reason", ""))
 		if reason.is_empty() and quantity < 1: reason = "请选择购买数量"
-		return {"type": "buyItem", "args": [_selected_item, quantity], "reason": reason}
+		return {"type": str(item.get("buyType", "buyItem")), "args": [_selected_item, quantity], "reason": reason}
 	var use: Dictionary = item.get("use", {})
 	var reason: String = str(use.get("reason", ""))
 	var kind: String = str(use.get("targetKind", "none"))
-	if reason.is_empty() and kind in ["hero", "speedup", "slot"]: reason = str(_target_quote().get("reason", ""))
+	if reason.is_empty() and kind in ["hero", "speedup", "slot", "choice"]: reason = str(_target_quote().get("reason", ""))
+	if str(item.get("effect", "")) == "supplyBundle":
+		return {"type": str(item.get("openType", "supplies.open")), "args": [_selected_item, _target_id] if kind == "choice" else [_selected_item], "reason": reason}
 	if kind == "text":
 		var text: String = _text.text.strip_edges() if is_instance_valid(_text) else ""
 		if reason.is_empty() and (text.is_empty() or text.length() > int(use.get("maxLength", 0))): reason = "名称长度不合适"
@@ -521,9 +523,10 @@ func _refresh() -> void:
 			var quantity: int = _quantity()
 			var costs: Array = purchase.get("costs", [])
 			details.append("持有元宝 %d · 本次 %d 件 / 元宝 ×%d\n当前可买上限 %d" % [int(_data().get("gems", 0)), quantity, int(costs[quantity - 1]) if quantity > 0 and quantity <= costs.size() else 0, int(purchase.get("limit", 0))])
-			if purchase.get("remaining") != null: details.append("该种金砖今日剩余 %d / %d" % [int(purchase.remaining), int(purchase.get("dailyLimit", 0))])
+			if purchase.get("remaining") != null: details.append(("本存档限购剩余 %d / %d" if str(purchase.get("period", "")) == "save" else "该种金砖今日剩余 %d / %d") % [int(purchase.remaining), int(purchase.get("dailyLimit", 0))])
 		else:
 			var target: Dictionary = _target_quote()
+			if str(item.get("use", {}).get("targetKind", "")) == "choice": details.append("本次选择：" + str(target.get("name", "请选择方向")))
 			if str(item.get("use", {}).get("targetKind", "")) == "speedup" and target.has("quote"):
 				var q: Dictionary = target.quote
 				details.append("等待 %s · 原工作时间 %s\n使用后剩余 %s — %s%s" % [_seconds(q.get("waitMs", 0)), _seconds(q.get("workMs", 0)), _seconds(q.get("afterMinMs", 0)), _seconds(q.get("afterMaxMs", 0)), "\n超出工作时间的加速会消耗" if q.get("overflow", false) else ""])
@@ -534,7 +537,7 @@ func _refresh() -> void:
 		if not str(action.get("reason", "")).is_empty(): details.append(str(action.reason))
 		_quote.text = "\n".join(details)
 		_apply.disabled = not _connected or _pending or not str(action.get("reason", "")).is_empty()
-		_apply.text = "购买 · %s 件" % _quantity() if _section == "shop" else "开启盒子" if str(item.get("effect", "")) in ["jewelBox", "equipmentBox"] else "使用宝物"
+		_apply.text = "购买 · %s 件" % _quantity() if _section == "shop" else "预览开包" if str(item.get("effect", "")) == "supplyBundle" else "开启盒子" if str(item.get("effect", "")) in ["jewelBox", "equipmentBox"] else "使用宝物"
 		_apply.tooltip_text = str(action.get("reason", ""))
 		var route: Dictionary = item.get("use", {}).get("route") if item.get("use", {}).get("route") is Dictionary else {}
 		_route.visible = _section == "inventory" and not route.is_empty()
@@ -553,6 +556,33 @@ func _submit() -> void:
 	if _section == "shop":
 		_count.value = _quantity()
 		_count.get_line_edit().text = str(int(action.args[1]))
+	if str(action.get("type", "")).begins_with("supplies."):
+		_confirm_supply(action)
+		return
+	_commit_action(action)
+
+
+func _confirm_supply(action: Dictionary) -> void:
+	var source: String = str(_view.get("city", {}).get("id", ""))
+	var fingerprint: String = JSON.stringify(action)
+	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
+	confirmation.title = "确认购买军需" if _section == "shop" else "确认使用军需"
+	confirmation.dialog_text = _description.text + "\n" + _quote.text + "\n" + ("购买后收入背包，可稍后开包。" if _section == "shop" else "本次消耗1包；奖励完整收入当前城池及共用道具库存。")
+	confirmation.dialog_autowrap = true
+	confirmation.exclusive = true
+	confirmation.min_size = Vector2i(280, 240)
+	add_child(confirmation)
+	confirmation.confirmed.connect(func() -> void:
+		if not _connected or _pending or source != str(_view.get("city", {}).get("id", "")) or JSON.stringify(_action()) != fingerprint:
+			show_error("城池、包裹、方向或购买条件已变化，请重新预览。")
+		else:
+			_commit_action(action)
+		confirmation.queue_free())
+	confirmation.canceled.connect(confirmation.queue_free)
+	confirmation.popup_centered(Vector2i(mini(580, maxi(280, int(get_tree().root.size.x) - 48)), mini(500, maxi(260, int(get_tree().root.size.y) - 100))))
+
+
+func _commit_action(action: Dictionary) -> void:
 	_remember()
 	_error_message = ""
 	_pending = true

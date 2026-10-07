@@ -1,6 +1,7 @@
 import {GameError, copy, createGameRuntime} from '../vendor/legacy/online/runtime.mjs';
 import {scopedRuntime} from '../vendor/shared/runtime.mjs';
 import {scoutQuoteView} from './scouting-view.mjs';
+import {formationView} from './formation-view.mjs';
 
 const object = value => !!value && typeof value === 'object' && !Array.isArray(value);
 const kinds = new Set(['foundCity', 'transport', 'redeploy', 'march', 'scout']);
@@ -56,10 +57,11 @@ export function managementQuote(runtime, input, {shared = false} = {}) {
     if (!g.getNode(args[0])) throw new GameError('NODE_NOT_FOUND', '目标不存在', 404);
     if (!g.landmarkVisible(args[0])) throw new GameError('NODE_HIDDEN', '请先完成当前任务据点', 403);
     const q = g.marchQuote(args[0], args[2], args[1]), before = g.state.res.food;
+    const formation = formationView(g, g.getNode(args[0]), args[2], args[1], args[3], g.state.last);
     // dispatch supplies the complete eligibility and fee; the mutated clone is discarded.
     const reason = g.dispatch(...args) || '';
     quote = {...copy(q), reason, foodCost: reason ? null : before - g.state.res.food,
-      carry: g.carry(args[2]), command: {type: 'dispatch', args: copy(args), sourceCity: city}};
+      carry: g.carry(args[2]), formation, command: {type: 'dispatch', args: copy(args), sourceCity: city}};
   }
   return {requestId: input.requestId, kind: input.kind, sourceCity: city, quote};
 }

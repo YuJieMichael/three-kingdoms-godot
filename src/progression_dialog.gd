@@ -413,6 +413,9 @@ func _preparation_records(progression: Dictionary, records: Array[Dictionary]) -
 
 
 func _gift_records(progression: Dictionary, records: Array[Dictionary]) -> void:
+	var starter: Dictionary = _view.get("inventoryManagement", {}).get("starterSupply", {})
+	if not starter.is_empty() and not _view.get("inventoryManagement", {}).get("shared", false):
+		records.append(_record("first-engineering-supply", str(starter.get("name", "首战工程补给")), str(starter.get("description", "")) + "\n" + str(starter.get("reason", "")), [_action("免费领取 · 本存档一次", starter.get("command", {}), str(starter.get("reason", ""))), _navigate("查看成长路线", "growth")]))
 	var gifts: Dictionary = progression.get("gifts", {})
 	var claim: Dictionary = gifts.get("claimAll", {})
 	records.append(_record("gift-all", "按官府等级领取 · 共十阶", "当前可领 %d 阶；礼包每阶仅领取一次，后期含珠宝盒与装备盒。" % int(gifts.get("available", 0)), [_action("一键领取已解锁", claim.get("command", {}), str(claim.get("reason", ""))), _navigate("使用加速与开箱", "inventory")]))
