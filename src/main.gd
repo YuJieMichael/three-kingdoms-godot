@@ -30,6 +30,8 @@ const ConstructionPanelScript: Script = preload("res://src/city_construction_pan
 const CapacityCompareScript: Script = preload("res://src/city_capacity_compare.gd")
 const NotificationScript: Script = preload("res://src/notification_center.gd")
 const ReportLootScript: Script = preload("res://src/report_loot_view.gd")
+const PostBattleScript: Script = preload("res://src/post_battle_actions.gd")
+const RaidTargetsScript: Script = preload("res://src/raid_targets_view.gd")
 const FONT: Font = preload("res://assets/fonts/UI.tres")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 const RES_SHORT_NAMES: Dictionary = {"food": "粮", "wood": "木", "stone": "石", "iron": "铁", "gold": "金"}
@@ -118,6 +120,8 @@ var _growth_button: Button
 var _growth_route: KingdomGrowthRouteView
 var _report_economy: KingdomReportEconomyView
 var _report_loot: KingdomReportLootView
+var _report_recovery: KingdomPostBattleActions
+var _raid_targets: KingdomRaidTargetsView
 var _report_key: String = ""
 var _economy_signature: String = ""
 var _scouting: KingdomScoutingDialog
@@ -1029,6 +1033,10 @@ func _build_map_toolbar() -> void:
 	var marches: Button = _button("行军", _marches_dialog)
 	marches.theme_type_variation = "UtilityButton"
 	navigation.add_child(marches)
+	if api == null or api.mode != "shared":
+		var find_resources: Button = _button("掠夺找资源", _show_raid_targets)
+		find_resources.theme_type_variation = "PrimaryButton"
+		navigation.add_child(find_resources)
 
 func _receive_snapshot(payload: Dictionary) -> void:
 	_intel_server_offset = float(payload.get("serverTime", Time.get_unix_time_from_system() * 1000.0)) - Time.get_unix_time_from_system() * 1000.0
@@ -1046,6 +1054,9 @@ func _receive_snapshot(payload: Dictionary) -> void:
 	_sync_tasks_hub()
 	_sync_growth_route()
 	_sync_report_economy()
+	if is_instance_valid(_raid_targets):
+		_raid_targets.update_view(_view)
+		_raid_targets.set_navigation_state(api.connected, api._has_mutation())
 	_refresh_city_construction_panel()
 	if _city != null:
 		_city.set_city(_view, _intel_now())
@@ -1101,6 +1112,10 @@ func _connection_changed(message: String, _connected: bool) -> void:
 		_activity_bar.set_connected(_connected)
 	if is_instance_valid(_report_loot):
 		_report_loot.set_navigation_state(_connected, api._has_mutation())
+	if is_instance_valid(_report_recovery):
+		_report_recovery.set_navigation_state(_connected, api._has_mutation())
+	if is_instance_valid(_raid_targets):
+		_raid_targets.set_navigation_state(_connected, api._has_mutation())
 	_sync_resource_details()
 	_refresh_scout_marches()
 	_status.text = message
@@ -1332,6 +1347,8 @@ func _open_dialog(title: String, width: int = 600, managed_scroll: bool = true) 
 	_growth_route = null
 	_report_economy = null
 	_report_loot = null
+	_report_recovery = null
+	_raid_targets = null
 	_report_key = ""
 	_economy_signature = ""
 	_remember_keyboard_focus()
@@ -1734,6 +1751,10 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 
 func _send_command(type: String, args: Array = [], source_city: String = "") -> void:
 	api.command(type, args, source_city)
+	if is_instance_valid(_report_recovery):
+		_report_recovery.set_navigation_state(api.connected, api._has_mutation())
+	if is_instance_valid(_raid_targets):
+		_raid_targets.set_navigation_state(api.connected, api._has_mutation())
 	_sync_objective_actions()
 	_refresh_city_construction_panel()
 	_sync_tasks_hub()
@@ -1860,6 +1881,41 @@ func _show_growth_route() -> void:
 	_sync_growth_route()
 	call_deferred("_watch_buttons", _growth_route)
 
+func _show_raid_targets() -> void:
+	if api == null or api.mode == "shared":
+		_show_toast("掠夺找资源用于本机野地；共享房间请查看玩家战争。")
+		return
+	var content: VBoxContainer = _open_dialog("掠夺找资源", 680)
+	_raid_targets = RaidTargetsScript.new() as KingdomRaidTargetsView
+	content.add_child(_raid_targets)
+	_raid_targets.update_view(_view)
+	_raid_targets.set_navigation_state(api.connected, api._has_mutation())
+	_raid_targets.target_requested.connect(_prepare_raid_target)
+	call_deferred("_watch_buttons", _raid_targets)
+
+func _prepare_raid_target(id: String) -> void:
+	if not is_instance_valid(_raid_targets) or api == null or api.mode == "shared" or not api.connected or api._has_mutation():
+		return
+	# Resolve against this actor's latest safe world before opening the same
+	# preparation flow as a map click. This never sends a dispatch command.
+	var target: Dictionary = {}
+	for tile: Dictionary in _world.get("tiles", []):
+		if str(tile.get("id", "")) == id and not tile.get("hidden", false) and not tile.get("owned", false):
+			target = tile
+			break
+	if target.is_empty():
+		_show_toast("目标已变化或尚未显示，请刷新舆图后重新选择。", true)
+		return
+	if is_instance_valid(_dialog):
+		_dialog.hide()
+	_selected = target.duplicate(true)
+	_show_page("world")
+	_map.focus_tile(int(target.get("x", 0)), int(target.get("y", 0)))
+	var intel: Dictionary = _intel_node(target).get("intel", {})
+	var expiry: Variant = intel.get("expiresAt")
+	var exact: bool = str(intel.get("precision", "")) == "exact" and (expiry is int or expiry is float) and float(expiry) > _intel_now()
+	_open_dispatch_flow(target, "march" if bool(intel.get("public", false)) or exact else "scout")
+
 func _sync_growth_route() -> void:
 	if is_instance_valid(_growth_route) and is_instance_valid(_dialog) and _dialog.visible:
 		_growth_route.update_view(_view)
@@ -1873,8 +1929,12 @@ func _sync_report_economy() -> void:
 		return
 	if is_instance_valid(_report_loot):
 		_report_loot.set_navigation_state(api.connected, api._has_mutation())
+	if is_instance_valid(_report_recovery):
+		_report_recovery.set_navigation_state(api.connected, api._has_mutation())
 	for report: Dictionary in _view.get("reports", []):
 		if _report_identity(report) == _report_key:
+			if is_instance_valid(_report_recovery):
+				_report_recovery.update_context(report, _view, api.connected, api._has_mutation())
 			var economy: Dictionary = report.get("economy", {})
 			var signature: String = JSON.stringify(economy)
 			if signature != _economy_signature:
@@ -1896,6 +1956,10 @@ func _report_dialog(report: Dictionary) -> void:
 	_economy_signature = JSON.stringify(report.get("economy", {}))
 	_report_economy.set_economy(report.get("economy", {}))
 	content.add_child(_report_economy)
+	_report_recovery = PostBattleScript.new() as KingdomPostBattleActions
+	content.add_child(_report_recovery)
+	_report_recovery.update_context(report, _view, api.connected, api._has_mutation())
+	_report_recovery.route_requested.connect(_route_report_recovery)
 	_report_loot = ReportLootScript.new() as KingdomReportLootView
 	content.add_child(_report_loot)
 	_report_loot.set_report(report, _view)
@@ -1909,6 +1973,9 @@ func _report_dialog(report: Dictionary) -> void:
 			_show_heroes("captives")
 		elif section == "soldier_captives":
 			_show_war_management("captives"))
+	# Keep the next action and rewards ahead of the longer accounting breakdown.
+	content.move_child(_report_recovery, 1)
+	content.move_child(_report_loot, 2)
 	if report.get("shared", false):
 		_render_shared_report(content, report)
 		return
@@ -1929,6 +1996,18 @@ func _report_dialog(report: Dictionary) -> void:
 		content.add_child(_report_label("败因：" + str(reasons.get(failure.get("reason", ""), "战线未能突破")), 16, Color("dfa481")))
 		if bool(failure.get("outOfRange", false)):
 			content.add_child(_report_label("仍有部队未进入射程；可调整兵种或前进命令。", 15))
+
+func _route_report_recovery(section: String) -> void:
+	if not is_instance_valid(_report_recovery) or api == null or not api.connected or api._has_mutation():
+		return
+	if section in ["hospital", "training"] and _report_recovery.source_city() != str(_view.get("city", {}).get("id", "")):
+		_show_realm("cities")
+		return
+	match section:
+		"hospital": _show_war_management("hospital")
+		"training": _training_dialog()
+		"cities": _show_realm("cities")
+		"growth": _show_growth_route()
 
 func _report_label(text: String, font_size: int = 16, color: Color = Color("e1dfcd")) -> Label:
 	var label: Label = _label(text, font_size, color)
@@ -2094,6 +2173,8 @@ func _mode_changed(_mode: String) -> void:
 	_growth_route = null
 	_report_economy = null
 	_report_loot = null
+	_report_recovery = null
+	_raid_targets = null
 	_report_key = ""
 	_economy_signature = ""
 	_detail_intel = null

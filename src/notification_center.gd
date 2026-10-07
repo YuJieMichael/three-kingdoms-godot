@@ -25,6 +25,10 @@ func _ready() -> void:
 	_card.add_child(column)
 	_heading = Label.new()
 	_heading.theme_type_variation = "SectionLabel"
+	# A long error heading must wrap within the notice's fitted width; an
+	# unwrapped Label otherwise forces the panel wider than a narrow viewport.
+	_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_heading)
 	_message = Label.new()

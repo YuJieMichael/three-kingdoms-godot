@@ -334,6 +334,9 @@ func _field_top() -> float:
 		controls_end = _commands.position.y + _commands.size.y
 	if _unit_commands.visible:
 		controls_end = _unit_commands.position.y + _unit_commands.size.y
+		# Two status lines sit below the order buttons on every screen size;
+		# leave the distance ruler its own space above the battlefield.
+		return controls_end + 72.0
 	return controls_end + (42.0 if size.x < 480.0 else 30.0)
 
 func _draw() -> void:
@@ -382,9 +385,30 @@ func _draw() -> void:
 		var orders: Dictionary = _battle.get("orders", {})
 		var selected_order: Dictionary = orders.get(_selected, {})
 		var order_names: Dictionary = {"advance": "前进", "hold": "固守", "fallback": "后退"}
-		var caption: String = "%s · %s · 位置 %d · 射程 %d" % [_unit_name(_selected), order_names.get(selected_order.get("command", "hold"), ""), int(selection.get("pos", 0)), int(stats.get("range", 0))] if size.x >= 720.0 else "%s · 射程 %d" % [_unit_name(_selected), int(stats.get("range", 0))]
-		var caption_position: Vector2 = Vector2(18.0, _unit_commands.position.y + _unit_commands.size.y + 23.0) if size.x < 480.0 else Vector2(260.0, _unit_commands.position.y + _unit_commands.size.y * 0.65)
-		_text(caption_position, caption, 13, PLAYER)
+		var caption: String = "军令 %s · %s · 射程 %d" % [order_names.get(selected_order.get("command", ""), "未提供"), _unit_name(_selected), int(stats.get("range", 0))]
+		if size.x >= 720.0:
+			caption += " · 位置 %d" % int(selection.get("pos", 0))
+		var caption_position: Vector2 = Vector2(18.0, _unit_commands.position.y + _unit_commands.size.y + 18.0)
+		_draw_caption_line(caption_position, caption)
+		_draw_caption_line(caption_position + Vector2(0.0, 18.0), "目标：" + _order_target_text(selected_order.get("target")))
+
+func _order_target_text(value: Variant) -> String:
+	if not value is String:
+		return "未提供"
+	if value.is_empty():
+		return "自动选择"
+	if value == "gate":
+		return "城门"
+	return _unit_name(value)
+
+func _draw_caption_line(point: Vector2, caption: String) -> void:
+	var width: float = maxf(1.0, size.x - point.x - 18.0)
+	var text: String = caption
+	if CHINESE_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x > width:
+		while not text.is_empty() and CHINESE_FONT.get_string_size(text + "…", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x > width:
+			text = text.left(text.length() - 1)
+		text += "…"
+	draw_string(CHINESE_FONT, point, text, HORIZONTAL_ALIGNMENT_LEFT, width, 13, PLAYER)
 
 func _draw_formation(side: String, row: Dictionary, row_height: float) -> void:
 	var id: String = str(row.get("id", ""))

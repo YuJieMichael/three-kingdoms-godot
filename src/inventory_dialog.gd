@@ -156,6 +156,16 @@ func _build() -> void:
 	for child: Node in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
+	# show_section() remembers the old editors before rebuilding. Detaching
+	# them does not invalidate their references until queue_free() flushes;
+	# never let item synchronization wire focus or refresh those old controls.
+	_description = null
+	_quote = null
+	_target = null
+	_text = null
+	_count = null
+	_apply = null
+	_route = null
 	_item_buttons.clear()
 	title = "宝物背包" if _section == "inventory" else "商城"
 	var tabs: GridContainer = GridContainer.new()
@@ -340,12 +350,18 @@ func _fit_item_grid() -> void:
 
 
 func _wire_item_focus() -> void:
-	if not is_instance_valid(_item_grid) or _item_buttons.is_empty(): return
+	if not is_instance_valid(_item_grid) or not _item_grid.is_inside_tree() or _item_grid.is_queued_for_deletion(): return
+	if not is_instance_valid(_category) or not _category.is_inside_tree() or _category.is_queued_for_deletion(): return
+	# A filter or the last item's consumption can remove every tile. Clear
+	# paths to detached tiles so normal traversal still reaches the editor/close.
+	_category.focus_next = NodePath()
+	_category.focus_neighbor_bottom = NodePath()
+	if _item_buttons.is_empty(): return
 	var buttons: Array[Node] = _item_grid.get_children()
 	var columns: int = _item_grid.columns
 	var detail_focus: Control = get_ok_button()
 	for candidate: Control in [_target, _text, _apply, _route]:
-		if is_instance_valid(candidate) and candidate.visible and candidate.focus_mode != Control.FOCUS_NONE and not (candidate is BaseButton and (candidate as BaseButton).disabled):
+		if is_instance_valid(candidate) and candidate.is_inside_tree() and not candidate.is_queued_for_deletion() and candidate.visible and candidate.focus_mode != Control.FOCUS_NONE and not (candidate is BaseButton and (candidate as BaseButton).disabled):
 			detail_focus = candidate
 			break
 	_category.focus_next = buttons[0].get_path()

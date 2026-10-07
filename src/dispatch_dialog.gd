@@ -15,6 +15,7 @@ var _general_signature: String = ""
 var _army_rows: VBoxContainer
 var _army_inputs: Dictionary = {}
 var _army_labels: Dictionary = {}
+var _army_details: Dictionary = {}
 var _army_stock: Dictionary = {}
 var _mode: OptionButton
 var _occupy_return: CheckBox
@@ -49,6 +50,7 @@ func _ready() -> void:
 	_march_scroll = ScrollContainer.new()
 	_march_scroll.name = "出征"
 	_march_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_march_scroll.follow_focus = true
 	_tabs.add_child(_march_scroll)
 	_march_content = VBoxContainer.new()
 	_march_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -60,6 +62,7 @@ func _ready() -> void:
 	var scout_link: Button = _march_button(_march_content, "先侦察目标", false)
 	scout_link.pressed.connect(show_tab.bind("scout"))
 	_march_label(_march_content, "将领与兵力", "SectionLabel")
+	_march_label(_march_content, "按兵种填写派遣人数，填0则不携带。较慢兵种会影响整队行军，实际耗时以预览为准。", "MutedLabel")
 	_general = OptionButton.new()
 	_general.custom_minimum_size.y = 44
 	_general.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -203,6 +206,7 @@ func receive_quote(payload: Dictionary) -> void:
 	var lines: PackedStringArray = []
 	lines.append("粮草费用 %s · 运载能力 %s" % [_amount(_march_quote.get("foodCost")), _amount(_march_quote.get("carry"))])
 	lines.append("行军 %s · 返城 %s" % [_duration(_march_quote.get("seconds")), _duration(_march_quote.get("returnSeconds"))])
+	lines.append("最慢兵种 %s · 速度 %s" % [_quoted_slowest_name(), _stat_text(_march_quote.get("speed"))])
 	lines.append("预计抵达：" + _arrival_text(_march_quote.get("seconds")))
 	lines.append(reason if not reason.is_empty() else "确认后扣除粮草并派遣，抵达后进入战斗。" if not _march_command.is_empty() else "预览缺少合法命令或费用，请重新预览。")
 	_march_quote_label.text = "\n".join(lines)
@@ -289,6 +293,7 @@ func _sync_march_inputs() -> void:
 			row.add_theme_constant_override("separation", 4)
 			_army_rows.add_child(row)
 			_army_labels[id] = _march_label(row, "")
+			_army_details[id] = _march_label(row, "", "MutedLabel")
 			var count: SpinBox = SpinBox.new()
 			count.min_value = 0
 			count.max_value = available
@@ -302,7 +307,9 @@ func _sync_march_inputs() -> void:
 			count.get_line_edit().text_changed.connect(func(_text: String) -> void: _march_input_changed())
 			_army_inputs[id] = count
 		var spin: SpinBox = _army_inputs[id]
-		_army_labels[id].text = str(unit.get("name", id)) + " · 可用 %d 人" % available
+		_army_labels[id].text = str(unit.get("name", id)) + " · 可分配 %d 人" % available
+		_army_details[id].text = _unit_decision_text(unit)
+		spin.tooltip_text = "填写本次派遣的%s人数；0表示不携带，最多%d人。" % [str(unit.get("name", id)), available]
 		# Only stock changes touch Range. Unchanged polling retains raw typing/focus.
 		if not is_equal_approx(spin.max_value, available):
 			var raw: String = spin.get_line_edit().text.strip_edges()
@@ -315,6 +322,7 @@ func _sync_march_inputs() -> void:
 			_army_inputs[id].get_parent().queue_free()
 			_army_inputs.erase(id)
 			_army_labels.erase(id)
+			_army_details.erase(id)
 			_army_stock.erase(id)
 	_march_setting = false
 
@@ -324,7 +332,34 @@ func _clear_army_inputs() -> void:
 		spin.get_parent().queue_free()
 	_army_inputs.clear()
 	_army_labels.clear()
+	_army_details.clear()
 	_army_stock.clear()
+
+
+func _unit_decision_text(unit: Dictionary) -> String:
+	var stats: Dictionary = _dictionary(unit.get("stats"))
+	var role: Variant = unit.get("role")
+	var role_text: String = role.strip_edges() if role is String else ""
+	return "定位：%s\n射程 %s · 速度 %s" % [role_text if not role_text.is_empty() else "未提供", _stat_text(stats.get("range")), _stat_text(stats.get("speed"))]
+
+
+func _stat_text(value: Variant) -> String:
+	# Only format the supplied statistic. Do not infer a missing value, convert
+	# its unit, or calculate a second version of the server's march rules.
+	if not _number(value) or float(value) < 0.0:
+		return "未提供"
+	return str(int(value)) if float(value) == float(int(value)) else str(value)
+
+
+func _quoted_slowest_name() -> String:
+	var slowest: Variant = _march_quote.get("slowest")
+	if not slowest is String or slowest.strip_edges().is_empty():
+		return "未提供"
+	for unit: Dictionary in _view.get("units", []):
+		if str(unit.get("id", "")) == slowest:
+			var name: String = str(unit.get("name", "")).strip_edges()
+			return name if not name.is_empty() else slowest + "（名称未提供）"
+	return slowest + "（名称未提供）"
 
 
 func _selected_general() -> String:

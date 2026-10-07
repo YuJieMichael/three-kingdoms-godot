@@ -8,6 +8,7 @@ import {reportEconomy} from './report-economy.mjs';
 import {growthView} from './growth-view.mjs';
 import {intelView, scoutingView, scoutMarchesView} from './scouting-view.mjs';
 import {buildingComparisons} from './building-comparison.mjs';
+import {raidTargetsView} from './raid-targets-view.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
@@ -204,6 +205,7 @@ export function gameView(game, now, runtime = null, options = {}) {
     inventoryManagement: inventoryView(runtime, {...options, now})} : {};
   if (runtime) {
     management.growth = growthView(runtime, {...options, now, progression: management.progression});
+    management.raidTargets = raidTargetsView(game, management.growth, {...options, now});
     const selected = management.progression.missions.find(row => row.id === objective.id);
     if (selected) { objective.target = selected.target; objective.rewards = selected.rewards; }
   }
