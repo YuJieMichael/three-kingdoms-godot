@@ -3,10 +3,16 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {createGameRuntime, executeGame, validateInput, gameActions, GameError, copy, runtimeHash, seededRandom} from '../vendor/legacy/online/runtime.mjs';
+import {executeGame, validateInput, gameActions, GameError, copy, seededRandom} from '../vendor/legacy/online/runtime.mjs';
+import {createGameRuntime, runtimeHash} from './world-runtime.mjs';
+import {validWildFields} from './wild-fields.mjs';
 import {gameView, worldView, nodeView} from './dto.mjs';
 import {managementQuote} from './management-quotes.mjs';
-import {executeGrowthSupport, validGrowthSupport} from './growth-support.mjs';
+import {executeGrowthSupport, validGrowthSupport, isGrowthSupportOffer} from './growth-support.mjs';
+import {PracticeSessions} from './practice-session.mjs';
+import {plotPlanKey} from './plot-plan-key.mjs';
+import {executeSupplyCommand, isSupplyCommand, validSupplyWorkshop} from './supply-workshop.mjs';
+import {validConquestSupply, executeConquestSetting, captureConquestContext, settleConquestSupply} from './conquest-supply.mjs';
 
 const MAX_BODY = 16 * 1024 * 1024;
 const RECEIPT_LIMIT = 32;
@@ -73,7 +79,7 @@ async function lockDirectory(dataDir) {
 }
 
 function runtimeFor(snapshot, now, seed = 1) {
-  if (!validGrowthSupport(snapshot)) throw new GameError('BAD_SAVE', '县城筹备兑换记录无效，原文件已保留');
+  if (!validWildFields(snapshot) || !validGrowthSupport(snapshot) || !validConquestSupply(snapshot) || !validSupplyWorkshop(snapshot)) throw new GameError('BAD_SAVE', '筹备或军需记录无效，原文件已保留');
   try { return createGameRuntime({snapshot, now, random: seededRandom(seed)}); }
   catch { throw new GameError('BAD_SAVE', '存档无法通过原游戏规则校验，原文件已保留', 400); }
 }
@@ -144,13 +150,32 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
         stored.receipts.some(r => !object(r) || !commandKey(r.id) || typeof r.fingerprint !== 'string' || !object(r.response)))
       throw new GameError('SAVE_CORRUPT', '桥接存档结构无效，未覆盖原文件', 500);
     importSnapshot(stored.state, clock());
+    const initialized = runtimeFor(stored.state, clock());
+    if (JSON.stringify(initialized.Game.state.wildRefresh) !== JSON.stringify(stored.state.wildRefresh)) {
+      if (stored.revision === Number.MAX_SAFE_INTEGER) throw new GameError('REVISION_LIMIT', '存档版本达到上限', 409);
+      stored = {...stored, revision: stored.revision + 1, state: copy(initialized.Game.state)};
+      await atomicJSON(filename, stored);
+    }
     if (stored.authorityId === undefined) { stored.authorityId = crypto.randomUUID(); await atomicJSON(filename, stored); }
   } catch (error) { await unlock(); throw error; }
 
+  const practices = new PracticeSessions();
   let pending = Promise.resolve();
   const serial = operation => {
     const result = pending.then(operation); pending = result.catch(() => {}); return result;
   };
+  // A field refresh is a persisted authoritative change. It invalidates old previews.
+  async function refreshedRuntime(now) {
+    const runtime = runtimeFor(stored.state, now);
+    if (JSON.stringify(runtime.Game.state.wildRefresh) !== JSON.stringify(stored.state.wildRefresh)) {
+      if (stored.revision === Number.MAX_SAFE_INTEGER) throw new GameError('REVISION_LIMIT', '存档版本达到上限', 409);
+      const candidate = {...stored, revision: stored.revision + 1, state: copy(runtime.Game.state)};
+      await atomicJSON(filename, candidate);
+      stored = candidate;
+    }
+    return runtime;
+  }
+
   const secret = Buffer.from(String(token));
   const authenticated = request => {
     const raw = request.headers.authorization?.replace(/^Bearer\s+/i, '') || request.headers['x-bridge-token'] || '';
@@ -179,14 +204,28 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
       if (request.method === 'OPTIONS') { response.writeHead(204); response.end(); return; }
       const url = new URL(request.url, `http://${request.headers.host || '127.0.0.1'}`);
       const route = url.pathname.startsWith('/api/') ? url.pathname.slice(4) : url.pathname;
-      const apiRoutes = ['/health', '/state', '/world', '/export', '/node', '/quote', '/command', '/import', '/shutdown'];
+      const apiRoutes = ['/health', '/state', '/world', '/export', '/node', '/quote', '/practice', '/command', '/import', '/shutdown'];
       if (apiRoutes.includes(route) && route !== '/health' && secret.length && !authenticated(request)) throw new GameError('UNAUTHORIZED', '本地连接密钥不正确', 401);
       if (request.method === 'GET' && route === '/health') {
         reply(200, {ok: true, protocol: 1, runtimeHash, mode: 'local', authentication: !!secret.length, authorityId: stored.authorityId}); return;
       }
+      if (request.method === 'POST' && route === '/practice') {
+        if ([...url.searchParams.keys()].length) throw new GameError('BAD_PRACTICE_REQUEST', '演练不接受查询参数');
+        // Native callers use the existing bearer guard. Browser practice is
+        // same-origin even when the ordinary local API has additional origins.
+        if (origin) {
+          let originURL;
+          try { originURL = new URL(origin); } catch { throw new GameError('ORIGIN_DENIED', '演练来源无效', 403); }
+          if (originURL.origin !== url.origin)
+            throw new GameError('ORIGIN_DENIED', '借调演练须从同源游戏页面进入', 403);
+        }
+        const input = await readBody(request);
+        const result = await serial(() => practices.execute(input, clock(), stored.authorityId));
+        reply(200, result); return;
+      }
       if (request.method === 'GET' && ['/state', '/world', '/export', '/node'].includes(route)) {
-        const result = await serial(() => {
-          const now = clock(), runtime = runtimeFor(stored.state, now); runtime.Game.tick(now, true); runtime.Game.save();
+        const result = await serial(async () => {
+          const now = clock(), runtime = await refreshedRuntime(now); runtime.Game.tick(now, true); runtime.Game.save();
           if (route === '/world') return {...worldView(runtime.Game, now), revision: stored.revision, serverTime: now, authorityId: stored.authorityId};
           if (route === '/export') return copy(runtime.Game.state);
           if (route === '/node') {
@@ -202,9 +241,9 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
       if (request.method === 'POST' && route === '/quote') {
         if ([...url.searchParams.keys()].length) throw new GameError('BAD_QUOTE', '预览不接受查询参数');
         const input = await readBody(request);
-        const result = await serial(() => {
-          const now = clock(), runtime = runtimeFor(stored.state, now);
-          runtime.Game.tick(now, true);
+        const result = await serial(async () => {
+          const now = clock(), runtime = await refreshedRuntime(now);
+          runtime.Game.tick(now, true); runtime.Game.save();
           return {...managementQuote(runtime, input), revision: stored.revision, serverTime: now, authorityId: stored.authorityId};
         });
         reply(200, result); return;
@@ -219,9 +258,11 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             if (receipt.fingerprint !== fingerprint) throw new GameError('ID_REUSED', '同一操作编号不能用于不同请求', 409);
             return {...copy(receipt.response), authorityId: stored.authorityId, replayed: true};
           }
+          const now = clock();
+          await refreshedRuntime(now);
           if (input.expectedRevision !== stored.revision) throw new GameError('REVISION_CONFLICT', '存档已更新，请刷新后重试', 409);
           if (stored.revision === Number.MAX_SAFE_INTEGER) throw new GameError('REVISION_LIMIT', '存档版本达到上限', 409);
-          const now = clock(); let state, actionResult = null, runtime;
+          let state, actionResult = null, runtime;
           if (operation === 'import') {
             if (Object.keys(input).some(key => !['commandId', 'expectedRevision', 'state'].includes(key))) throw new GameError('BAD_INPUT', '导入请求含不支持的字段');
             state = importSnapshot(input.state, now); runtime = runtimeFor(state, now);
@@ -229,7 +270,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             if (Object.keys(input).some(key => !['commandId', 'expectedRevision', 'type', 'args', 'sourceCity'].includes(key))) throw new GameError('CLIENT_SNAPSHOT_FORBIDDEN', '操作不能替换客户端存档');
             validateInput(input);
             // Also reject inherited namespace names before the legacy dispatcher reads its plain object.
-            if (!gameActions.has(input.type) && !/^(wild|hero|heritage|war|onboarding)\.[a-zA-Z]+$/.test(input.type))
+            if (!gameActions.has(input.type) && !isSupplyCommand(input.type) && input.type !== 'conquest.setEnabled' && !/^(wild|hero|heritage|war|onboarding)\.[a-zA-Z]+$/.test(input.type))
               throw new GameError('COMMAND_NOT_ALLOWED', '服务器不支持此操作');
             if (input.sourceCity !== undefined && (typeof input.sourceCity !== 'string' || input.sourceCity.length > 100)) throw new GameError('BAD_CITY', '出发城市格式无效');
             runtime = runtimeFor(stored.state, now, Number.parseInt(fingerprint.slice(0, 8), 16));
@@ -237,9 +278,35 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             if (!Object.hasOwn(runtime.Game.state.realm.cities, sourceCity)) throw new GameError('CITY_NOT_OWNED', '城市不属于你');
             if (runtime.Game.currentCityId() !== sourceCity) runtime.Game.switchCity(sourceCity);
             if (['dispatch', 'scout', 'dispatchScout'].includes(input.type) && !runtime.Game.landmarkVisible(input.args[0])) throw new GameError('NODE_HIDDEN', '请先完成当前任务据点', 403);
-            const executed = input.type === 'exchangeCopper' && input.args[0] === 'growth_coral' ?
-              executeGrowthSupport(runtime, input, now) : executeGame(stored.state, input, now, null, runtime);
-            state = executed.state; actionResult = executed.result;
+            if (input.type === 'applyPlotTemplate' && input.args.length === 3) {
+              // Match the settled read projection before checking the preview;
+              // expired construction and automation can change the native plan.
+              runtime.Game.tick(now, true);
+              const key = input.args[2], quote = runtime.Game.plotTemplateQuote(input.args[0], input.args[1]);
+              if (typeof key !== 'string' || !/^[a-f0-9]{64}$/.test(key) || key !== plotPlanKey(runtime.Game, quote))
+                throw new GameError('PLAN_CHANGED', '配田方案或受影响田地等级已变化，请重新预览');
+            }
+            let nativeInput = input;
+            if (['dispatch', 'dispatchScout'].includes(input.type)) {
+              // Settle completed returns and release their field protection before
+              // checking the same target descriptor displayed by /world and /quote.
+              runtime.Game.tick(now, true); runtime.Game.save();
+              const target = runtime.Game.getNode(input.args[0]);
+              if (target?.wild) {
+                const nativeLength = input.type === 'dispatch' ? 5 : 3;
+                if (input.args.length !== nativeLength + 1 || input.args.at(-1) !== target.wildKey)
+                  throw new GameError('WILD_REFRESHED', '野地已经刷新或预览已失效，请重新侦察并预览出征', 409);
+                nativeInput = {...input, args: input.args.slice(0, nativeLength)};
+              }
+            }
+            const conquestContext = captureConquestContext(runtime.Game, nativeInput);
+            const executed = input.type === 'conquest.setEnabled' ? executeConquestSetting(runtime, input, now) :
+              isSupplyCommand(input.type) ? executeSupplyCommand(runtime, input, now) :
+              input.type === 'exchangeCopper' && isGrowthSupportOffer(input.args[0]) ?
+              executeGrowthSupport(runtime, input, now) : executeGame(stored.state, nativeInput, now, null, runtime);
+            const conquestReceipt = settleConquestSupply(runtime, conquestContext, now);
+            state = copy(runtime.Game.state);
+            actionResult = conquestReceipt ? {...executed.result, conquestSupply: conquestReceipt} : executed.result;
           }
           const revision = stored.revision + 1;
           const responseValue = {...envelope(state, revision, now, runtime, stored.authorityId), result: copy(actionResult), replayed: false};
@@ -247,6 +314,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             receipts: [...stored.receipts, {id: input.commandId, fingerprint, response: responseValue}].slice(-RECEIPT_LIMIT)};
           if (operation === 'import') await atomicJSON(path.join(dataDir, 'before-import.json'), stored);
           await atomicJSON(filename, candidate); stored = candidate;
+          if (operation === 'import') practices.clear();
           return responseValue;
         });
         reply(200, result); return;
@@ -283,6 +351,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
   const close = async () => {
     if (closed) return; closed = true;
     await pending;
+    practices.clear();
     await new Promise(resolve => server.close(resolve));
     await unlock();
     if (readyFile) await fs.unlink(readyFile).catch(() => {});

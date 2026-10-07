@@ -8,9 +8,26 @@ import {reportEconomy} from './report-economy.mjs';
 import {growthView} from './growth-view.mjs';
 import {intelView, scoutingView, scoutMarchesView} from './scouting-view.mjs';
 import {buildingComparisons} from './building-comparison.mjs';
+import {raidTargetsView} from './raid-targets-view.mjs';
+import {battleReview} from './battle-review.mjs';
+import {campaignView} from './campaign-view.mjs';
+import {conquestSupplyView, conquestReportReceipt} from './conquest-supply.mjs';
+import {wildRefreshView} from './wild-fields.mjs';
+import {plotEffect} from './plot-effects.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
+
+// The last round belongs only to the latest receipt of this still-present,
+// finished battle. Older history entries never inherit a later fight's events.
+function battleForReport(game, report) {
+  const battle = game.state.battle, latest = game.state.reports[0];
+  if (!battle?.finished || !battle.result || !latest || report.id !== latest.id ||
+      report.node !== battle.node || report.general !== battle.general ||
+      report.sourceCity !== battle.sourceCity || report.round !== battle.round) return null;
+  return Object.entries(battle.result).every(([key, value]) =>
+    JSON.stringify(report[key]) === JSON.stringify(value)) ? battle : null;
+}
 
 // Administrative tiers come from the canonical NamedCityData definition via
 // Game's read-only profile. Building levels and map-region centres are not tiers.
@@ -38,7 +55,7 @@ export function nodeView(game, node, now = game.state.last, options = {}) {
     id: node.id, x: node.x, y: node.y, name: node.name,
     terrain: node.terrain || (home ? 'plain' : node.type), tileType: node.type || node.terrain,
     kind: city ? 'city' : node.wild ? 'wild' : 'landmark',
-    level: node.level || 0, owned, hidden: false, selectable: true,
+    level: node.level || 0, owned, hidden: false, selectable: true, wildKey: node.wildKey || null,
     description: node.desc || '', reward: node.reward || '', faction: node.faction || '',
     chapter: node.chapter || null, namedCity: !!node.namedCity, openCity: !!node.openCity,
     ...(city ? cityPresentation(game, node) : {}),
@@ -102,12 +119,13 @@ export function worldView(game, now) {
     tiles.push({id: node.id, x, y, name: node.name,
       terrain: node.terrain || (node.id === 'home' ? 'plain' : node.type), tileType: node.type || node.terrain,
       kind: city ? 'city' : node.wild ? 'wild' : 'landmark',
+      wildKey: node.wildKey || null, description: node.desc || '', reward: node.reward || '',
       level: node.level || 0, owned: node.id === 'home' || !!game.state.conquered[node.id] || !!node.ownCity,
       hidden: false, selectable: true, faction: node.faction || '', namedCity: !!node.namedCity,
       ...(city ? cityPresentation(game, node) : {})});
   }
   return {width: game.WORLD_SIZE, height: game.WORLD_SIZE, home: point(game.currentHome()),
-    tiles, marches: marchesView(game, now)};
+    tiles, marches: marchesView(game, now), wildRefresh: wildRefreshView(game.state)};
 }
 
 export function gameView(game, now, runtime = null, options = {}) {
@@ -140,6 +158,9 @@ export function gameView(game, now, runtime = null, options = {}) {
     return {index, id: plot.type, name: plot.type ? game.buildings[id].name : '空地', level: plot.level,
       unlocked: index < game.unlockedPlots(), cost: copy(record?.cost || {}),
       seconds: record ? game.plotTime(index, id) : 0, queue: queue ? copy(queue) : null,
+      affordable: !!record && game.canPay(record.cost),
+      effect: plot.type ? plotEffect(game, plot, plot.type, plot.level < game.plotMaxLevel() && record ? next : null) : null,
+      constructionEffect: queue ? plotEffect(game, plot, queue.id, queue.level) : null,
       requirement: !record ? '已达最高等级' : game.buildingRequirements(id, next)};
   });
   // Empty land can become any resource type. Its existing farm-default projection
@@ -147,12 +168,12 @@ export function gameView(game, now, runtime = null, options = {}) {
   const plotOptions = Object.keys(game.plotTypes).map(id => {
     const cost = game.buildRecord(id, 1).cost;
     return {id, name: game.buildings[id].name, cost: copy(cost), seconds: game.buildSeconds(id, 1),
-      requirement: game.buildingRequirements(id, 1), affordable: game.canPay(cost)};
+      requirement: game.buildingRequirements(id, 1), affordable: game.canPay(cost), effect: plotEffect(game, null, id, 1)};
   });
   const units = Object.entries(game.units).map(([id, unit]) => ({id, name: unit.name,
     available: state.army[id], cost: game.trainCost(id, 1), seconds: game.trainSeconds(id, 1),
     requirement: game.unitRequirements(id), unlocked: game.unitUnlocked(id),
-    people: unit.people || 1, role: unit.role, stats: copy(game.unitStats(id))}));
+    people: unit.people || 1, role: unit.role, carry: game.carry({[id]: 1}), stats: copy(game.unitStats(id))}));
   const generals = state.generals.map(id => ({...game.general(id), busy: game.generalBusy(id),
     city: game.heroCity(id), governor: state.governor === id, loyalty: state.heroLoyalty[id]}));
   const rates = game.rates(), governor = game.general(state.governor);
@@ -161,6 +182,7 @@ export function gameView(game, now, runtime = null, options = {}) {
       buy: copy(game.tradeQuote(id, true)), sell: copy(game.tradeQuote(id, false))}))};
   const governance = {governorId: state.governor,
     population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),
+    productionPopulation: {current: state.population, required: game.workers()},
     morale: state.morale, unrest: state.unrest, tax: state.tax,
     targetMorale: game.governanceStatus().moraleTarget, goldPerMinute: rates.gold,
     // These two presentation multipliers mirror engine.js productionBoost/buildSeconds.
@@ -201,9 +223,11 @@ export function gameView(game, now, runtime = null, options = {}) {
   const management = runtime ? {
     heroes: heroView(runtime, {...options, now}), progression: progressionView(runtime, {...options, now}),
     warManagement: warView(runtime, {...options, now}), realmManagement: realmView(runtime, {...options, now}),
-    inventoryManagement: inventoryView(runtime, {...options, now})} : {};
+    inventoryManagement: inventoryView(runtime, {...options, now}), campaign: campaignView(runtime, {...options, now}),
+    conquestSupply: conquestSupplyView(runtime, {...options, now})} : {};
   if (runtime) {
     management.growth = growthView(runtime, {...options, now, progression: management.progression});
+    management.raidTargets = raidTargetsView(game, management.growth, {...options, now});
     const selected = management.progression.missions.find(row => row.id === objective.id);
     if (selected) { objective.target = selected.target; objective.rewards = selected.rewards; }
   }
@@ -212,7 +236,7 @@ export function gameView(game, now, runtime = null, options = {}) {
   const safeCities = cities => cities.map(city => ({...copy(city),
     scoutQueue: scoutMarches.filter(march => march.sourceCity === city.id).map(march => copy(march))}));
   if (management.realmManagement) management.realmManagement.cities = safeCities(management.realmManagement.cities);
-  return {...management, scouting: scoutingView(game, now, options), res: copy(state.res), gold: state.res.gold, gems: state.gems,
+  return {...management, wildRefresh: wildRefreshView(state), scouting: scoutingView(game, now, options), res: copy(state.res), gold: state.res.gold, gems: state.gems,
     caps: Object.fromEntries(Object.keys(game.resources).map(id => [id, game.capacity(id)])),
     rates: copy(rates), rateUnit: 'per-minute', city: copy(game.cityMeta()), cityList: safeCities(game.cityList()),
     population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),
@@ -225,7 +249,10 @@ export function gameView(game, now, runtime = null, options = {}) {
     queueLimits: {build: game.buildLimit(), train: game.trainingLimit()},
     objective, generals, nodes: game.nodes.filter(node => game.landmarkVisible(node.id)).map(node => nodeView(game, game.getNode(node.id), now, options)),
     marches: marchesView(game, now, options), battle: copy(game.currentBattle()),
-    reports: runtime ? state.reports.map(report => ({...copy(report), economy: reportEconomy(runtime, report)})) : copy(state.reports),
+    reports: state.reports.map(report => ({...copy(report),
+      ...(runtime && !options.shared ? {conquestSupply: conquestReportReceipt(runtime, report)} : {}),
+      ...(runtime ? {economy: reportEconomy(runtime, report)} : {}),
+      review: battleReview(report, {battle: battleForReport(game, report)})})),
     gifts: {available: game.onboarding.available(state), claimed: copy(state.onboarding.claims)},
   };
 }

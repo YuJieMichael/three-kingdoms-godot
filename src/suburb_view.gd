@@ -4,6 +4,7 @@ extends Control
 ## The landscape is presentation only. Availability, identity and levels are bridge data.
 signal plot_selected(index: int)
 
+const PlotArt: Script = preload("res://src/resource_plot_art.gd")
 const CHINESE_FONT: Font = preload("res://assets/fonts/UI.tres")
 const TEXT: Color = Color("efe7d5")
 const MUTED: Color = Color("c8c4ae")
@@ -23,6 +24,8 @@ var _capacity: int = 12
 var _mobile_slot_columns: int = 2
 var _wide_slot_columns: int = 3
 var _selected: int = -1
+var _focus_index: int = -1
+var _keyboard_focus: bool = false
 var _hover: int = -1
 var _city: String = ""
 var _touches: Dictionary = {}
@@ -36,8 +39,11 @@ var _touch_cancelled: bool = false
 func _ready() -> void:
 	# Unhandled presses and drags must reach the enclosing ScrollContainer.
 	mouse_filter = Control.MOUSE_FILTER_PASS
+	focus_mode = Control.FOCUS_ALL
+	focus_entered.connect(_on_focus_entered)
+	focus_exited.connect(queue_redraw)
 	clip_contents = true
-	tooltip_text = "点击实际地块，查看建设、等级与费用"
+	tooltip_text = "点击地块查看建设 · Tab 聚焦地块，方向键选择，Enter 查看"
 	mouse_exited.connect(func() -> void:
 		_hover = -1
 		queue_redraw())
@@ -50,6 +56,8 @@ func set_view(view: Dictionary) -> void:
 		_site_slots.clear()
 		_wide_site_slots.clear()
 		_selected = -1
+		_focus_index = -1
+		_keyboard_focus = false
 		_capacity = 12
 		_clear_touch_gesture()
 	_view = view.duplicate(true)
@@ -65,8 +73,8 @@ func set_view(view: Dictionary) -> void:
 	# A parcel's location depends only on its canonical index, including across UI recreation.
 	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.index) < int(b.index))
-	var mobile_columns: int = 3 if _capacity > 12 else 2
-	var wide_columns: int = 4 if _capacity > 12 else 3
+	var mobile_columns: int = 2
+	var wide_columns: int = 4
 	_mobile_slot_columns = mobile_columns
 	_wide_slot_columns = wide_columns
 	_assign_slots(rows, _site_slots, mobile_columns)
@@ -78,10 +86,15 @@ func set_view(view: Dictionary) -> void:
 	_hit_boxes.clear()
 	_hit_records.clear()
 	_update_minimum_height()
+	_rebuild_hit_boxes()
+	if has_focus() and _keyboard_focus:
+		call_deferred("_scroll_focus_into_view")
 	queue_redraw()
 
 func select_plot(index: int) -> void:
 	_selected = index if _plots_by_index.has(index) else -1
+	if _selected >= 0:
+		_focus_index = _selected
 	queue_redraw()
 
 func selected_plot() -> int:
@@ -90,6 +103,9 @@ func selected_plot() -> int:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
 		_update_minimum_height()
+		_rebuild_hit_boxes()
+		if has_focus() and _keyboard_focus:
+			call_deferred("_scroll_focus_into_view")
 		queue_redraw()
 	elif what == NOTIFICATION_VISIBILITY_CHANGED and not is_visible_in_tree():
 		_clear_touch_gesture()
@@ -102,7 +118,7 @@ func _update_minimum_height() -> void:
 func recommended_minimum_height(width: float) -> float:
 	var columns: int = _wide_slot_columns if width >= 530.0 else _mobile_slot_columns
 	var row_count: int = int(ceil(float(_capacity) / float(columns)))
-	var row_height: float = 58.0 if _capacity > 12 else 77.0 if columns == 2 else 83.0
+	var row_height: float = 172.0
 	return maxf(430.0, 140.0 + float(row_count) * row_height)
 
 func _kind(row: Dictionary) -> String:
@@ -111,30 +127,19 @@ func _kind(row: Dictionary) -> String:
 		return "empty"
 	return str({"lumber": "wood", "quarry": "stone", "mine": "iron"}.get(str(value), str(value)))
 
-func _assign_slots(rows: Array[Dictionary], slots: Dictionary, columns: int) -> void:
+func _assign_slots(rows: Array[Dictionary], slots: Dictionary, _columns: int) -> void:
 	slots.clear()
-	var order: Array[int] = []
-	var row_count: int = int(ceil(float(_capacity) / float(columns)))
-	for row: int in range(row_count - 1, -1, -1):
-		for column: int in range(columns):
-			var slot: int = row * columns + column
-			if slot < _capacity:
-				order.append(slot)
-	var used: Dictionary = {}
 	for row: Dictionary in rows:
-		var index: int = int(row.index)
-		var seed: int = index % _capacity
-		for offset: int in range(_capacity):
-			var slot: int = order[(seed + offset) % _capacity]
-			if not used.has(slot):
-				slots[index] = slot
-				used[slot] = true
-				break
+		slots[int(row.index)] = int(row.index)
 
 func _gui_input(event: InputEvent) -> void:
+	if _handle_focus_input(event):
+		return
 	# Native touch owns tap recognition. Its compatibility mouse events still bubble.
 	if (event is InputEventMouseMotion or event is InputEventMouseButton) and event.device == InputEvent.DEVICE_ID_EMULATION:
 		return
+	if (event is InputEventMouseButton and event.pressed) or event is InputEventScreenTouch or event is InputEventScreenDrag:
+		_keyboard_focus = false
 	if event is InputEventMouseMotion:
 		var next: int = _plot_at(event.position)
 		if next != _hover:
@@ -151,6 +156,98 @@ func _gui_input(event: InputEvent) -> void:
 			_touches[event.index] = event.position
 			if event.index == _touch_index:
 				_record_touch_motion(event.position)
+
+func _on_focus_entered() -> void:
+	_repair_focus_index()
+	queue_redraw()
+	if Input.is_action_pressed("ui_focus_next") or Input.is_action_pressed("ui_focus_prev"):
+		_keyboard_focus = true
+		call_deferred("_scroll_focus_into_view")
+
+func _repair_focus_index() -> void:
+	if _hit_boxes.has(_focus_index):
+		return
+	if _hit_boxes.has(_selected):
+		_focus_index = _selected
+		return
+	var indices: Array = _hit_boxes.keys()
+	indices.sort_custom(func(a: Variant, b: Variant) -> bool:
+		var first: Vector2 = (_hit_boxes[a] as Rect2).get_center()
+		var second: Vector2 = (_hit_boxes[b] as Rect2).get_center()
+		return first.x < second.x if absf(first.y - second.y) < 8.0 else first.y < second.y)
+	_focus_index = int(indices[0]) if not indices.is_empty() else -1
+
+func _handle_focus_input(event: InputEvent) -> bool:
+	if not has_focus() or not (event is InputEventKey or event is InputEventJoypadButton or event is InputEventJoypadMotion):
+		return false
+	# Leave Tab and Shift+Tab to Godot's normal control focus traversal.
+	if event.is_action("ui_focus_next") or event.is_action("ui_focus_prev"):
+		return false
+	_repair_focus_index()
+	if event.is_action_pressed("ui_accept"):
+		_keyboard_focus = true
+		# The existing signal opens the cost/level preview, never spends resources.
+		_activate(_focus_index)
+		accept_event()
+		return true
+	var direction: Vector2 = Vector2.ZERO
+	for binding: Array in [["ui_left", Vector2.LEFT], ["ui_right", Vector2.RIGHT], ["ui_up", Vector2.UP], ["ui_down", Vector2.DOWN]]:
+		if event.is_action_pressed(str(binding[0]), true):
+			direction = binding[1]
+			break
+	if direction == Vector2.ZERO:
+		return false
+	_keyboard_focus = true
+	if _hit_boxes.has(_focus_index):
+		var origin: Vector2 = (_hit_boxes[_focus_index] as Rect2).get_center()
+		var best_index: int = _focus_index
+		var best_score: float = INF
+		for index: int in _hit_boxes:
+			var offset: Vector2 = (_hit_boxes[index] as Rect2).get_center() - origin
+			var forward: float = offset.dot(direction)
+			if forward <= 8.0:
+				continue
+			var sideways: float = absf(offset.cross(direction))
+			var score: float = forward + sideways * 4.0
+			if score < best_score:
+				best_score = score
+				best_index = index
+		_focus_index = best_index
+		queue_redraw()
+		call_deferred("_scroll_focus_into_view")
+	# Edges stop movement; they do not leak arrow input into another panel.
+	accept_event()
+	return true
+
+func _scroll_focus_into_view() -> void:
+	if not has_focus() or not _keyboard_focus or not is_visible_in_tree() or not _hit_boxes.has(_focus_index):
+		return
+	var ancestor: Node = get_parent()
+	while ancestor != null and not ancestor is ScrollContainer:
+		ancestor = ancestor.get_parent()
+	if not ancestor is ScrollContainer:
+		return
+	var scroller: ScrollContainer = ancestor as ScrollContainer
+	var rect: Rect2 = _hit_boxes[_focus_index]
+	var transform: Transform2D = scroller.get_global_transform().affine_inverse() * get_global_transform()
+	var top: float = (transform * rect.position).y
+	var bottom: float = (transform * rect.end).y
+	var inset: float = 14.0
+	if top < inset:
+		scroller.scroll_vertical += floori(top - inset)
+	elif bottom > scroller.size.y - inset:
+		scroller.scroll_vertical += ceili(bottom - scroller.size.y + inset)
+
+func _draw_focus_cursor() -> void:
+	if not has_focus() or not _hit_boxes.has(_focus_index):
+		return
+	var rect: Rect2 = (_hit_boxes[_focus_index] as Rect2).grow(-2.0)
+	draw_rect(rect, Color("18271f"), false, 5.0)
+	draw_rect(rect, Color("f3edcb"), false, 2.0)
+	for corner: Vector2 in [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]:
+		var toward: Vector2 = (rect.get_center() - corner).sign()
+		draw_line(corner, corner + Vector2(toward.x * 10.0, 0.0), GOLD, 4.0)
+		draw_line(corner, corner + Vector2(0.0, toward.y * 10.0), GOLD, 4.0)
 
 func _handle_touch(touch: InputEventScreenTouch) -> void:
 	if touch.pressed:
@@ -201,6 +298,7 @@ func _activate(index: int) -> void:
 	if index < 0 or not _plots_by_index.has(index):
 		return
 	_selected = index
+	_focus_index = index
 	plot_selected.emit(index)
 	accept_event()
 	queue_redraw()
@@ -211,7 +309,7 @@ func _plot_at(point: Vector2) -> int:
 			return index
 	return -1
 
-func _draw() -> void:
+func _rebuild_hit_boxes() -> void:
 	if size.x < 30.0 or size.y < 30.0:
 		return
 	_hit_boxes.clear()
@@ -222,19 +320,28 @@ func _draw() -> void:
 	var columns: int = _wide_slot_columns if w >= 530.0 else _mobile_slot_columns
 	var row_count: int = int(ceil(float(_capacity) / float(columns)))
 	var map: Rect2 = Rect2(9.0, 72.0, w - 18.0, h - 140.0)
-	_draw_landscape(w, h, map)
 	var slots: Dictionary = _wide_site_slots if w >= 530.0 else _site_slots
 	for index: int in _plots_by_index:
 		var slot: int = int(slots.get(index, 0))
 		var row: int = int(slot / columns)
 		var column: int = slot % columns
-		var cell: Vector2 = Vector2(map.size.x / float(columns), map.size.y / float(row_count))
-		var jitter: Vector2 = Vector2(sin(float(slot) * 2.7) * 3.0, cos(float(slot) * 1.8) * (1.0 if _capacity > 12 else 3.0))
+		var cell: Vector2 = Vector2(map.size.x / float(columns), 172.0)
+		var jitter: Vector2 = Vector2(sin(float(slot) * 2.7) * minf(9.0, cell.x * 0.035), cos(float(slot) * 1.8) * 5.0)
 		var margins: Vector2 = Vector2(14.0, 8.0 if _capacity > 12 else 12.0)
 		var rect: Rect2 = Rect2(map.position + Vector2(float(column) * cell.x, float(row) * cell.y) + Vector2(7.0, 3.0 if _capacity > 12 else 5.0) + jitter, cell - margins)
 		_hit_boxes[index] = rect
 		_hit_records[index] = _plots_by_index[index].duplicate(true)
 		_site_positions[index] = rect.get_center()
+	_repair_focus_index()
+
+func _draw() -> void:
+	if size.x < 30.0 or size.y < 30.0:
+		return
+	_rebuild_hit_boxes()
+	var w: float = size.x
+	var h: float = size.y
+	var map: Rect2 = Rect2(9.0, 72.0, w - 18.0, h - 140.0)
+	_draw_landscape(w, h, map)
 	# Paths connect visible actual parcels to the gate; they grant no rule effects.
 	for index: int in _hit_boxes:
 		var rect: Rect2 = _hit_boxes[index]
@@ -256,6 +363,7 @@ func _draw() -> void:
 		_draw_site(index, _plots_by_index[index], _hit_boxes[index])
 	_draw_gate(Vector2(w * 0.50, h - 27.0), minf(w * 0.14, 66.0))
 	_draw_headings(w, h)
+	_draw_focus_cursor()
 
 func _draw_landscape(w: float, h: float, map: Rect2) -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), EARTH)
@@ -306,53 +414,49 @@ func _road_x(y: float, w: float, h: float) -> float:
 	return w * (0.50 + sin((y / h) * 5.6) * 0.034)
 
 func _draw_site(index: int, row: Dictionary, rect: Rect2) -> void:
-	var kind: String = _kind(row)
-	var ground: Rect2 = Rect2(rect.position + Vector2(4.0, 7.0), rect.size - Vector2(8.0, 29.0))
-	var base: Vector2 = ground.position + Vector2(ground.size.x * 0.5, ground.size.y * 0.75)
 	var selected: bool = index == _selected
-	if selected or index == _hover:
-		_oval(ground.get_center(), Vector2(ground.size.x * 0.55, ground.size.y * 0.55), Color(0.87, 0.75, 0.46, 0.18))
-	if kind == "farm":
-		_draw_farm(ground, index)
-	elif kind == "wood":
-		_draw_woodlot(ground)
-	elif kind == "stone":
-		_draw_quarry(ground)
-	elif kind == "iron":
-		_draw_ironworks(ground)
+	var active: bool = selected or index == _hover
+	if active:
+		var halo: PackedVector2Array = PackedVector2Array()
+		for i: int in range(33):
+			var angle: float = TAU * float(i) / 32.0
+			halo.append(rect.position + rect.size * Vector2(0.5,0.54) + Vector2(cos(angle) * rect.size.x * 0.43, sin(angle) * rect.size.y * 0.28))
+		draw_colored_polygon(halo, Color(GOLD, 0.12))
+		draw_polyline(halo, GOLD if selected else Color(TEXT,0.5), 2.0, true)
+	var art_id: String = str(row.get("id", "")) if row.get("id") != null else ""
+	var job: Variant = row.get("queue")
+	if art_id.is_empty() and job is Dictionary:
+		art_id = str(job.get("id", ""))
+	var texture: Texture2D = PlotArt.texture(art_id)
+	var art_rect: Rect2 = Rect2(rect.position + Vector2(8, 7), Vector2(rect.size.x - 16, rect.size.y - 57))
+	if texture != null:
+		var ratio: float = minf(art_rect.size.x / texture.get_width(), art_rect.size.y / texture.get_height())
+		var dimensions: Vector2 = texture.get_size() * ratio
+		draw_texture_rect(texture, Rect2(art_rect.get_center() - dimensions * 0.5, dimensions), false)
 	else:
-		_draw_unbuilt(ground, index)
-	if row.get("queue") != null:
-		# A work marker reports an actual queue, without inventing production motion.
-		var marker: Vector2 = base + Vector2(ground.size.x * 0.31, -ground.size.y * 0.62)
-		draw_line(marker, marker + Vector2(0, 20), Color("62513c"), 2.0)
-		_polygon([marker, marker + Vector2(12, 3), marker + Vector2(10, 11), marker + Vector2(0, 9)], Color("b9a36e"))
-	if selected:
-		var outline: PackedVector2Array = PackedVector2Array()
-		for i: int in range(25):
-			var angle: float = TAU * float(i) / 24.0
-			outline.append(ground.get_center() + Vector2(cos(angle) * ground.size.x * 0.54, sin(angle) * ground.size.y * 0.56))
-		draw_polyline(outline, GOLD, 2.0, true)
-	var constructed: bool = kind != "empty"
+		_draw_unbuilt(art_rect, index)
 	var name: String = str(row.get("name", "空地"))
-	var label: String = "%d %s · %d级" % [index + 1, name, int(row.get("level", 0))] if constructed else "%d 空地 · 未建" % (index + 1)
-	if row.get("queue") != null:
-		label = "%d %s · 建设中" % [index + 1, name]
-	if rect.size.x < 105.0:
-		label = "%d%s·%d级" % [index + 1, name, int(row.get("level", 0))] if constructed else "%d空地·未建" % (index + 1)
-		if row.get("queue") != null:
-			label = "%d%s·在建" % [index + 1, name]
-	var font_size: int = 11 if rect.size.x < 105.0 else 13 if size.x >= 530.0 else 12
-	label = _elide(label, rect.size.x - 10.0, font_size)
-	var text_width: float = CHINESE_FONT.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var plaque: Rect2 = Rect2(Vector2(rect.get_center().x - text_width * 0.5 - 3.0, rect.end.y - 19.0), Vector2(text_width + 6.0, 18.0))
-	if selected or index == _hover:
-		draw_rect(plaque, Color(0.18, 0.21, 0.17, 0.72))
-	if selected:
-		draw_line(plaque.position, plaque.position + Vector2(plaque.size.x, 0), GOLD, 2.0)
-	var baseline: Vector2 = plaque.position + Vector2(3.0, 14.0)
-	draw_string_outline(CHINESE_FONT, baseline, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 2, Color(0.19, 0.22, 0.17, 0.91))
-	_text(baseline, label, font_size, GOLD if selected else TEXT if constructed else MUTED)
+	if row.get("id") == null and job is Dictionary:
+		name = {"farm":"农田", "lumber":"伐木场", "quarry":"采石场", "mine":"铁矿"}.get(art_id, "空地")
+	var label: String = "%s%s" % [name, " · %d级" % int(row.get("level", 0)) if row.get("id") != null else ""]
+	_floating_caption(rect, label, rect.end.y - 32, GOLD if selected else TEXT)
+	var effect: Variant = row.get("effect")
+	var benefit: String = "点击选择资源产业"
+	if effect is Dictionary:
+		benefit = "%s +%.1f /小时" % [effect.get("resourceName", "产量"), float(effect.get("currentPerHour", 0))]
+		if float(effect.get("currentPerHour", 0)) <= 0 and float(effect.get("laborRatioAfter", 1)) < 1:
+			benefit = "缺少人口 · 先发展民房"
+	if job is Dictionary:
+		benefit = "升级中 · " + benefit if row.get("id") != null else "施工中 · 完成后开始产出"
+	if active or job is Dictionary:
+		_floating_caption(rect, benefit, rect.end.y - 11, MUTED)
+
+func _floating_caption(rect: Rect2, value: String, baseline: float, color: Color) -> void:
+	var text: String = _elide(value, rect.size.x - 12, 14)
+	var width: float = CHINESE_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	var point: Vector2 = Vector2(rect.get_center().x - width * 0.5, baseline)
+	draw_rect(Rect2(point - Vector2(5,14), Vector2(width + 10,20)), Color(0.15,0.19,0.13,0.8))
+	_text(point, text, 14, color)
 
 func _draw_farm(rect: Rect2, index: int) -> void:
 	var p: Vector2 = rect.position
@@ -422,19 +526,17 @@ func _draw_ironworks(rect: Rect2) -> void:
 		_oval(p + Vector2(d.x * 0.16 + float(i % 3) * 7.0, d.y * 0.88 - float(i / 3) * 4.0), Vector2(5, 3), Color("5e5b4e"))
 
 func _draw_unbuilt(rect: Rect2, index: int) -> void:
-	var p: Vector2 = rect.position
-	var d: Vector2 = rect.size
-	_polygon([p + Vector2(d.x * 0.05, d.y * 0.13), p + Vector2(d.x * 0.90, 0), p + Vector2(d.x, d.y * 0.88), p + Vector2(0, d.y)], Color("929076"))
-	for i: int in range(6):
-		var grass: Vector2 = p + Vector2(d.x * (0.13 + float(i % 3) * 0.31), d.y * (0.37 + float(i / 3) * 0.34))
-		draw_line(grass, grass + Vector2(-2, -4), Color("667451"), 1.0)
-		draw_line(grass, grass + Vector2(2, -5), Color("737e57"), 1.0)
-	for corner: Vector2 in [p + Vector2(d.x * 0.05, d.y * 0.13), p + Vector2(d.x * 0.90, 0), p + Vector2(d.x, d.y * 0.88), p + Vector2(0, d.y)]:
-		draw_line(corner, corner - Vector2(0, 6), Color("c0ab7f"), 2.0)
-	var stake: Vector2 = p + Vector2(d.x * 0.51, d.y * 0.58)
-	draw_line(stake, stake + Vector2(0, 10), Color("6e6047"), 2.0)
-	draw_rect(Rect2(stake - Vector2(10, 9), Vector2(20, 12)), Color("c2b58e"))
-	_text(stake + Vector2(-7.0, 1.0), str(index + 1), 10, Color("484c3c"))
+	var texture: Texture2D = PlotArt.open_land(index)
+	var dimensions: Vector2 = Vector2.ZERO
+	if texture != null:
+		var ratio: float = minf(rect.size.x * 0.74 / texture.get_width(), rect.size.y * 0.88 / texture.get_height())
+		dimensions = texture.get_size() * ratio
+		draw_texture_rect(texture, Rect2(rect.get_center() - dimensions * 0.5, dimensions), false, Color(1,1,1,0.78))
+	var stake: Vector2 = rect.get_center() + Vector2(0, dimensions.y * 0.14)
+	draw_line(stake, stake + Vector2(0, 14), Color("6e6047"), 3.0)
+	draw_rect(Rect2(stake - Vector2(13, 10), Vector2(26, 16)), Color("c2b58e"))
+	_text(stake + Vector2(-7, 3), "+", 16, Color("484c3c"))
+
 
 func _draw_house(base: Vector2, dimensions: Vector2, thatch: bool) -> void:
 	var w: float = dimensions.x
@@ -475,11 +577,19 @@ func _draw_headings(w: float, h: float) -> void:
 		if counts.has(kind):
 			counts[kind] += 1
 	var summary: String = "田 %d · 林 %d · 石 %d · 铁 %d · 空 %d" % [counts.farm, counts.wood, counts.stone, counts.iron, counts.empty]
+	var labor: Dictionary = _view.get("governance", {}).get("productionPopulation", {})
+	if not labor.is_empty():
+		summary += " · 人口 %.0f /生产需 %.0f" % [float(labor.get("current", 0)), float(labor.get("required", 0))]
+		if float(labor.get("current", 0)) < float(labor.get("required", 0)):
+			summary += "（人口不足，先建设民房）"
 	_text(Vector2(14, 48), _elide(summary, w - 28.0, 13), 13, MUTED)
 	draw_rect(Rect2(0, h - 18, w, 18), Color("3d483d"))
 	var hint: String = "点击地块查看建设 · 可用 %d 块" % _plots_by_index.size()
 	if _plots_by_index.is_empty():
 		hint = "暂无已解锁地块"
+	elif has_focus() and _plots_by_index.has(_focus_index):
+		var row: Dictionary = _plots_by_index[_focus_index]
+		hint = "地块 %d · %s · 方向键选择 / Enter 查看" % [_focus_index + 1, str(row.get("name", "空地"))]
 	_text(Vector2(12, h - 4), _elide(hint, w - 24.0, 12), 12, TEXT)
 
 func _elide(value: String, width: float, font_size: int) -> String:

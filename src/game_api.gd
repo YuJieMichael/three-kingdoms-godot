@@ -11,6 +11,8 @@ signal export_received(snapshot: Dictionary)
 signal command_completed(type: String, payload: Dictionary)
 signal mode_changed(mode: String)
 signal quote_received(payload: Dictionary)
+signal practice_received(payload: Dictionary)
+signal practice_failed(message: String, code: String)
 
 var base_url: String = "http://127.0.0.1:17337"
 var token: String = ""
@@ -160,6 +162,20 @@ func fetch_export() -> void:
 		request_failed.emit("共享演练进度由服务器保存，不能导出个人存档")
 		return
 	_enqueue("export", HTTPClient.METHOD_GET)
+
+func request_practice(input: Dictionary) -> void:
+	# Practice uses a separate RAM-only session and never enters the campaign
+	# journal. The caller retains the exact request ID for an explicit retry.
+	if mode != "local" or not connected:
+		practice_failed.emit("请连接本机进度后开启借调演练。", "CLIENT_UNAVAILABLE")
+		return
+	if _has_mutation():
+		practice_failed.emit("请等待正式城池操作确认后再演练。", "CLIENT_CAMPAIGN_PENDING")
+		return
+	if str(_current.get("path", "")) == "practice" or _queue.any(func(row: Dictionary) -> bool: return str(row.get("path", "")) == "practice"):
+		practice_failed.emit("上一项演练操作正在确认。", "CLIENT_PRACTICE_PENDING")
+		return
+	_enqueue("practice", HTTPClient.METHOD_POST, input.duplicate(true))
 
 func refresh() -> void:
 	_enqueue("state", HTTPClient.METHOD_GET)
@@ -465,6 +481,11 @@ func _on_completed(result: int, code: int, _headers: PackedStringArray, bytes: P
 		_fail_transport("规则服务返回了无效数据，可重连后核对操作")
 		return
 	var payload: Dictionary = parsed
+	if str(request.path) == "practice" and code >= 400 and code not in [401, 403]:
+		var detail: Variant = payload.get("error", {})
+		practice_failed.emit(str(detail.get("message", "演练请求未确认")) if detail is Dictionary else str(detail), str(detail.get("code", "INTERNAL_ERROR")) if detail is Dictionary else "INTERNAL_ERROR")
+		_pump()
+		return
 	if code >= 500:
 		_current = request
 		_fail_transport("规则服务未确认操作，可重连后核对")
@@ -486,6 +507,11 @@ func _on_completed(result: int, code: int, _headers: PackedStringArray, bytes: P
 		_pump()
 		return
 	match str(request.path):
+		"practice":
+			if mode != "local" or not _accept_snapshot_identity(payload) or str(payload.get("requestId", "")) != str(request.body.get("requestId", "")):
+				practice_failed.emit("演练身份或回执已变化，请重新连接本机进度。", "UNCONFIRMED_IDENTITY")
+			else:
+				practice_received.emit(payload)
 		"health":
 			if not _accept_health(payload):
 				return

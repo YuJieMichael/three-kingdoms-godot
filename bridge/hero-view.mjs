@@ -8,6 +8,10 @@ export function heroView(runtime, {shared = false} = {}) {
     const general = game.general(id), busy = busyReason(id), drill = hero.drillQuote(s, id);
     return {...general, id, city: game.heroCity(id), busy: !!busy, reason: busy,
       loyalty: hero.wild.loyalty(s, id), points: hero.remaining(s, id), allocated: copy(s.heroPoints[id]),
+      specialization: {profile: copy(game.generalGrowth.profile(s, id)),
+        statBonus: copy(game.generalGrowth.statBonus(s, id)),
+        routes: game.generalGrowth.routes.map(route => ({...copy(route),
+          quote: copy(game.generalGrowth.trainQuote(s, id, route.id, {generalBusy: game.generalBusy}))}))},
       drill: {...drill, reason: busy || (s.buildings.drill < 1 ? '请先建造校场' : general.level >= 10000 ? '将领已达最高等级' : drill.used >= 3 ? '今日已操练 3 次，北京时间 05:00 重置' : s.res.gold < drill.cost ? '黄金不足' : '')},
       rewards: ['gold', 'jewels'].map(method => hero.wild.rewardQuote(s, id, method)),
       salary: game.salaryQuote(id)};

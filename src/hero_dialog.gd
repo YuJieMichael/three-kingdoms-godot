@@ -5,8 +5,8 @@ signal command_requested(type: String, args: Array)
 signal focus_requested(x: int, y: int)
 signal dispatch_requested(node_id: String)
 
-const TITLES: Dictionary = {"generals": "将领培养", "wild": "野将线索", "captives": "俘将招降", "equipment": "装备工坊"}
-const RES_NAMES: Dictionary = {"gold": "黄金", "food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "pearls": "强化宝珠"}
+const TITLES: Dictionary = {"generals": "将领培养", "specializations": "专长训练", "wild": "野将线索", "captives": "俘将招降", "equipment": "装备工坊"}
+const RES_NAMES: Dictionary = {"gold": "黄金", "food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "pearls": "强化宝珠", "merit": "军功"}
 var _view: Dictionary = {}
 var _section: String = "generals"
 var _connected: bool = true
@@ -148,7 +148,7 @@ func _button(text: String, callback: Callable) -> Button:
 	var button: Button = Button.new()
 	button.text = text
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	button.custom_minimum_size.y = 38
+	button.custom_minimum_size.y = 44
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	return button
@@ -198,6 +198,8 @@ func _execute(provider: Callable) -> void:
 		show_error(str(quote.reason))
 		return
 	match str(quote.get("type", "")):
+		"section": show_section(str(quote.args[0]), _view)
+		"specialization": _confirm_specialization(str(quote.args[0]))
 		"focus":
 			focus_requested.emit(int(quote.args[0]), int(quote.args[1]))
 		"dispatch":
@@ -238,6 +240,7 @@ func _build() -> void:
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_child(_body)
 	match _section:
+		"specializations": _build_specializations()
 		"wild": _build_wild()
 		"captives": _build_captives()
 		"equipment": _build_equipment()
@@ -250,7 +253,7 @@ func _selector(rows: Array, selected: Variant, changed: Callable) -> OptionButto
 	var control: OptionButton = OptionButton.new()
 	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	control.clip_text = true
-	control.custom_minimum_size.y = 38
+	control.custom_minimum_size.y = 44
 	for row: Dictionary in rows:
 		control.add_item(str(row.name))
 		control.set_item_metadata(control.item_count - 1, row.id)
@@ -299,6 +302,7 @@ func _build_generals() -> void:
 	if _hero().is_empty():
 		_body.add_child(_label("暂时没有将领，请前往客栈招募。"))
 		return
+	_action(func() -> Dictionary: return _command("选择专长 · 骑军／弓军／攻城／内政", "section", ["specializations"], ""))
 	_info(func() -> String:
 		var h: Dictionary = _hero()
 		return "%s · %d级 · 忠诚 %d\n勇武 %s · 统御 %s · 内政 %s · 智谋 %s · 统率 %s\n可分配属性点 %d%s" % [h.get("name", ""), int(h.get("level", 1)), int(h.get("loyalty", 80)), _attribute(h.get("atk", 0)), _attribute(h.get("def", 0)), _attribute(h.get("pol", 0)), _attribute(h.get("wis", 0)), _attribute(h.get("lead", 0)), int(h.get("points", 0)), _note(h)])
@@ -352,6 +356,60 @@ func _build_generals() -> void:
 		var item: Dictionary = _find("items", _selected_item)
 		return "%s ×%d\n%s" % [item.get("name", "暂无可赠送宝物"), int(item.get("count", 0)), item.get("description", "")])
 	_action(func() -> Dictionary: return _command("赠送所选宝物", "useItem", [_selected_item, _selected_hero], "没有可赠送宝物" if _find("items", _selected_item).is_empty() else ""))
+
+
+func _specialization_route(id: String) -> Dictionary:
+	for route: Dictionary in _hero().get("specialization", {}).get("routes", []):
+		if str(route.get("id", "")) == id:
+			return route
+	return {}
+
+
+func _build_specializations() -> void:
+	_hero_control()
+	_body.add_child(_label("四条专长互斥。首次学习确定培养方向，升级继续强化该方向；现有属性加点重置不会更换专长。", 15))
+	_info(func() -> String:
+		var specialization: Dictionary = _hero().get("specialization", {})
+		var profile: Dictionary = specialization.get("profile", {})
+		var route: Dictionary = _specialization_route(str(profile.get("route", "")))
+		return "%s · 当前专长 %s\n可用军功 %d" % [str(_hero().get("name", "请选择将领")), str(route.get("name", "未选择")) + (" %d级" % int(profile.get("level", 0)) if int(profile.get("level", 0)) > 0 else ""), int(_view.get("campaign", {}).get("merit", 0))])
+	for route: Dictionary in _hero().get("specialization", {}).get("routes", []):
+		var id: String = str(route.id)
+		_body.add_child(_label(str(route.name), 19))
+		_info(func() -> String:
+			var current: Dictionary = _specialization_route(id)
+			var quote: Dictionary = current.get("quote", {})
+			return str(current.get("description", "")) + "\n本次训练：" + _cost(quote.get("cost", {})) + _note(quote))
+		_action(func() -> Dictionary:
+			var quote: Dictionary = _specialization_route(id).get("quote", {})
+			return _command("预览并选择" + str(_specialization_route(id).get("name", "专长")), "specialization", [id], str(quote.get("reason", "请选择将领"))))
+
+
+func _confirm_specialization(route_id: String) -> void:
+	var route: Dictionary = _specialization_route(route_id)
+	var quote: Dictionary = route.get("quote", {})
+	if quote.is_empty() or not str(quote.get("reason", "")).is_empty():
+		show_error(str(quote.get("reason", "当前专长报价不可用")))
+		return
+	var hero_id: String = _selected_hero
+	var source: String = str(_view.get("city", {}).get("id", ""))
+	var key: String = str(quote.get("key", ""))
+	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
+	confirmation.title = "确认专长训练"
+	confirmation.dialog_text = "%s · %s → %d级\n%s\n消耗：%s\n%s" % [str(_hero().get("name", "")), str(route.get("name", "")), int(quote.get("next", 1)), str(route.get("description", "")), _cost(quote.get("cost", {})), "首次选择会锁定这一方向。" if int(quote.get("level", 0)) == 0 else "训练影响之后新安排的军队与内政任务。"]
+	confirmation.dialog_autowrap = true
+	confirmation.min_size = Vector2i(280, 200)
+	confirmation.exclusive = true
+	add_child(confirmation)
+	confirmation.confirmed.connect(func() -> void:
+		var latest: Dictionary = _specialization_route(route_id).get("quote", {})
+		if not _connected or _pending or _selected_hero != hero_id or source != str(_view.get("city", {}).get("id", "")) or str(latest.get("key", "")) != key or not str(latest.get("reason", "")).is_empty():
+			show_error("将领、城池或训练条件已变化，请重新预览。")
+		else:
+			_execute(func() -> Dictionary: return _command("训练专长", "trainGeneralSkill", [hero_id, route_id, key], ""))
+		confirmation.queue_free())
+	confirmation.canceled.connect(confirmation.queue_free)
+	confirmation.popup_centered(Vector2i(mini(580, maxi(280, int(get_tree().root.size.x) - 48)), mini(440, maxi(220, int(get_tree().root.size.y) - 100))))
 
 
 func _remember_draft() -> void:

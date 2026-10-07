@@ -93,7 +93,7 @@ func update_view(view: Dictionary) -> void:
 	var source: String = str(view.get("city", {}).get("id", ""))
 	var supported: bool = bool(scouting.get("supported", false))
 	var available: int = maxi(0, int(scouting.get("available", 0)))
-	var signature: String = JSON.stringify([source, scouting.get("queueUsed", 0), scouting.get("queueLimit", 0), supported, _scouting_level(view)])
+	var signature: String = JSON.stringify([source, scouting.get("queueUsed", 0), scouting.get("queueLimit", 0), supported, _scouting_level(view), view.get("wildRefresh", {}).get("generation", -1)])
 	if (not _source.is_empty() and source != _source) or not supported:
 		_target.erase("intel")
 		_target.erase("army")
@@ -234,7 +234,7 @@ func _normalize_quantity() -> int:
 
 
 func _fingerprint() -> String:
-	return JSON.stringify([_source, str(_target.get("id", "")), _quantity(), _context_signature])
+	return JSON.stringify([_source, str(_target.get("id", "")), _quantity(), _context_signature, _current_node().get("wildKey")])
 
 
 func _usable() -> bool:
@@ -293,7 +293,13 @@ func _request_quote() -> void:
 
 func _valid_command(command: Dictionary) -> bool:
 	var args: Variant = command.get("args")
-	return str(command.get("type", "")) == "dispatchScout" and str(command.get("sourceCity", "")) == _source and args is Array and args.size() == 3 and str(args[0]) == str(_target.get("id", "")) and _number(args[1]) and float(args[1]) == float(int(args[1])) and int(args[1]) == _quantity() and str(args[2]) == str(_quote.get("key", "")) and not str(args[2]).is_empty()
+	var key: Variant = _current_node().get("wildKey")
+	var has_key: bool = key is String and not key.is_empty()
+	if not args is Array or args.size() != (4 if has_key else 3):
+		return false
+	if has_key and args[3] != key:
+		return false
+	return str(command.get("type", "")) == "dispatchScout" and str(command.get("sourceCity", "")) == _source and str(args[0]) == str(_target.get("id", "")) and _number(args[1]) and float(args[1]) == float(int(args[1])) and int(args[1]) == _quantity() and str(args[2]) == str(_quote.get("key", "")) and not str(args[2]).is_empty()
 
 
 func _submit() -> void:

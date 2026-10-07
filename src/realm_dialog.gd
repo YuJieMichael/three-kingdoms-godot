@@ -5,7 +5,8 @@ signal command_requested(type: String, args: Array)
 signal quote_requested(kind: String, args: Array, request_id: String)
 signal focus_requested(x: int, y: int)
 
-const SECTIONS: Dictionary = {"cities": "城池任职", "logistics": "运输调遣", "plots": "城外建设", "holdings": "领地采集", "automation": "挂机设置"}
+const SECTIONS: Dictionary = {"cities": "城池任职", "logistics": "运输调遣", "plots": "城外建设", "plans": "经营方案", "holdings": "领地采集", "automation": "挂机设置"}
+const PlotArt: Script = preload("res://src/resource_plot_art.gd")
 const SuburbScript: GDScript = preload("res://src/suburb_view.gd")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 const FIELD_NAMES: Dictionary = {"farm": "粮田", "lumber": "木场", "quarry": "石场", "mine": "铁矿"}
@@ -32,16 +33,27 @@ var _quote_kind: String = ""
 var _quote_busy: bool = false
 var _selected_plot: int = -1
 var _templates_open: bool = false
-var _plot_map_open: bool = false
+var _plot_map_open: bool = true
+var _plot_choices: GridContainer
+var _plot_footer: VBoxContainer
+var _column: VBoxContainer
 
 func _ready() -> void:
 	get_ok_button().text = "关闭"
+	wrap_controls = false
+	_column = VBoxContainer.new()
+	_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_column)
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add_child(_scroll)
+	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_column.add_child(_scroll)
+	_plot_footer = VBoxContainer.new()
+	_column.add_child(_plot_footer)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.add_child(_content)
+	get_tree().root.size_changed.connect(_fit)
 	_build()
 
 func show_section(section: String, view: Dictionary) -> void:
@@ -56,7 +68,7 @@ func show_section(section: String, view: Dictionary) -> void:
 	if source != _source:
 		_selected_plot = -1
 		_templates_open = false
-		_plot_map_open = false
+		_plot_map_open = true
 	_source = source
 	_structure = _structure_signature()
 	_build()
@@ -74,7 +86,7 @@ func update_view(view: Dictionary) -> void:
 		_drafts.clear()
 		_selected_plot = -1
 		_templates_open = false
-		_plot_map_open = false
+		_plot_map_open = true
 		_error = "已切换城池，请核对新的驻军和资源"
 	if structure != _structure:
 		_scrolls[_section] = _scroll.scroll_vertical
@@ -127,15 +139,19 @@ func _realm() -> Dictionary:
 	return _view.get("realmManagement", {})
 
 func _structure_signature() -> String:
-	return JSON.stringify([_realm().get("currentCity", ""), _realm().get("cities", []).map(func(c: Dictionary) -> String: return str(c.id)), _realm().get("generals", []).map(func(g: Dictionary) -> Array: return [g.id, g.get("busy", false)]), _view.get("plots", []).map(func(p: Dictionary) -> Array: return [p.get("index"), p.get("id"), p.get("level"), p.get("unlocked")]), _view.get("plotOptions", []).map(func(p: Dictionary) -> Array: return [p.get("id"), p.get("name")]), _realm().get("holdings", []).map(func(h: Dictionary) -> Array: return [h.id, h.get("gathering") != null, h.get("garrison") != null]), _realm().get("logistics", []).map(func(j: Dictionary) -> String: return str(j.id))])
+	return JSON.stringify([_realm().get("currentCity", ""), _realm().get("cities", []).map(func(c: Dictionary) -> String: return str(c.id)), _realm().get("generals", []).map(func(g: Dictionary) -> Array: return [g.id, g.get("busy", false)]), _view.get("plots", []).map(func(p: Dictionary) -> Array: return [p.get("index"), p.get("id"), p.get("level"), p.get("unlocked"), p.get("queue")]), _view.get("plotOptions", []).map(func(p: Dictionary) -> Array: return [p.get("id"), p.get("name")]), _realm().get("holdings", []).map(func(h: Dictionary) -> Array: return [h.id, h.get("gathering") != null, h.get("garrison") != null]), _realm().get("logistics", []).map(func(j: Dictionary) -> String: return str(j.id))])
 
 func _fit() -> void:
 	var available: Vector2 = (get_parent() as Control).size if get_parent() is Control else Vector2(get_tree().root.size)
-	var target_size: Vector2i = Vector2i(mini(730, maxi(280, int(available.x) - 40)), mini(700, maxi(280, int(available.y) - 80)))
-	_scroll.custom_minimum_size = Vector2(target_size.x - 48, target_size.y - 90)
-	min_size = target_size
-	size = min_size
+	var target_size: Vector2i = Vector2i(mini(1040 if _section == "plots" else 730, maxi(280, int(available.x) - 40)), mini(860 if _section == "plots" else 700, maxi(280, int(available.y) - 80)))
+	_scroll.custom_minimum_size = Vector2(target_size.x - 48, 120)
+	min_size = Vector2i(280, 340)
+	size = target_size
+	_column.position = Vector2(14, 14)
+	_column.size = Vector2(size.x - 28, size.y - 74)
 	position = Vector2i((available - Vector2(size)) / 2.0)
+	if is_instance_valid(_plot_choices):
+		_plot_choices.columns = 2 if size.x < 800 else 4
 
 func _build() -> void:
 	if not is_instance_valid(_content):
@@ -143,8 +159,13 @@ func _build() -> void:
 	for child: Node in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
+	for child: Node in _plot_footer.get_children():
+		_plot_footer.remove_child(child)
+		child.queue_free()
+	_plot_footer.visible = _section == "plots"
 	_live.clear()
 	_actions.clear()
+	_plot_choices = null
 	_quote_args = Callable()
 	_quote_label = null
 	_invalidate_quote()
@@ -154,12 +175,14 @@ func _build() -> void:
 	_content.add_child(tabs)
 	for section: String in SECTIONS:
 		var tab: Button = Button.new()
+		tab.custom_minimum_size.y = 44
 		tab.text = str(SECTIONS[section])
 		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		tab.disabled = section == _section
 		tab.pressed.connect(func() -> void: show_section(section, _view))
 		tabs.add_child(tab)
 	_status = _label("")
+	_status.text = _error if not _error.is_empty() else "操作正在确认…" if _pending else "连接后可操作" if not _connected else "当前城池：" + str(_view.get("city", {}).get("name", "主城"))
 	_content.add_child(_status)
 	if _realm().is_empty():
 		_content.add_child(_label("连接规则服务后显示城池、领地与建设安排。"))
@@ -168,9 +191,11 @@ func _build() -> void:
 			"cities": _build_cities()
 			"logistics": _build_logistics()
 			"plots": _build_plots()
+			"plans": _build_city_plans()
 			"holdings": _build_holdings()
 			"automation": _build_automation()
 	call_deferred("_restore_scroll")
+	call_deferred("_fit")
 	_refresh_actions()
 
 func _restore_scroll() -> void:
@@ -183,9 +208,9 @@ func _label(text: String) -> Label:
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return label
 
-func _live_label(reader: Callable) -> Label:
+func _live_label(reader: Callable, parent: Node = null) -> Label:
 	var label: Label = _label(str(reader.call()))
-	_content.add_child(label)
+	(parent if parent != null else _content).add_child(label)
 	_live.append(func() -> void: label.text = str(reader.call()))
 	return label
 
@@ -195,15 +220,16 @@ func _heading(text: String) -> void:
 	label.add_theme_font_size_override("font_size", 20)
 	_content.add_child(label)
 
-func _action(text: String, callback: Callable, reason: Callable = Callable()) -> Button:
+func _action(text: String, callback: Callable, reason: Callable = Callable(), parent: Node = null) -> Button:
 	var button: Button = Button.new()
+	button.custom_minimum_size.y = 44
 	button.text = text
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(func() -> void:
 		if button.disabled or _pending or not _connected:
 			return
 		callback.call())
-	_content.add_child(button)
+	(parent if parent != null else _content).add_child(button)
 	_actions.append({"button": button, "reason": reason})
 	return button
 
@@ -422,7 +448,12 @@ func _plot_reason(index: int, expected_id: Variant) -> String:
 		var build_jobs: Array = queues.get("build", []) if queues is Dictionary else []
 		if build_jobs.size() >= limit:
 			return "建造队正在忙碌"
-	return str(current.get("requirement", "")) if current.get("requirement") != null and expected_id != null else ""
+	if expected_id != null:
+		if not str(current.get("requirement", "")).is_empty():
+			return str(current.requirement)
+		if not bool(current.get("affordable", false)):
+			return "资源不足，等待物资积累"
+	return ""
 
 func _plot_option(id: String) -> Dictionary:
 	for option: Dictionary in _view.get("plotOptions", []):
@@ -470,6 +501,41 @@ func _toggle_plot_map() -> void:
 	_scrolls[_section] = _scroll.scroll_vertical
 	_build()
 
+func _choose_plot_type(id: String) -> void:
+	_drafts["plot_build_type"] = id
+	_scrolls[_section] = _scroll.scroll_vertical
+	_build()
+	_fit()
+
+func _plot_picture(parent: Node, id: String, height: float) -> void:
+	var image: TextureRect = TextureRect.new()
+	image.texture = PlotArt.texture(id)
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.custom_minimum_size.y = height
+	image.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(image)
+
+func _effect_text(value: Variant) -> String:
+	if not value is Dictionary or value.is_empty():
+		return "正在读取原规则产量"
+	var e: Dictionary = value
+	var text: String = str(e.get("purpose", ""))
+	text += "\n当前这块地：%.1f /小时" % float(e.get("currentPerHour", 0))
+	if e.get("afterPerHour") != null:
+		text += " → 完成后 %.1f /小时（%+.1f）" % [float(e.afterPerHour), float(e.get("deltaPerHour", 0))]
+		text += "\n全城%s净收入 %.1f → %.1f /小时" % [e.get("resourceName", "资源"), float(e.get("cityNetPerHour", 0)), float(e.get("cityNetAfterPerHour", 0))]
+		text += "\n本地块生产用工 %d → %d；全城需 %d 人" % [int(e.get("currentWorkers", 0)), int(e.get("workersAfter", 0)), int(e.get("totalWorkersAfter", 0))]
+	if float(e.get("laborRatioAfter", 1)) < 1:
+		text += "\n人口不足，预计用工满足 %.0f%%，已计入上面的产量。" % (float(e.laborRatioAfter) * 100)
+	if bool(e.get("storageFull", false)):
+		text += "\n仓库已满：先消耗或增加储量，否则无法继续入库。"
+	if e.get("removedResourceName") != null:
+		text += "\n改建会失去原%s产量 %.1f /小时。" % [e.removedResourceName, float(e.get("removedPerHour", 0))]
+	if str(e.get("resource", "")) == "food":
+		text += "\n全城粮食净收入已扣除军队粮耗。"
+	return text + "\n按当前人口与加成估算；施工完成后生效。"
+
 func _build_plots() -> void:
 	if not bool(_plot(_selected_plot).get("unlocked", false)):
 		_selected_plot = -1
@@ -492,19 +558,47 @@ func _build_plots() -> void:
 		var expected_id: Variant = plot.get("id")
 		var source: String = _source
 		_heading("%d号 %s%s" % [index + 1, str(plot.get("name", "空地")), " · %d级" % int(plot.get("level", 0)) if expected_id != null else ""])
-		if expected_id != null:
+		if plot.get("queue") is Dictionary:
+			_plot_footer.visible = false
+			var job: Dictionary = plot.queue
+			_plot_picture(_content, str(job.id), 150)
+			_content.add_child(_label("施工中 · 完成后自动生效；当前不会提前增加产量。"))
+			_live_label(func() -> String: return _effect_text(_plot(index).get("constructionEffect", {})))
+		elif expected_id != null:
+			_plot_picture(_content, str(expected_id), 170)
+			_live_label(func() -> String: return _effect_text(_plot(index).get("effect", {})))
 			_live_label(func() -> String:
 				var current: Dictionary = _plot(index)
-				return "升级费用 " + _cost(current.get("cost", {})) + " · 工期 " + _duration(float(current.get("seconds", 0))) + ("\n施工中" if current.get("queue") != null else ""))
-			_action("升级当前地块", _develop_selected_plot.bind(index, str(expected_id), expected_id, source), _plot_reason.bind(index, expected_id))
+				return "升级费用 " + _cost(current.get("cost", {})) + " · 工期 " + _duration(float(current.get("seconds", 0))) + ("\n施工中" if current.get("queue") != null else ""), _plot_footer)
+			_action("升级当前地块", _develop_selected_plot.bind(index, str(expected_id), expected_id, source), _plot_reason.bind(index, expected_id), _plot_footer)
 		else:
 			_content.add_child(_label("选择这处空地的用途。农田供给军粮，木场、石场与铁矿供给建设和造兵。"))
+			var selected_type: String = str(_drafts.get("plot_build_type", "farm"))
+			if _plot_option(selected_type).is_empty():
+				selected_type = "farm"
+			_plot_choices = GridContainer.new()
+			_plot_choices.columns = 2 if size.x < 800 else 4
+			_plot_choices.add_theme_constant_override("h_separation", 12)
+			_plot_choices.add_theme_constant_override("v_separation", 12)
+			_content.add_child(_plot_choices)
 			for option: Dictionary in _view.get("plotOptions", []):
 				var id: String = str(option.id)
-				var quote_label: Label = _live_label(_plot_option_text.bind(index, id))
-				quote_label.set_meta("plot_quote_id", id)
-				_action("建设" + str(option.name), _develop_selected_plot.bind(index, id, null, source), _plot_option_reason.bind(index, id))
+				var panel: PanelContainer = PanelContainer.new()
+				panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				_plot_choices.add_child(panel)
+				var card: VBoxContainer = VBoxContainer.new()
+				panel.add_child(card)
+				_plot_picture(card, id, 105)
+				var choose: Button = _action("已选 " + str(option.name) if id == selected_type else "选择" + str(option.name), _choose_plot_type.bind(id), Callable(), card)
+				choose.theme_type_variation = "PrimaryButton" if id == selected_type else "UtilityButton"
+			_heading("建设预览 · " + str(_plot_option(selected_type).get("name", selected_type)))
+			_live_label(func() -> String: return _effect_text(_plot_option(selected_type).get("effect", {})))
+			var quote_label: Label = _live_label(_plot_option_text.bind(index, selected_type), _plot_footer)
+			quote_label.set_meta("plot_quote_id", selected_type)
+			_action("确认建设" + str(_plot_option(selected_type).get("name", selected_type)), _develop_selected_plot.bind(index, selected_type, null, source), _plot_option_reason.bind(index, selected_type), _plot_footer)
+
 	else:
+		_plot_footer.visible = false
 		_content.add_child(_label("提升官府等级后开放更多城外地块。"))
 	var map_toggle: Button = Button.new()
 	map_toggle.text = "收起地块图" if _plot_map_open else "展开地块图"
@@ -540,7 +634,7 @@ func _build_plots() -> void:
 			_live_label(func() -> String:
 				var q: Dictionary = _template_quote(id, mode)
 				return ("补齐空地" if mode == "fill" else "替换布局") + " · " + _cost(q.get("projectedCounts", q.get("counts", {}))) + "\n待安排 %s 块 · 总费用 %s\n%s" % [str(q.get("tasks", []).size()), _cost(q.get("cost", {})), str(q.get("reason", ""))])
-			_action("按样板补齐空地" if mode == "fill" else "确认替换布局", func() -> void: _send("applyPlotTemplate", [id, mode]), func() -> String: return "请先确认等级重置" if mode == "replace" and not confirmed.button_pressed else str(_template_quote(id, mode).get("error", "")))
+			_action("预览补齐空地" if mode == "fill" else "预览替换布局", func() -> void: _confirm_plot_plan(id, mode), func() -> String: return "请先确认等级重置" if mode == "replace" and not confirmed.button_pressed else str(_template_quote(id, mode).get("error", "")))
 	_action("暂停样板建设", func() -> void: _send("pausePlotTemplate", []))
 
 func _template_quote(id: String, mode: String) -> Dictionary:
@@ -548,6 +642,54 @@ func _template_quote(id: String, mode: String) -> Dictionary:
 		if str(quote.get("mode", "")) == mode:
 			return quote
 	return {}
+
+func _build_city_plans() -> void:
+	_live_label(func() -> String:
+		var city: Dictionary = _find("cities", _source)
+		return str(city.get("name", "当前城池")) + " · " + str(city.get("strategy", {}).get("name", "均衡城")) + "\n" + str(city.get("strategy", {}).get("description", "")))
+	_content.add_child(_label("兵城偏重军粮，资源城均衡配田，投石城按器械消耗配田。先比较现有田地与目标，再选择补齐或改建；高等级田地值得保留。"))
+	_live_label(func() -> String: return "当前执行：" + str(_realm().get("plotStatus", "未安排")))
+	for template: Dictionary in _realm().get("templates", []):
+		var id: String = str(template.id)
+		_heading(str(template.name))
+		_content.add_child(_label(str(template.get("desc", ""))))
+		_live_label(func() -> String:
+			var fill: Dictionary = _template_quote(id, "fill")
+			var replace: Dictionary = _template_quote(id, "replace")
+			var high: int = 0
+			for task: Dictionary in replace.get("tasks", []):
+				if str(task.get("kind", "")) == "replace" and int(_plot(int(task.get("index", -1))).get("level", 0)) > 1:
+					high += 1
+			return "现有：%s\n方案目标：%s\n补空地：%s · 工程 %d 块 · 费用 %s\n改布局：%s · 改建 %d 块（高等级田地 %d 块）· 费用 %s" % [_cost(fill.get("actualCounts", {})), _cost(fill.get("counts", {})), _cost(fill.get("projectedCounts", {})), int(fill.get("tasks", []).size()), _cost(fill.get("cost", {})), _cost(replace.get("projectedCounts", {})), int(replace.get("replaces", 0)), high, _cost(replace.get("cost", {}))])
+		for mode: String in ["fill", "replace"]:
+			_action("预览补空地" if mode == "fill" else "预览改布局", _confirm_plot_plan.bind(id, mode), func() -> String: return str(_template_quote(id, mode).get("error", "")))
+	_action("暂停当前方案", func() -> void: _send("pausePlotTemplate", []))
+
+func _plan_fingerprint(id: String, mode: String) -> String:
+	var quote: Dictionary = _template_quote(id, mode)
+	return str(quote.get("key", ""))
+
+func _confirm_plot_plan(id: String, mode: String) -> void:
+	var quote: Dictionary = _template_quote(id, mode)
+	if not _connected or _pending or quote.is_empty() or str(quote.get("key", "")).is_empty() or not str(quote.get("error", "")).is_empty():
+		return
+	var source: String = _source
+	var fingerprint: String = _plan_fingerprint(id, mode)
+	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
+	confirmation.title = "确认经营方案 · " + str(_find("templates", id).get("name", ""))
+	confirmation.dialog_text = "%s\n排定布局：%s\n待安排 %d 块 · 总费用 %s\n%s\n方案按空闲施工队逐块建设，逐次支付材料；资源不足时等待。应用后自动升级转为暂停。\n%s" % ["保留已有田地，补齐空地。" if mode == "fill" else "改建的田地重建为1级；匹配方案的高等级田地保留。", _cost(quote.get("projectedCounts", {})), int(quote.get("tasks", []).size()), _cost(quote.get("cost", {})), str(quote.get("reason", "")), "已开始的工程仍按原队列完成。"]
+	confirmation.dialog_autowrap = true
+	confirmation.exclusive = true
+	confirmation.min_size = Vector2i(280, 220)
+	add_child(confirmation)
+	confirmation.confirmed.connect(func() -> void:
+		if not _connected or _pending or _source != source or _plan_fingerprint(id, mode) != fingerprint:
+			show_error("城池或工程计划已变化，请重新预览。")
+		else:
+			_send("applyPlotTemplate", [id, mode, fingerprint])
+		confirmation.queue_free())
+	confirmation.canceled.connect(confirmation.queue_free)
+	confirmation.popup_centered(Vector2i(mini(580, maxi(280, int(get_tree().root.size.x) - 48)), mini(450, maxi(240, int(get_tree().root.size.y) - 100))))
 
 func _build_holdings() -> void:
 	if bool(_realm().get("shared", false)):

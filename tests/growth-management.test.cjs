@@ -172,7 +172,7 @@ test('county jewel shortfall directs to capped copper preparation and owned boxe
   assert.equal(view.current.id, 'promote:noble');
   const advice = view.advice.find(row => row.id === 'county-preparation');
   assert.ok(advice.text.includes('80')); assert.ok(advice.text.includes('5/5'));
-  assert.deepEqual(advice.navigate, {route: 'epic', target: 'exchange', label: '查看县城筹备兑换'});
+  assert.deepEqual(advice.navigate, {route: 'preparation', target: '', label: '查看晋升筹备'});
   assert.equal(view.advice.find(row => row.id === 'owned-jewel-boxes').navigate.target, box.id);
   assert.equal(JSON.stringify(f.state), before);
   f.state.growthSupport = {version: 1, coralExchanged: 5}; f.state.inventory[box.id] = 0;

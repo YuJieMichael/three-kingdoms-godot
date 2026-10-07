@@ -2,6 +2,8 @@ class_name KingdomPresentationMenu extends AcceptDialog
 
 signal input_requested
 signal guide_requested
+signal practice_requested
+signal opening_requested
 signal save_requested
 signal connection_requested
 
@@ -25,12 +27,12 @@ func _ready() -> void:
 	message.text = "进度自动保存。菜单打开时，建设与行军仍按时间推进。"
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	general.add_child(message)
-	for entry: Array in [["按键设置", input_requested], ["新手引导", guide_requested], ["存档与备份", save_requested], ["连接设置", connection_requested]]:
+	for entry: Array in [["开场示范战 · 学习指挥", opening_requested], ["借调演练 · 三种战术", practice_requested], ["新手引导", guide_requested], ["按键设置", input_requested], ["存档与备份", save_requested], ["连接设置", connection_requested]]:
 		var action: Signal = entry[1]
 		var button: Button = Button.new()
 		button.text = str(entry[0])
 		button.custom_minimum_size.y = 40
-		button.theme_type_variation = "PrimaryButton" if str(entry[0]) == "新手引导" else "UtilityButton"
+		button.theme_type_variation = "PrimaryButton" if action == practice_requested else "UtilityButton"
 		button.pressed.connect(func() -> void: audio.click(); hide(); action.emit())
 		general.add_child(button)
 		_watch_button(button)
@@ -90,7 +92,7 @@ func _ready() -> void:
 		_display_feedback.text = "显示设置暂不可用。"
 	var credits: VBoxContainer = _tab("鸣谢")
 	var text: Label = Label.new()
-	text.text = "声音：Nathan Hoad · Sound Manager\n剧情：Nathan Hoad · Dialogue Manager\n菜单分页：Maaack · Game Template\n以上代码采用 MIT 许可证。\n当前合成音乐与提示音为项目自制，可替换为正式素材。"
+	text.text = "声音：Nathan Hoad · Sound Manager\n剧情：Nathan Hoad · Dialogue Manager\n菜单分页：Maaack · Game Template\n以上代码采用 MIT 许可证。\n背景音乐：Kevin MacLeod (incompetech.com)\nTemple of the Manes / Five Armies\nCC BY 4.0 · https://creativecommons.org/licenses/by/4.0/\n完整署名及来源见 assets/audio/CREDITS.txt。"
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	credits.add_child(text)
 	confirmed.connect(audio.click)

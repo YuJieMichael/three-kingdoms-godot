@@ -10,6 +10,7 @@ signal defense_selected
 const GOLD: Color = Color("c6aa71")
 const LABEL: Color = Color("eee3c9")
 const CHINESE_FONT: Font = preload("res://assets/fonts/UI.tres")
+const OpenLandArt: Script = preload("res://src/resource_plot_art.gd")
 const TAP_TRAVEL: float = 10.0
 const CITY_ART_PATH: String = "res://assets/environment/city/city_rts_core_v1.png"
 const CITY_ART_METADATA: String = "res://data/city-rts-art-atlas.json"
@@ -29,6 +30,8 @@ var _snapshot_tick: int = 0
 var _progress_elapsed: float = 0.0
 var _hover: String = ""
 var _selected: String = ""
+var _focus_key: String = ""
+var _keyboard_focus: bool = false
 var _touch_index: int = -1
 var _touch_origin: Vector2 = Vector2.ZERO
 var _touch_key: String = ""
@@ -46,7 +49,10 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(240.0, recommended_height(240.0))
 	# Unaccepted press/drag events must reach the surrounding scroll view.
 	mouse_filter = Control.MOUSE_FILTER_PASS
-	tooltip_text = "点击建筑查看升级，点击空地选择要建的建筑"
+	focus_mode = Control.FOCUS_ALL
+	focus_entered.connect(_on_focus_entered)
+	focus_exited.connect(queue_redraw)
+	tooltip_text = "点击建筑或空地查看建设 · Tab 聚焦地块，方向键选择，Enter 查看"
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_load_city_art()
 	if _ground_texture == null:
@@ -219,6 +225,8 @@ func set_city(view: Dictionary, server_time_ms: float = 0.0) -> void:
 	var next_city: Dictionary = view.get("city", {})
 	if str(previous_city.get("id", previous_city.get("name", ""))) != str(next_city.get("id", next_city.get("name", ""))):
 		_selected = ""
+		_focus_key = ""
+		_keyboard_focus = false
 		_hover = ""
 		_clear_touch()
 	_view = view.duplicate(true)
@@ -231,6 +239,8 @@ func set_city(view: Dictionary, server_time_ms: float = 0.0) -> void:
 
 func select_building(id: String, site: int = -1) -> void:
 	_selected = "%s#%d" % [id, site]
+	if _hit_boxes.has(_selected):
+		_focus_key = _selected
 	queue_redraw()
 
 func selected_site() -> int:
@@ -239,12 +249,15 @@ func selected_site() -> int:
 
 func _activate_building(key: String) -> void:
 	if key == "perimeter":
+		_focus_key = key
 		defense_selected.emit()
+		queue_redraw()
 		return
 	var row: Dictionary = _hit_records.get(key, {})
 	if row.is_empty():
 		return
 	_selected = key
+	_focus_key = key
 	if bool(row.get("empty", false)):
 		empty_site_selected.emit(int(row.site))
 	else:
@@ -265,10 +278,14 @@ func _notification(what: int) -> void:
 		queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
+	if _handle_focus_input(event):
+		return
 	# Godot marks mouse events synthesized from touch as device -1. Handling
 	# them as desktop presses would open a lot before its gesture is known.
 	if (event is InputEventMouseButton or event is InputEventMouseMotion) and event.device == InputEvent.DEVICE_ID_EMULATION:
 		return
+	if (event is InputEventMouseButton and event.pressed) or event is InputEventScreenTouch or event is InputEventScreenDrag:
+		_keyboard_focus = false
 	if event is InputEventMouseMotion:
 		var next: String = _building_at((event as InputEventMouseMotion).position)
 		if next != _hover:
@@ -315,6 +332,120 @@ func _gui_input(event: InputEvent) -> void:
 			if point.distance_to(_touch_origin) > TAP_TRAVEL:
 				_touch_dragged = true
 		# Never accept a drag: the parent ScrollContainer owns scrolling.
+
+func _on_focus_entered() -> void:
+	_repair_focus_key()
+	queue_redraw()
+	# Mouse/touch focus must not jump the enclosing scroller during a gesture.
+	if Input.is_action_pressed("ui_focus_next") or Input.is_action_pressed("ui_focus_prev"):
+		_keyboard_focus = true
+		call_deferred("_scroll_focus_into_view")
+
+func _focus_rects() -> Dictionary:
+	var rects: Dictionary = _hit_boxes.duplicate()
+	if size.x >= 10.0 and size.y >= 10.0:
+		# The north wall is a separate, reachable city-defense preview target.
+		rects["perimeter"] = perimeter_hit_regions()[0]
+	return rects
+
+func _repair_focus_key(previous_site: int = -1) -> void:
+	if _hit_boxes.has(_focus_key) or _focus_key == "perimeter":
+		return
+	# An empty parcel becoming a building keeps its canonical site identity.
+	for key: Variant in _hit_records:
+		if previous_site >= 0 and int((_hit_records[key] as Dictionary).get("site", -1)) == previous_site:
+			_focus_key = str(key)
+			return
+	if _hit_boxes.has(_selected):
+		_focus_key = _selected
+		return
+	var keys: Array = _hit_boxes.keys()
+	keys.sort_custom(func(a: Variant, b: Variant) -> bool:
+		var first: Vector2 = (_hit_boxes[a] as Rect2).get_center()
+		var second: Vector2 = (_hit_boxes[b] as Rect2).get_center()
+		return first.x < second.x if is_equal_approx(first.y, second.y) else first.y < second.y)
+	_focus_key = str(keys[0]) if not keys.is_empty() else ""
+
+func _handle_focus_input(event: InputEvent) -> bool:
+	if not has_focus() or not (event is InputEventKey or event is InputEventJoypadButton or event is InputEventJoypadMotion):
+		return false
+	# Tab and Shift+Tab retain the normal Godot control traversal.
+	if event.is_action("ui_focus_next") or event.is_action("ui_focus_prev"):
+		return false
+	_repair_focus_key()
+	if event.is_action_pressed("ui_accept"):
+		_keyboard_focus = true
+		if not _focus_key.is_empty():
+			# This opens the existing preview; no construction action is executed here.
+			_activate_building(_focus_key)
+		accept_event()
+		return true
+	var direction: Vector2 = Vector2.ZERO
+	for binding: Array in [["ui_left", Vector2.LEFT], ["ui_right", Vector2.RIGHT], ["ui_up", Vector2.UP], ["ui_down", Vector2.DOWN]]:
+		if event.is_action_pressed(str(binding[0]), true):
+			direction = binding[1]
+			break
+	if direction == Vector2.ZERO:
+		return false
+	_keyboard_focus = true
+	var rects: Dictionary = _focus_rects()
+	if rects.has(_focus_key):
+		var origin: Vector2 = (rects[_focus_key] as Rect2).get_center()
+		var best_key: String = _focus_key
+		var best_score: float = INF
+		for key: Variant in rects:
+			var offset: Vector2 = (rects[key] as Rect2).get_center() - origin
+			var forward: float = offset.dot(direction)
+			if forward <= 1.0:
+				continue
+			var sideways: float = absf(offset.cross(direction))
+			var score: float = forward + sideways * 4.0
+			if score < best_score:
+				best_score = score
+				best_key = str(key)
+		_focus_key = best_key
+		queue_redraw()
+		call_deferred("_scroll_focus_into_view")
+	# Stop at an edge. Only Tab moves focus out of the parcel view.
+	accept_event()
+	return true
+
+func _scroll_focus_into_view() -> void:
+	if not has_focus() or not _keyboard_focus or not is_visible_in_tree():
+		return
+	var rects: Dictionary = _focus_rects()
+	if not rects.has(_focus_key):
+		return
+	var ancestor: Node = get_parent()
+	while ancestor != null and not ancestor is ScrollContainer:
+		ancestor = ancestor.get_parent()
+	if not ancestor is ScrollContainer:
+		return
+	var scroller: ScrollContainer = ancestor as ScrollContainer
+	var rect: Rect2 = rects[_focus_key]
+	var transform: Transform2D = scroller.get_global_transform().affine_inverse() * get_global_transform()
+	var top: float = (transform * rect.position).y
+	var bottom: float = (transform * rect.end).y
+	var inset: float = 14.0
+	if top < inset:
+		scroller.scroll_vertical += floori(top - inset)
+	elif bottom > scroller.size.y - inset:
+		scroller.scroll_vertical += ceili(bottom - scroller.size.y + inset)
+
+func _draw_focus_cursor() -> void:
+	if not has_focus():
+		return
+	var rects: Dictionary = _focus_rects()
+	if not rects.has(_focus_key):
+		return
+	var rect: Rect2 = (rects[_focus_key] as Rect2).grow(-3.0)
+	# A double outline and corner brackets distinguish focus from gold selection.
+	draw_rect(rect, Color("18271f"), false, 5.0)
+	draw_rect(rect, Color("f3edcb"), false, 2.0)
+	for corner: Vector2 in [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]:
+		var toward: Vector2 = (rect.get_center() - corner).sign()
+		draw_line(corner, corner + Vector2(toward.x * 12.0, 0.0), GOLD, 4.0)
+		draw_line(corner, corner + Vector2(0.0, toward.y * 12.0), GOLD, 4.0)
 
 func _clear_touch() -> void:
 	_touch_index = -1
@@ -397,6 +528,7 @@ func _queue_progress(queue: Dictionary) -> Dictionary:
 	return {"progress": progress, "seconds": remaining}
 
 func _rebuild_layout() -> void:
+	var previous_focus_site: int = int((_hit_records.get(_focus_key, {}) as Dictionary).get("site", -1))
 	_hit_boxes.clear()
 	_hit_records.clear()
 	_lots.clear()
@@ -438,6 +570,9 @@ func _rebuild_layout() -> void:
 		else:
 			# An occupied slot missing its DTO is left bare and nonselectable.
 			_register_lot(slot, parcels[parcel], _row_id(slot).is_empty(), not _row_id(slot).is_empty())
+	_repair_focus_key(previous_focus_site)
+	if has_focus() and _keyboard_focus:
+		call_deferred("_scroll_focus_into_view")
 
 func _register_lot(row: Dictionary, parcel: Dictionary, empty: bool, reserved: bool) -> void:
 	var record: Dictionary = row.duplicate(true)
@@ -472,6 +607,7 @@ func _draw() -> void:
 			_draw_building(lot)
 	_draw_ramparts(true)
 	_draw_gate(Vector2(float(plan_geometry().gate_axis), _grid_bottom() + 117.0))
+	_draw_focus_cursor()
 	var meta: Dictionary = _view.get("city", {})
 	_text(Vector2(_plan_left() + 17.0, 31.0), str(meta.get("name", "城池")), 23, LABEL)
 	_text(Vector2(_plan_left() + 17.0, 54.0), "城防 %d级 · 点击围墙修筑 / 空地建设" % perimeter_level(), 12, Color("d1c7a9"))
@@ -480,9 +616,11 @@ func _draw() -> void:
 	draw_line(Vector2(heading_x, 35.0), Vector2(heading_x, 50.0), GOLD, 1.0)
 	draw_colored_polygon(PackedVector2Array([Vector2(heading_x - 4.0, 39.0), Vector2(heading_x, 34.0), Vector2(heading_x + 4.0, 39.0)]), GOLD)
 	var caption: String = "空地可自选建筑 · 官署留地不可建设"
-	var chosen: Dictionary = _hit_records.get(_selected, {})
+	var chosen: Dictionary = _hit_records.get(_focus_key if has_focus() else _selected, {})
 	if not chosen.is_empty():
 		caption = "地块 %02d · 选择要建的建筑" % (int(chosen.site) + 1) if bool(chosen.empty) else "%s · 地块 %02d · %d级%s" % [str(SHORT_NAMES.get(chosen.id, chosen.get("name", chosen.id))), int(chosen.site) + 1, int(chosen.get("level", 0)), " · 施工中" if chosen.get("queue") is Dictionary else ""]
+	if has_focus():
+		caption = "城防 · Enter 查看修筑" if _focus_key == "perimeter" else caption + " · Enter 查看"
 	_text(Vector2(_plan_left() + 15.0, _grid_bottom() + 156.0), caption, 11, GOLD)
 
 func _draw_landscape() -> void:
@@ -645,13 +783,11 @@ func _draw_parcel_ground(lot: Dictionary, reserved: bool = false) -> void:
 	if reserved:
 		earth = Color(0.48, 0.45, 0.34, 0.13)
 	draw_rect(patch, earth)
-	# Low-contrast surveyed boundaries preserve each hit target without
-	# surrounding every structure with a bright table-cell rectangle.
-	draw_rect(patch, Color(0.33, 0.30, 0.21, 0.25), false, 0.8)
-	for corner: Vector2 in [patch.position, Vector2(patch.end.x, patch.position.y), patch.end, Vector2(patch.position.x, patch.end.y)]:
-		draw_line(corner, corner - Vector2(0.0, 2.0), Color(0.71, 0.63, 0.44, 0.65), 1.2)
-	draw_rect(Rect2(rect.position + Vector2(4.0, 3.0), Vector2(25.0, 17.0)), Color(0.16, 0.20, 0.15, 0.66))
-	_text(rect.position + Vector2(8.0, 16.0), "%02d" % (int(lot.site) + 1), 11, Color("e6d8b4"))
+	# Canonical parcels retain their hit targets; site numbers appear on focus
+	# instead of surrounding every structure with a table-cell rectangle.
+	if lot.key == _selected or lot.key == _hover or (_keyboard_focus and lot.key == _focus_key):
+		draw_rect(Rect2(rect.position + Vector2(4.0, 3.0), Vector2(25.0, 19.0)), Color(0.16, 0.20, 0.15, 0.66))
+		_text(rect.position + Vector2(7.0, 18.0), "%02d" % (int(lot.site) + 1), 14, Color("e6d8b4"))
 
 func _draw_reserved_lot(lot: Dictionary) -> void:
 	var rect: Rect2 = lot.rect
@@ -697,13 +833,19 @@ func _draw_empty_lot(lot: Dictionary) -> void:
 	var yard: Rect2 = rect.grow(-11.0)
 	_ground_grain(yard, 12)
 	# A surveyed construction plot, with a direct and legible action.
-	for corner: Vector2 in [yard.position, Vector2(yard.end.x, yard.position.y), yard.end, Vector2(yard.position.x, yard.end.y)]:
-		draw_line(corner, corner - Vector2(0.0, 4.0), Color("c1b084"), 2.0)
 	var center: Vector2 = rect.get_center() - Vector2(0.0, 7.0)
-	draw_circle(center, 15.0, Color(0.20, 0.27, 0.18, 0.72))
-	draw_line(center - Vector2(6.0, 0.0), center + Vector2(6.0, 0.0), Color("e4d4a7"), 1.8)
-	draw_line(center - Vector2(0.0, 6.0), center + Vector2(0.0, 6.0), Color("e4d4a7"), 1.8)
-	_center_text(center + Vector2(0.0, 35.0), "建造", 13, Color("eee0bb"))
+	var texture: Texture2D = OpenLandArt.open_land(int(lot.site))
+	if texture != null:
+		var ratio: float = minf(rect.size.x * 0.63 / texture.get_width(), rect.size.y * 0.48 / texture.get_height())
+		var dimensions: Vector2 = texture.get_size() * ratio
+		var offset: Vector2 = Vector2(sin(float(lot.site) * 2.4) * 7, cos(float(lot.site) * 3.1) * 5)
+		draw_texture_rect(texture, Rect2(center + offset - dimensions * 0.5, dimensions), false, Color(1,1,1,0.46))
+	draw_line(center + Vector2(0,5), center + Vector2(0,22), Color("68553a"), 4.0)
+	draw_colored_polygon(PackedVector2Array([center + Vector2(-14,-8), center + Vector2(15,-6), center + Vector2(14,8), center + Vector2(-13,7)]), Color("bea374"))
+	draw_line(center + Vector2(-6,4), center + Vector2(5,-5), Color("6a573b"), 2.5)
+	draw_line(center + Vector2(1,-7), center + Vector2(8,-1), Color("545c57"), 4.0)
+	if lot.key == _selected or lot.key == _hover or (_keyboard_focus and lot.key == _focus_key):
+		_center_text(center + Vector2(0.0, 39.0), "点击建造", 14, Color("eee0bb"))
 	if lot.key == _selected or lot.key == _hover:
 		_selection(rect)
 
@@ -780,9 +922,11 @@ func _draw_building(lot: Dictionary) -> void:
 		_scaffold(yard)
 	var label: String = "城防营署" if id == "wall" else str(SHORT_NAMES.get(id, lot.get("name", id)))
 	var font_size: int = 12 if grid_columns() == 3 else 13
-	var strip: Rect2 = Rect2(rect.position.x + 3.0, rect.end.y - 25.0, rect.size.x - 6.0, 22.0)
+	var caption: String = "%s · %d级" % [label, level]
+	var text_width: float = CHINESE_FONT.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	var strip: Rect2 = Rect2(rect.get_center().x - text_width * 0.5 - 5, rect.end.y - 25.0, text_width + 10, 22.0)
 	draw_rect(strip, Color(0.14, 0.20, 0.14, 0.82))
-	_center_text(Vector2(rect.get_center().x, rect.end.y - 9.0), "%s · %d级" % [label, level], font_size, LABEL)
+	_center_text(Vector2(rect.get_center().x, rect.end.y - 9.0), caption, font_size, LABEL)
 	if active:
 		_selection(rect)
 	if queued:

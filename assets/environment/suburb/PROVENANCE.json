@@ -1,0 +1,28 @@
+{
+  "source": "../three-kingdoms/assets/realistic/buildings.png",
+  "generation": "built-in image_gen",
+  "prompt": "Use case: historical-scene. Asset type: historical city builder building sprite atlas. Exactly 5 columns by 4 rows, 20 equally sized square cells, transparent background, no grid lines, no text. Each cell holds ONE detailed realistic isometric miniature late Han Chinese building or resource site, high end strategy game 3D art with natural weathered timber, ceramic roof tiles, stone, dusty earth and restrained greenery, consistent view from above at 35 degrees, warm daylight, entire building within cell with 12% transparent margin. Row1 left to right: wheat farm small hut and golden crop; lumber logging yard timber piles and saw hut; stone quarry stacked rocks and work shelter; iron mine rocky entrance with ore cart; modest courtyard residence. Row2: elegant scholarly academy; roadside inn with red lanterns; trading market stalls; large grain warehouse; military parade ground with weapon racks and standards. Row3: barracks with tents and long tiled dormitory; recruitment hall with ceremonial flags; diplomatic reception pavilion; blacksmith forge with chimney anvil and glowing furnace; craft workshop with woodworking tools. Row4: horse stable with horses; courier relay station; tall stone beacon tower with small smoky brazier; grand government hall with symmetrical roof and steps; stone city wall segment with gate and watchtower. Uniform scale and equal square cells, transparent between all objects, no frames, no characters or writing, no cartoon, no emoji, no watermark. Atlas total aspect 5:4.",
+  "grid": [
+    5,
+    4
+  ],
+  "usedCells": {
+    "farm": [
+      0,
+      0
+    ],
+    "lumber": [
+      1,
+      0
+    ],
+    "quarry": [
+      2,
+      0
+    ],
+    "mine": [
+      3,
+      0
+    ]
+  },
+  "note": "Reused original generated art from the user project. Not official 热血三国 art. PNG copied unchanged; AtlasTexture selects cells at runtime."
+}

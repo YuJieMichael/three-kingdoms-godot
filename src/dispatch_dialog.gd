@@ -7,6 +7,7 @@ var _tabs: TabContainer
 var _march_scroll: ScrollContainer
 var _march_content: VBoxContainer
 var _march_footer: VBoxContainer
+var _formation_label: Label
 var _scout_footer: VBoxContainer
 var _march_intro: Label
 var _march_intel: KingdomIntelPanel
@@ -15,6 +16,7 @@ var _general_signature: String = ""
 var _army_rows: VBoxContainer
 var _army_inputs: Dictionary = {}
 var _army_labels: Dictionary = {}
+var _army_details: Dictionary = {}
 var _army_stock: Dictionary = {}
 var _mode: OptionButton
 var _occupy_return: CheckBox
@@ -49,6 +51,7 @@ func _ready() -> void:
 	_march_scroll = ScrollContainer.new()
 	_march_scroll.name = "出征"
 	_march_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_march_scroll.follow_focus = true
 	_tabs.add_child(_march_scroll)
 	_march_content = VBoxContainer.new()
 	_march_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -57,9 +60,12 @@ func _ready() -> void:
 	_march_intro = _march_label(_march_content, "请选择目标", "SectionLabel")
 	_march_intel = IntelScript.new() as KingdomIntelPanel
 	_march_content.add_child(_march_intel)
+	_formation_label = _march_label(_march_content, "", "MutedLabel")
+	_formation_label.visible = false
 	var scout_link: Button = _march_button(_march_content, "先侦察目标", false)
 	scout_link.pressed.connect(show_tab.bind("scout"))
 	_march_label(_march_content, "将领与兵力", "SectionLabel")
+	_march_label(_march_content, "按兵种填写派遣人数，填0则不携带。较慢兵种会影响整队行军，实际耗时以预览为准。", "MutedLabel")
 	_general = OptionButton.new()
 	_general.custom_minimum_size.y = 44
 	_general.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -122,10 +128,13 @@ func show_tab(tab: String) -> void:
 
 
 func configure_target(node: Dictionary) -> void:
+	var was_order: bool = not str(_target.get("orderRoute", "")).is_empty()
 	if str(_target.get("id", "")) != str(node.get("id", "")):
 		_invalidate_march("目标已变化，请重新预览。")
 		_march_error = ""
 	super.configure_target(node)
+	if was_order and str(node.get("orderRoute", "")).is_empty() and is_instance_valid(_mode):
+		_mode.select(0)
 	if is_instance_valid(_march_intro):
 		_render_march()
 
@@ -155,7 +164,7 @@ func update_view(view: Dictionary) -> void:
 	var marches: Array = []
 	for march: Dictionary in _view.get("marches", []):
 		marches.append([march.get("id", ""), march.get("node", ""), march.get("general", ""), march.get("sourceCity", ""), march.get("status", "")])
-	var signature: String = JSON.stringify([_source, stock, generals, levels, techs, marches])
+	var signature: String = JSON.stringify([_source, stock, generals, levels, techs, marches, _view.get("wildRefresh", {}).get("generation", -1), _current_node().get("wildKey")])
 	if not old_source.is_empty() and old_source != _source:
 		_invalidate_march("已切换城池，请重新选择将领与兵力。")
 		_clear_army_inputs()
@@ -203,7 +212,24 @@ func receive_quote(payload: Dictionary) -> void:
 	var lines: PackedStringArray = []
 	lines.append("粮草费用 %s · 运载能力 %s" % [_amount(_march_quote.get("foodCost")), _amount(_march_quote.get("carry"))])
 	lines.append("行军 %s · 返城 %s" % [_duration(_march_quote.get("seconds")), _duration(_march_quote.get("returnSeconds"))])
+	lines.append("最慢兵种 %s · 速度 %s" % [_quoted_slowest_name(), _stat_text(_march_quote.get("speed"))])
 	lines.append("预计抵达：" + _arrival_text(_march_quote.get("seconds")))
+	var formation: Dictionary = _dictionary(_march_quote.get("formation"))
+	if not formation.is_empty():
+		var analysis_lines: PackedStringArray = ["阵容分析 · %d 人" % int(formation.get("total", 0))]
+		var composition: PackedStringArray = []
+		for row: Dictionary in formation.get("enemy", []):
+			composition.append(str(row.get("name", "")) + " ×" + str(int(row.get("count", 0))))
+		analysis_lines.append("当前可见守军：" + "、".join(composition) if formation.get("known", false) else "当前无精确守军情报")
+		for category: String in ["strengths", "risks", "suggestions"]:
+			for text: String in formation.get(category, []):
+				analysis_lines.append(("优势：" if category == "strengths" else "风险：" if category == "risks" else "建议：") + text)
+		analysis_lines.append(str(formation.get("note", "")))
+		var conquest: Dictionary = _dictionary(_march_quote.get("conquestReward"))
+		if conquest.get("eligible", false):
+			analysis_lines.append("占领补给：元宝 +%d、随机商城道具 ×1（实际取得领地后）" % int(conquest.get("gems", 0)) if conquest.get("enabled", false) and conquest.get("first", false) else "占领补给：" + str(conquest.get("reason", "请查看征战补给模式")))
+		_formation_label.text = "\n".join(analysis_lines)
+		_formation_label.visible = true
 	lines.append(reason if not reason.is_empty() else "确认后扣除粮草并派遣，抵达后进入战斗。" if not _march_command.is_empty() else "预览缺少合法命令或费用，请重新预览。")
 	_march_quote_label.text = "\n".join(lines)
 	_march_error = ""
@@ -289,6 +315,7 @@ func _sync_march_inputs() -> void:
 			row.add_theme_constant_override("separation", 4)
 			_army_rows.add_child(row)
 			_army_labels[id] = _march_label(row, "")
+			_army_details[id] = _march_label(row, "", "MutedLabel")
 			var count: SpinBox = SpinBox.new()
 			count.min_value = 0
 			count.max_value = available
@@ -302,7 +329,9 @@ func _sync_march_inputs() -> void:
 			count.get_line_edit().text_changed.connect(func(_text: String) -> void: _march_input_changed())
 			_army_inputs[id] = count
 		var spin: SpinBox = _army_inputs[id]
-		_army_labels[id].text = str(unit.get("name", id)) + " · 可用 %d 人" % available
+		_army_labels[id].text = str(unit.get("name", id)) + " · 可分配 %d 人" % available
+		_army_details[id].text = _unit_decision_text(unit)
+		spin.tooltip_text = "填写本次派遣的%s人数；0表示不携带，最多%d人。" % [str(unit.get("name", id)), available]
 		# Only stock changes touch Range. Unchanged polling retains raw typing/focus.
 		if not is_equal_approx(spin.max_value, available):
 			var raw: String = spin.get_line_edit().text.strip_edges()
@@ -315,6 +344,7 @@ func _sync_march_inputs() -> void:
 			_army_inputs[id].get_parent().queue_free()
 			_army_inputs.erase(id)
 			_army_labels.erase(id)
+			_army_details.erase(id)
 			_army_stock.erase(id)
 	_march_setting = false
 
@@ -324,7 +354,34 @@ func _clear_army_inputs() -> void:
 		spin.get_parent().queue_free()
 	_army_inputs.clear()
 	_army_labels.clear()
+	_army_details.clear()
 	_army_stock.clear()
+
+
+func _unit_decision_text(unit: Dictionary) -> String:
+	var stats: Dictionary = _dictionary(unit.get("stats"))
+	var role: Variant = unit.get("role")
+	var role_text: String = role.strip_edges() if role is String else ""
+	return "定位：%s\n射程 %s · 速度 %s · 单兵负重 %s" % [role_text if not role_text.is_empty() else "未提供", _stat_text(stats.get("range")), _stat_text(stats.get("speed")), _stat_text(unit.get("carry"))]
+
+
+func _stat_text(value: Variant) -> String:
+	# Only format the supplied statistic. Do not infer a missing value, convert
+	# its unit, or calculate a second version of the server's march rules.
+	if not _number(value) or float(value) < 0.0:
+		return "未提供"
+	return str(int(value)) if float(value) == float(int(value)) else str(value)
+
+
+func _quoted_slowest_name() -> String:
+	var slowest: Variant = _march_quote.get("slowest")
+	if not slowest is String or slowest.strip_edges().is_empty():
+		return "未提供"
+	for unit: Dictionary in _view.get("units", []):
+		if str(unit.get("id", "")) == slowest:
+			var name: String = str(unit.get("name", "")).strip_edges()
+			return name if not name.is_empty() else slowest + "（名称未提供）"
+	return slowest + "（名称未提供）"
 
 
 func _selected_general() -> String:
@@ -336,7 +393,8 @@ func _collect_march() -> Array:
 	for id: String in _army_inputs:
 		var raw: String = _army_inputs[id].get_line_edit().text.strip_edges()
 		army[id] = clampi(int(raw), 0, int(_army_stock.get(id, 0))) if raw.is_valid_int() else -1
-	return [str(_target.get("id", "")), _selected_general(), army, "raid" if not is_instance_valid(_mode) or _mode.selected == 0 else "occupy", is_instance_valid(_occupy_return) and _occupy_return.button_pressed]
+	var order: bool = not str(_target.get("orderRoute", "")).is_empty()
+	return [str(_target.get("id", "")), _selected_general(), army, "occupy" if order else "raid" if not is_instance_valid(_mode) or _mode.selected == 0 else "occupy", order or is_instance_valid(_occupy_return) and _occupy_return.button_pressed]
 
 
 func _normalize_march() -> bool:
@@ -368,7 +426,7 @@ func _march_gate() -> String:
 	var node: Dictionary = _march_node()
 	var intel: Dictionary = _dictionary(node.get("intel"))
 	var expired: bool = str(intel.get("precision", "")) != "public" and _number(intel.get("expiresAt")) and _now_ms >= float(intel.expiresAt)
-	return JSON.stringify([node.get("id", ""), node.get("hidden", false), node.get("selectable", true), node.get("owned", false), node.get("shared", false), node.get("player", false), node.get("playerId", ""), intel, expired])
+	return JSON.stringify([node.get("id", ""), node.get("hidden", false), node.get("selectable", true), node.get("owned", false), node.get("shared", false), node.get("player", false), node.get("playerId", ""), intel, expired, _view.get("conquestSupply", {}).get("enabled", false)])
 
 
 func _march_usable() -> bool:
@@ -421,7 +479,11 @@ func _valid_march_terms() -> bool:
 
 func _valid_march_command(command: Dictionary) -> bool:
 	var args: Variant = command.get("args")
-	if str(command.get("type", "")) != "dispatch" or str(command.get("sourceCity", "")) != _source or not args is Array or args.size() != 5:
+	var key: Variant = _current_node().get("wildKey")
+	var has_key: bool = key is String and not key.is_empty()
+	if str(command.get("type", "")) != "dispatch" or str(command.get("sourceCity", "")) != _source or not args is Array or args.size() != (6 if has_key else 5):
+		return false
+	if has_key and args[5] != key:
 		return false
 	var selected: Array = _collect_march()
 	if not args[0] is String or not args[1] is String or args[0] != selected[0] or args[1] != selected[1] or not args[2] is Dictionary or args[3] != selected[3] or not args[4] is bool or args[4] != selected[4]:
@@ -450,6 +512,9 @@ func _submit_march() -> void:
 
 
 func _invalidate_march(message: String = "先预览当前粮草费用、行军耗时与抵达时间。") -> void:
+	if is_instance_valid(_formation_label):
+		_formation_label.text = ""
+		_formation_label.visible = false
 	_march_quote_id = ""
 	_march_quote_fingerprint = ""
 	_march_quote.clear()
@@ -475,7 +540,13 @@ func _refresh_march_actions() -> void:
 	var usable: bool = _march_usable()
 	_general.disabled = not usable or _general.item_count == 0
 	_mode.disabled = not usable
-	_occupy_return.visible = _mode.selected == 1
+	var order: bool = not str(_target.get("orderRoute", "")).is_empty()
+	_mode.set_item_disabled(0, order)
+	_mode.set_item_text(1, "讨伐军令（胜利后返城）" if order else "占领")
+	if order:
+		_mode.select(1)
+	_mode.tooltip_text = "军令使用讨伐模式，胜利后返城；本场不取得领地。" if order else "选择掠夺资源或占领目标。"
+	_occupy_return.visible = _mode.selected == 1 and not order
 	_occupy_return.disabled = not usable
 	for id: String in _army_inputs:
 		_army_inputs[id].editable = usable and int(_army_stock.get(id, 0)) > 0
