@@ -32,6 +32,9 @@ const NotificationScript: Script = preload("res://src/notification_center.gd")
 const ReportLootScript: Script = preload("res://src/report_loot_view.gd")
 const PostBattleScript: Script = preload("res://src/post_battle_actions.gd")
 const RaidTargetsScript: Script = preload("res://src/raid_targets_view.gd")
+const PracticeScript: Script = preload("res://src/practice_dialog.gd")
+const BattleReviewScript: Script = preload("res://src/battle_review_view.gd")
+const CountyGovernanceScript: Script = preload("res://src/county_governance_view.gd")
 const FONT: Font = preload("res://assets/fonts/UI.tres")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 const RES_SHORT_NAMES: Dictionary = {"food": "粮", "wood": "木", "stone": "石", "iron": "铁", "gold": "金"}
@@ -151,6 +154,18 @@ var _city_objective_expanded: bool = false
 var _city_status_row: HBoxContainer
 var _city_queue_button: Button
 var _city_military_button: Button
+var _practice: KingdomPracticeDialog
+var _practice_button: Button
+var _report_review: KingdomBattleReviewView
+var _county_governance: KingdomCountyGovernanceView
+var _county_source: String = ""
+var _county_identity_label: Label
+var _county_baseline: bool = false
+var _county_conquest: Dictionary = {}
+var _county_conquest_button: Button
+var _county_after_switch: String = ""
+var _county_battle_pending: Dictionary = {}
+var _first_steps: HFlowContainer
 
 func _ready() -> void:
 	get_window().title = "山河策"
@@ -225,6 +240,7 @@ func _initialize_presentation() -> void:
 	add_child(_guide)
 	_menu.input_requested.connect(_show_input_settings)
 	_menu.guide_requested.connect(_guide.start)
+	_menu.practice_requested.connect(_show_practice)
 	_menu.save_requested.connect(_save_dialog)
 	_menu.connection_requested.connect(_show_lobby)
 	_menu.visibility_changed.connect(_on_popup_visibility.bind(_menu))
@@ -539,6 +555,17 @@ func _build_shell() -> void:
 	objective_row.add_child(_compact_objective_expand)
 	for action: Button in [_compact_objective_button, _compact_growth_button, _compact_objective_expand]:
 		action.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var first_steps: HFlowContainer = HFlowContainer.new()
+	_first_steps = first_steps
+	root.add_child(first_steps)
+	_practice_button = _button("先练一战 · 借调部队", _show_practice)
+	_practice_button.theme_type_variation = "PrimaryButton"
+	_practice_button.tooltip_text = "先用借调部队学习军令，再准备30弓首次自主出征"
+	first_steps.add_child(_practice_button)
+	_county_conquest_button = _button("县城归附 · 查看新领地", _show_county_conquest)
+	_county_conquest_button.theme_type_variation = "PrimaryButton"
+	_county_conquest_button.visible = false
+	first_steps.add_child(_county_conquest_button)
 	_body = HBoxContainer.new()
 	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(_body)
@@ -901,6 +928,12 @@ func _show_page(page: String) -> void:
 				tab.set_pressed_no_signal(_city_zone == str(zone[0]))
 				_city_toolbar.add_child(tab)
 			_city_toolbar.add_child(_button("城务", _city_affairs_dialog))
+			if api == null or api.mode != "shared":
+				_city_toolbar.add_child(_button("领地治理", _show_county_governance))
+				_county_identity_label = _label("", 14, Color("d8c28b"))
+				_county_identity_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				_city_toolbar.add_child(_county_identity_label)
+				_sync_county_identity()
 			if _city_zone == "inner":
 				var locate_hall: Button = _button("定位官府", _focus_city_hall)
 				locate_hall.theme_type_variation = "UtilityButton"
@@ -927,6 +960,8 @@ func _show_page(page: String) -> void:
 				call_deferred("_adapt_layout")
 		"army":
 			_center.add_child(_label("军队 · 城防与出征", 22))
+			if api == null or api.mode != "shared":
+				_center.add_child(_button("借调演练 · 比较三种战术", _show_practice))
 			_battle = BattleScript.new() as KingdomBattleView
 			_battle.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			_battle.custom_minimum_size.y = 260.0
@@ -1054,6 +1089,9 @@ func _receive_snapshot(payload: Dictionary) -> void:
 	_sync_tasks_hub()
 	_sync_growth_route()
 	_sync_report_economy()
+	_sync_county_governance()
+	_establish_county_baseline()
+	_sync_county_identity()
 	if is_instance_valid(_raid_targets):
 		_raid_targets.update_view(_view)
 		_raid_targets.set_navigation_state(api.connected, api._has_mutation())
@@ -1136,6 +1174,8 @@ func _connection_changed(message: String, _connected: bool) -> void:
 		_lobby.connection_status(message, _connected, api.actor, api.room, api._authority)
 
 func _request_failed(message: String) -> void:
+	_county_after_switch = ""
+	_county_battle_pending.clear()
 	_pending_battle = false
 	_pending_recall.clear()
 	_sync_objective_actions()
@@ -1198,6 +1238,8 @@ func _refresh_objective() -> void:
 
 func _sync_objective_actions() -> void:
 	var blocked: bool = api == null or not api.connected or api._has_mutation()
+	if is_instance_valid(_battle):
+		_battle.set_actions_enabled(not blocked and api.mode == "local")
 	_objective_button.disabled = blocked
 	_compact_objective_button.disabled = blocked
 	if is_instance_valid(_growth_button):
@@ -1208,6 +1250,17 @@ func _sync_objective_actions() -> void:
 		_compact_growth_button.disabled = blocked or _view.get("growth", {}).is_empty()
 	if is_instance_valid(_growth_route):
 		_growth_route.set_navigation_state(api != null and api.connected, api != null and api._has_mutation())
+	if is_instance_valid(_practice_button):
+		var first_battle: Dictionary = _view.get("progression", {}).get("firstBattle", {})
+		_practice_button.visible = api != null and api.mode == "local" and not first_battle.is_empty() and not first_battle.get("complete", false)
+		_practice_button.disabled = blocked
+	if is_instance_valid(_county_governance):
+		_county_governance.set_command_state(not blocked and _county_source == str(_view.get("city", {}).get("id", "")), api != null and api._has_mutation())
+	if is_instance_valid(_county_conquest_button):
+		_county_conquest_button.visible = not _county_conquest.is_empty() and api != null and api.mode == "local"
+		_county_conquest_button.disabled = blocked
+	if is_instance_valid(_first_steps):
+		_first_steps.visible = _practice_button.visible or _county_conquest_button.visible
 
 func _number(value: float) -> String:
 	if value >= 1000000.0:
@@ -1345,6 +1398,9 @@ func _open_dialog(title: String, width: int = 600, managed_scroll: bool = true) 
 	_march_content = null
 	_march_empty = null
 	_growth_route = null
+	_county_governance = null
+	_county_source = ""
+	_report_review = null
 	_report_economy = null
 	_report_loot = null
 	_report_recovery = null
@@ -1748,8 +1804,20 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 		}
 		_show_toast(str(messages.get(type, "操作已完成")) + " · 进度已保存")
 	_sync_objective_actions()
+	if type == "battleRound":
+		_celebrate_county_receipt(_payload)
+	if type == "switchCity" and not _county_after_switch.is_empty():
+		var destination: String = _county_after_switch
+		_county_after_switch = ""
+		if not _payload.get("replayed", false) and int(_payload.get("revision", -1)) >= api.revision and str(_view.get("city", {}).get("id", "")) == destination:
+			_show_county_governance()
 
 func _send_command(type: String, args: Array = [], source_city: String = "") -> void:
+	if type == "battleRound":
+		_county_battle_pending.clear()
+		var live: Variant = _view.get("battle")
+		if api.connected and not api._has_mutation() and api.mode == "local" and _county_baseline and _owned_named_cities().is_empty() and live is Dictionary and not live.get("finished", false):
+			_county_battle_pending = {"identity": _campaign_identity(), "node": live.get("node", ""), "general": live.get("general", ""), "sourceCity": live.get("sourceCity", "")}
 	api.command(type, args, source_city)
 	if is_instance_valid(_report_recovery):
 		_report_recovery.set_navigation_state(api.connected, api._has_mutation())
@@ -1878,8 +1946,210 @@ func _show_growth_route() -> void:
 	_growth_route = GrowthRouteScript.new() as KingdomGrowthRouteView
 	content.add_child(_growth_route)
 	_growth_route.navigate_requested.connect(_route_objective)
+	_growth_route.speedup_requested.connect(_confirm_growth_speedup)
 	_sync_growth_route()
 	call_deferred("_watch_buttons", _growth_route)
+
+func _show_practice() -> void:
+	if api == null or api.mode != "local" or not api.connected or api._has_mutation():
+		_show_toast("连接本机进度并等待当前操作确认后，可借调部队演练。")
+		return
+	if not is_instance_valid(_practice):
+		_practice = PracticeScript.new() as KingdomPracticeDialog
+		_practice.api = api
+		add_child(_practice)
+		_practice.campaign_requested.connect(_show_growth_route)
+		_practice.visibility_changed.connect(_on_popup_visibility.bind(_practice))
+	_prepare_feature_panel(_practice)
+	_practice.open_practice()
+
+func _campaign_identity() -> String:
+	return api.base_url + "|" + api._authority + "|" + api.mode if api != null else ""
+
+func _growth_speedup_target(item_id: String, target_key: String) -> Dictionary:
+	for item: Dictionary in _view.get("inventoryManagement", {}).get("items", []):
+		if str(item.get("id", "")) != item_id or int(item.get("count", 0)) < 1:
+			continue
+		var use: Dictionary = item.get("use", {})
+		if str(use.get("targetKind", "")) != "speedup" or not str(use.get("reason", "")).is_empty():
+			return {}
+		for target: Dictionary in use.get("targets", []):
+			if str(target.get("key", "")) == target_key and str(target.get("reason", "")).is_empty() and not target.get("quote", {}).get("error"):
+				return {"item": item, "target": target}
+	return {}
+
+func _confirm_growth_speedup(item_id: String, target_key: String) -> void:
+	if api == null or api.mode != "local" or not api.connected or api._has_mutation():
+		return
+	var preview: Dictionary = _growth_speedup_target(item_id, target_key)
+	if preview.is_empty():
+		_show_toast("这项队列或库存已变化，请重新查看成长路线。", true)
+		return
+	var source: String = str(_view.get("city", {}).get("id", ""))
+	var identity: String = _campaign_identity()
+	var item: Dictionary = preview.item
+	var target: Dictionary = preview.target
+	var quote: Dictionary = target.get("quote", {})
+	var content: VBoxContainer = _open_dialog("确认使用加速", 600)
+	content.add_child(_report_label("消耗 %s ×1 · 当前拥有 %d 件" % [str(item.get("name", "加速")), int(item.get("count", 0))], 20))
+	content.add_child(_report_label(str(target.get("name", "当前队列"))))
+	content.add_child(_report_label("工作剩余 %s · 排队等待 %s\n本次缩短范围 %s～%s\n使用后工作剩余 %s～%s；排队时间另计。" % [_time_text(float(quote.get("workMs", 0)) / 1000.0), _time_text(float(quote.get("waitMs", 0)) / 1000.0), _time_text(float(quote.get("minMs", 0)) / 1000.0), _time_text(float(quote.get("maxMs", 0)) / 1000.0), _time_text(float(quote.get("afterMinMs", 0)) / 1000.0), _time_text(float(quote.get("afterMaxMs", 0)) / 1000.0)]))
+	if quote.get("overflow", false):
+		content.add_child(_report_label("超出工作时间的加速不会保留，请确认是否值得消耗。", 15, Color("edb68f")))
+	content.add_child(_report_label("上方是当前预览；实际剩余时间随时间推进，最终以原规则回执为准。", 14))
+	var confirm: Button = _button("确认消耗1件", func() -> void:
+		if not api.connected or api._has_mutation() or identity != _campaign_identity() or source != str(_view.get("city", {}).get("id", "")) or _growth_speedup_target(item_id, target_key).is_empty():
+			_show_toast("当前城池、队列或库存已变化，请重新预览。", true)
+			return
+		_send_command("useSpeedup", [item_id, target_key], source)
+		_dialog.hide())
+	confirm.theme_type_variation = "PrimaryButton"
+	content.add_child(confirm)
+	content.add_child(_button("返回成长路线", _show_growth_route))
+
+func _time_text(seconds: float) -> String:
+	var amount: int = maxi(0, int(ceil(seconds)))
+	return "%d时%02d分" % [amount / 3600, (amount % 3600) / 60] if amount >= 3600 else "%d分%02d秒" % [amount / 60, amount % 60]
+
+func _owned_named_cities() -> Dictionary:
+	var result: Dictionary = {}
+	for city: Dictionary in _view.get("realmManagement", {}).get("cities", []):
+		var identity: Dictionary = city.get("identity", {})
+		if identity.get("owned", false) and str(identity.get("id", "")) == str(city.get("node", "")) and str(identity.get("tier", "")) == "county":
+			result[str(city.get("id", ""))] = city
+	return result
+
+func _reset_county_context() -> void:
+	_county_baseline = false
+	_county_conquest.clear()
+	_county_after_switch = ""
+	_county_battle_pending.clear()
+	if is_instance_valid(_county_conquest_button):
+		_county_conquest_button.visible = false
+
+func _establish_county_baseline() -> void:
+	# Polling and imports only establish the current baseline. Celebration is
+	# restricted to the fresh, non-replayed battle command receipt below.
+	_county_baseline = true
+
+func _celebrate_county_receipt(payload: Dictionary) -> void:
+	var pending: Dictionary = _county_battle_pending.duplicate(true)
+	_county_battle_pending.clear()
+	if pending.is_empty() or str(pending.get("identity", "")) != _campaign_identity() or api.mode != "local" or payload.get("replayed", false) or int(payload.get("revision", -1)) < api.revision:
+		return
+	var live: Variant = _view.get("battle")
+	if not live is Dictionary or not live.get("finished", false):
+		return
+	var result: Dictionary = live.get("result", {})
+	if not result.get("claimed", false) or not result.get("won", false) or str(live.get("mode", "")) != "occupy":
+		return
+	for key: String in ["node", "general", "sourceCity"]:
+		if str(live.get(key, "")) != str(pending.get(key, "")):
+			return
+	var current: Dictionary = _owned_named_cities()
+	if current.is_empty() or not _county_conquest.is_empty():
+		return
+	for report: Dictionary in _view.get("reports", []):
+		var city_id: String = "city_" + str(report.get("node", ""))
+		if not current.has(city_id) or not report.get("claimed", false) or not report.get("won", false) or str(report.get("mode", "")) != "occupy" or int(report.get("round", -1)) != int(live.get("round", -2)):
+			continue
+		var matches: bool = true
+		for key: String in ["node", "general", "sourceCity"]:
+			if str(report.get(key, "")) != str(pending.get(key, "")):
+				matches = false
+		if not matches:
+			continue
+		_county_conquest = {"city": current[city_id], "report": report.duplicate(true), "identity": _campaign_identity()}
+		_show_toast(str(current[city_id].get("name", "县城")) + "真正归附 · 新领地已加入己方城池。")
+		_sync_objective_actions()
+		return
+
+func _sync_county_identity() -> void:
+	if not is_instance_valid(_county_identity_label):
+		return
+	_county_identity_label.text = ""
+	for city: Dictionary in _view.get("realmManagement", {}).get("cities", []):
+		if str(city.get("id", "")) != str(_view.get("city", {}).get("id", "")):
+			continue
+		var identity: Dictionary = city.get("identity", {})
+		_county_identity_label.text = "⚑ " + str(city.get("name", "")) + " · " + str(identity.get("tierName", "")) if identity.get("owned", false) else ""
+
+func _show_county_conquest() -> void:
+	if _county_conquest.is_empty() or str(_county_conquest.get("identity", "")) != _campaign_identity():
+		return
+	var city: Dictionary = _county_conquest.city
+	var id: String = str(city.get("id", ""))
+	if not _owned_named_cities().has(id):
+		_county_conquest.clear()
+		_sync_objective_actions()
+		return
+	var report: Dictionary = _county_conquest.report
+	var content: VBoxContainer = _open_dialog("县城归附 · 经营一城，治理一地", 680)
+	content.add_child(_report_label("⚑ " + str(city.get("name", "县城")) + "已加入你的领地", 24, Color("d8c28b")))
+	content.add_child(_report_label("这是实际易主后的新城。仅击退守军或降低民心不会触发归附提示。", 14))
+	content.add_child(_report_label("幸存部队驻扎新城。" if report.get("stationed", false) else "幸存部队正返回原出发城。"))
+	content.add_child(_report_label("战利品按原规则结算到出发城；新城需要安排补给、人口与驻军。"))
+	if str(city.get("node", "")) == "fort":
+		for chapter: Dictionary in _view.get("progression", {}).get("chapters", []):
+			if int(chapter.get("chapter", chapter.get("id", 0))) == 2 and chapter.get("unlocked", false):
+				content.add_child(_report_label("第二章已开放 · 下一步可查看征战章节。", 18, Color("bdcc9e")))
+	content.add_child(_button("进入新城 · 选择安民、征粮或补给", func() -> void:
+		if not api.connected or api._has_mutation() or str(_county_conquest.get("identity", "")) != _campaign_identity() or not _owned_named_cities().has(id):
+			_show_toast("请核对当前城池与连接后再进入新城。", true)
+			return
+		if str(_view.get("city", {}).get("id", "")) == id:
+			_show_county_governance()
+		else:
+			_county_after_switch = id
+			_send_command("switchCity", [id])
+			_dialog.hide()))
+	content.add_child(_button("查看下一章与目标", _show_progression.bind("chapters")))
+	content.add_child(_button("我已了解，继续经营", func() -> void:
+		_county_conquest.clear()
+		_sync_objective_actions()
+		_dialog.hide()))
+
+func _show_county_governance() -> void:
+	if api == null or api.mode != "local":
+		_show_toast("领地治理用于本机已占名城。")
+		return
+	var source: String = str(_view.get("city", {}).get("id", ""))
+	var identity: String = _campaign_identity()
+	var content: VBoxContainer = _open_dialog("领地治理", 680)
+	_county_source = source
+	_county_governance = CountyGovernanceScript.new() as KingdomCountyGovernanceView
+	content.add_child(_county_governance)
+	_county_governance.route_requested.connect(_route_county_governance)
+	_county_governance.command_requested.connect(func(type: String, args: Array) -> void:
+		if not api.connected or api._has_mutation() or identity != _campaign_identity() or source != str(_view.get("city", {}).get("id", "")):
+			_show_toast("城池或连接已变化，请重新打开治理页面。", true)
+			return
+		_send_command(type, args, source))
+	_sync_county_governance()
+	call_deferred("_watch_buttons", _county_governance)
+
+func _sync_county_governance() -> void:
+	if not is_instance_valid(_county_governance):
+		return
+	var current: bool = _county_source == str(_view.get("city", {}).get("id", ""))
+	_county_governance.update_view(_view if current else {})
+	_county_governance.set_command_state(api.connected and current, api._has_mutation())
+
+func _route_county_governance(section: String, target: String) -> void:
+	if api == null or not api.connected or api._has_mutation():
+		return
+	if section != "cities" and not target.is_empty() and target != "fort" and target != str(_view.get("city", {}).get("id", "")):
+		_show_toast("当前城池已变化，请重新选择。", true)
+		return
+	match section:
+		"civic": _show_war_management("civic")
+		"governance": _show_management("governance")
+		"logistics":
+			_show_realm("cities")
+			_show_toast("补给新城：先切到有物资的出发城，再打开运输调遣，选择这座新城作为目的地。")
+		"cities": _show_realm("cities")
+		"world": _route_objective("world", target)
+		_: _show_growth_route()
 
 func _show_raid_targets() -> void:
 	if api == null or api.mode == "shared":
@@ -1933,6 +2203,8 @@ func _sync_report_economy() -> void:
 		_report_recovery.set_navigation_state(api.connected, api._has_mutation())
 	for report: Dictionary in _view.get("reports", []):
 		if _report_identity(report) == _report_key:
+			if is_instance_valid(_report_review):
+				_report_review.set_review(report.get("review", {}))
 			if is_instance_valid(_report_recovery):
 				_report_recovery.update_context(report, _view, api.connected, api._has_mutation())
 			var economy: Dictionary = report.get("economy", {})
@@ -1976,6 +2248,11 @@ func _report_dialog(report: Dictionary) -> void:
 	# Keep the next action and rewards ahead of the longer accounting breakdown.
 	content.move_child(_report_recovery, 1)
 	content.move_child(_report_loot, 2)
+	if not report.get("shared", false):
+		_report_review = BattleReviewScript.new() as KingdomBattleReviewView
+		content.add_child(_report_review)
+		_report_review.set_review(report.get("review", {}))
+		content.move_child(_report_review, 3)
 	if report.get("shared", false):
 		_render_shared_report(content, report)
 		return
@@ -2128,6 +2405,13 @@ func _scrub_retiring_window(node: Node) -> void:
 	node.set_block_signals(signals_were_blocked)
 
 func _mode_changed(_mode: String) -> void:
+	_reset_county_context()
+	_county_identity_label = null
+	_county_governance = null
+	_county_source = ""
+	_report_review = null
+	if is_instance_valid(_practice):
+		_practice.clear_context()
 	if is_instance_valid(_notifications):
 		_notifications.clear_context()
 	_city_construction_panel = null
@@ -2187,7 +2471,7 @@ func _mode_changed(_mode: String) -> void:
 	_intel_server_offset = 0.0
 	if is_instance_valid(_scouting):
 		_scouting.clear_context()
-	var retiring_windows: Array[Window] = [_pvp, _dialog, _management, _heroes, _progression, _war_management, _realm, _inventory, _scouting]
+	var retiring_windows: Array[Window] = [_pvp, _dialog, _management, _heroes, _progression, _war_management, _realm, _inventory, _scouting, _practice]
 	# Earlier dialog transitions may already have queued a Window for deletion
 	# during this same frame; those no longer have a cached field reference.
 	for child: Node in get_children():
@@ -2206,6 +2490,7 @@ func _mode_changed(_mode: String) -> void:
 	_realm = null
 	_inventory = null
 	_scouting = null
+	_practice = null
 	_save_text = null
 	_show_toast("正在读取当前进度…")
 	_show_page(_page)
@@ -2255,7 +2540,7 @@ func _shared_player_name(id: String) -> String:
 	return "城主"
 
 func _hide_feature_panels(except: Window = null) -> void:
-	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory, _scouting]:
+	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory, _scouting, _practice]:
 		if is_instance_valid(popup) and popup != except:
 			popup.hide()
 
@@ -2436,6 +2721,7 @@ func _show_export(snapshot: Dictionary) -> void:
 		if not parsed is Dictionary:
 			_show_toast("存档 JSON 格式无效")
 			return
+		_reset_county_context()
 		api.import_snapshot(parsed)
 		_dialog.hide()))
 	if not OS.has_feature("web"):
@@ -2471,6 +2757,7 @@ func _load_file() -> void:
 	picker.file_selected.connect(func(path: String) -> void:
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if parsed is Dictionary:
+			_reset_county_context()
 			api.import_snapshot(parsed)
 			_dialog.hide()
 		else:

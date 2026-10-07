@@ -9,9 +9,21 @@ import {growthView} from './growth-view.mjs';
 import {intelView, scoutingView, scoutMarchesView} from './scouting-view.mjs';
 import {buildingComparisons} from './building-comparison.mjs';
 import {raidTargetsView} from './raid-targets-view.mjs';
+import {battleReview} from './battle-review.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
+
+// The last round belongs only to the latest receipt of this still-present,
+// finished battle. Older history entries never inherit a later fight's events.
+function battleForReport(game, report) {
+  const battle = game.state.battle, latest = game.state.reports[0];
+  if (!battle?.finished || !battle.result || !latest || report.id !== latest.id ||
+      report.node !== battle.node || report.general !== battle.general ||
+      report.sourceCity !== battle.sourceCity || report.round !== battle.round) return null;
+  return Object.entries(battle.result).every(([key, value]) =>
+    JSON.stringify(report[key]) === JSON.stringify(value)) ? battle : null;
+}
 
 // Administrative tiers come from the canonical NamedCityData definition via
 // Game's read-only profile. Building levels and map-region centres are not tiers.
@@ -227,7 +239,9 @@ export function gameView(game, now, runtime = null, options = {}) {
     queueLimits: {build: game.buildLimit(), train: game.trainingLimit()},
     objective, generals, nodes: game.nodes.filter(node => game.landmarkVisible(node.id)).map(node => nodeView(game, game.getNode(node.id), now, options)),
     marches: marchesView(game, now, options), battle: copy(game.currentBattle()),
-    reports: runtime ? state.reports.map(report => ({...copy(report), economy: reportEconomy(runtime, report)})) : copy(state.reports),
+    reports: state.reports.map(report => ({...copy(report),
+      ...(runtime ? {economy: reportEconomy(runtime, report)} : {}),
+      review: battleReview(report, {battle: battleForReport(game, report)})})),
     gifts: {available: game.onboarding.available(state), claimed: copy(state.onboarding.claims)},
   };
 }

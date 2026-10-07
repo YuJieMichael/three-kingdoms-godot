@@ -1,8 +1,9 @@
 class_name KingdomGrowthRouteView
 extends PanelContainer
 
-## A stable, read-only route card. The host owns its modal and all navigation.
+## A stable route card. The host owns navigation and confirmation; this card spends nothing.
 signal navigate_requested(route: String, target: String)
+signal speedup_requested(item_id: String, target_key: String)
 
 # Immediate supplies and resource recovery are useful before spending on a gap.
 # This only orders the service's advice; it never derives a reward or a rule.
@@ -19,6 +20,7 @@ var _gaps: Label
 var _more: Button
 var _current: Button
 var _speedup: Label
+var _speedup_confirm: Button
 var _speedup_action: Button
 var _advice_content: VBoxContainer
 var _advice_heading: Label
@@ -45,6 +47,9 @@ func _ready() -> void:
 	_current.pressed.connect(_navigate.bind(_current))
 	content.add_child(HSeparator.new())
 	_speedup = _label(content, "", "MutedLabel")
+	_speedup_confirm = _button(content, "确认使用这件加速", true)
+	_speedup_confirm.tooltip_text = "打开加速预览，核对消耗和剩余时间后再确认。"
+	_speedup_confirm.pressed.connect(_request_speedup)
 	_speedup_action = _button(content, "查看已入库加速")
 	_speedup_action.pressed.connect(_navigate.bind(_speedup_action))
 	_advice_content = VBoxContainer.new()
@@ -101,7 +106,7 @@ func _render() -> void:
 	_set_navigation(_current, step.get("navigate", {}), not shared and not step.is_empty())
 	_render_speedup(growth.get("speedup", {}), shared)
 	_render_advice(growth.get("advice", []), shared)
-	_status.text = "正在确认操作，路线在确认后更新。" if _pending else "连接后可前往当前一步。" if not _connected else "此页只提供路线与预览，费用在办理页面确认。"
+	_status.text = "正在确认操作，路线在确认后更新。" if _pending else "连接后可前往当前一步并预览加速。" if not _connected else "推荐加速先预览消耗与剩余时间，再由你确认使用。"
 	_status.visible = not shared
 	_wire_focus()
 
@@ -150,8 +155,39 @@ func _render_speedup(speedup: Dictionary, shared: bool) -> void:
 	else:
 		text += "\n当前一步尚无可推荐的合法队列。先安排建设、研究或练兵，再选择对应加速。"
 	_speedup.text = text
+	var usable: Dictionary = _speedup_suggestion()
+	_speedup_confirm.visible = not shared and count > 0 and not usable.is_empty()
+	_speedup_confirm.disabled = not _connected or _pending or shared or usable.is_empty()
 	var navigate: Dictionary = suggestion.get("navigate", {"route": "inventory", "target": "", "label": "查看已入库加速"})
 	_set_navigation(_speedup_action, navigate, not shared and count > 0)
+
+
+func _speedup_suggestion() -> Dictionary:
+	var growth: Dictionary = _view.get("growth", {}) if _view.get("growth") is Dictionary else {}
+	if bool(growth.get("shared", false)):
+		return {}
+	var speedup: Dictionary = growth.get("speedup", {}) if growth.get("speedup") is Dictionary else {}
+	var suggestion: Dictionary = speedup.get("suggestion", {}) if speedup.get("suggestion") is Dictionary else {}
+	var item_id: Variant = suggestion.get("itemId")
+	var target_key: Variant = suggestion.get("targetKey")
+	var held: Variant = suggestion.get("count")
+	if not item_id is String or str(item_id).strip_edges().is_empty() or not target_key is String or str(target_key).strip_edges().is_empty():
+		return {}
+	if not (held is int or held is float) or not is_finite(float(held)) or float(held) <= 0.0 or float(held) != floor(float(held)):
+		return {}
+	if not str(suggestion.get("reason", "")).is_empty():
+		return {}
+	return suggestion
+
+
+func _request_speedup() -> void:
+	if not _connected or _pending or not is_instance_valid(_speedup_confirm) or _speedup_confirm.disabled or not _speedup_confirm.is_visible_in_tree():
+		return
+	# Resolve the latest projection again; the host must quote and confirm the
+	# exact canonical item/queue key before issuing any consuming command.
+	var suggestion: Dictionary = _speedup_suggestion()
+	if not suggestion.is_empty():
+		speedup_requested.emit(str(suggestion.itemId), str(suggestion.targetKey))
 
 
 func _set_navigation(button: Button, navigate: Dictionary, show: bool) -> void:
@@ -172,7 +208,7 @@ func _navigate(button: Button) -> void:
 
 func _wire_focus() -> void:
 	var buttons: Array[Button] = []
-	var candidates: Array[Button] = [_more, _current, _speedup_action]
+	var candidates: Array[Button] = [_more, _current, _speedup_confirm, _speedup_action]
 	candidates.append_array(_advice_actions)
 	for button: Button in candidates:
 		if button.visible and not button.disabled:

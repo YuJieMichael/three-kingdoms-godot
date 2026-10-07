@@ -34,7 +34,14 @@ var _title: Label
 var _subtitle: Label
 var _summary: Label
 var _commands: GridContainer
+var _unit_selector: OptionButton
 var _unit_commands: HBoxContainer
+var _target_commands: GridContainer
+var _target_selector: OptionButton
+var _confirm_target: Button
+var _target_drafts: Dictionary = {}
+var _target_dirty: Dictionary = {}
+var _paused_focus: Control
 var _logs: RichTextLabel
 var _buttons: Array[Button] = []
 
@@ -58,6 +65,10 @@ func set_battle(battle: Variant, units: Dictionary = {}) -> void:
 		_observed_round = -1
 		_animation_elapsed = ANIMATION_SECONDS
 		_unit_ids.clear()
+		_selected = ""
+		_target_drafts.clear()
+		_target_dirty.clear()
+		_paused_focus = null
 		set_process(false)
 		_refresh_controls()
 		queue_redraw()
@@ -67,6 +78,9 @@ func set_battle(battle: Variant, units: Dictionary = {}) -> void:
 	var next_round: int = int(next.get("round", 0))
 	var restarted: bool = bool(_battle.get("finished", false)) and not bool(next.get("finished", false))
 	var same_battle: bool = next_identity == _identity and next_round >= _observed_round and not restarted
+	if not same_battle:
+		_target_drafts.clear()
+		_target_dirty.clear()
 	if same_battle and next_round == _observed_round + 1:
 		_previous = _battle.duplicate(true)
 		var summary: Dictionary = next.get("currentRoundSummary", {})
@@ -102,8 +116,14 @@ func set_battle(battle: Variant, units: Dictionary = {}) -> void:
 	queue_redraw()
 
 func set_actions_enabled(enabled: bool) -> void:
+	if _built and _actions_enabled and not enabled and is_inside_tree():
+		var focused: Control = get_viewport().gui_get_focus_owner()
+		if is_instance_valid(focused) and is_ancestor_of(focused):
+			_paused_focus = focused
 	_actions_enabled = enabled
 	_refresh_controls()
+	if enabled and is_instance_valid(_paused_focus):
+		call_deferred("_restore_action_focus")
 
 func animation_events() -> Array:
 	return _events.duplicate(true)
@@ -180,6 +200,9 @@ func _build_controls() -> void:
 	_add_button(_commands, "全部固守", "setBattleOrders", ["hold"])
 	_add_button(_commands, "全部后退", "setBattleOrders", ["fallback"])
 	_add_button(_commands, "下一回合", "battleRound", [])
+	_unit_selector = _make_selector("选择我军兵队，仅查看，不下达军令。")
+	add_child(_unit_selector)
+	_unit_selector.item_selected.connect(_select_unit)
 	_unit_commands = HBoxContainer.new()
 	_unit_commands.add_theme_constant_override("separation", 7)
 	add_child(_unit_commands)
@@ -190,6 +213,22 @@ func _build_controls() -> void:
 		button.pressed.connect(_unit_order.bind(str(entry[1])))
 		_unit_commands.add_child(button)
 		_buttons.append(button)
+	_target_commands = GridContainer.new()
+	_target_commands.columns = 2
+	_target_commands.add_theme_constant_override("h_separation", 8)
+	_target_commands.add_theme_constant_override("v_separation", 6)
+	add_child(_target_commands)
+	_target_selector = _make_selector("选择待确认的攻击目标；确认后按现有射程和寻敌规则结算。")
+	_target_commands.add_child(_target_selector)
+	_target_selector.item_selected.connect(_select_target)
+	_confirm_target = Button.new()
+	_confirm_target.text = "确认攻击目标"
+	_confirm_target.theme_type_variation = "UtilityButton"
+	_confirm_target.custom_minimum_size.y = 44.0
+	_confirm_target.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_confirm_target.tooltip_text = "保留此兵队当前前进／固守／后退军令，仅确认攻击目标；下回合按真实规则生效。"
+	_confirm_target.pressed.connect(_send_target)
+	_target_commands.add_child(_confirm_target)
 	_summary = Label.new()
 	_summary.add_theme_font_size_override("font_size", 14)
 	_summary.add_theme_color_override("font_color", GOLD)
@@ -199,9 +238,163 @@ func _build_controls() -> void:
 	_logs.bbcode_enabled = false
 	_logs.scroll_active = true
 	_logs.selection_enabled = true
+	_logs.focus_mode = Control.FOCUS_ALL
 	_logs.add_theme_font_size_override("normal_font_size", 14)
 	_logs.add_theme_color_override("default_color", Color("cbd1bd"))
 	add_child(_logs)
+
+func _make_selector(hint: String) -> OptionButton:
+	var selector: OptionButton = OptionButton.new()
+	selector.custom_minimum_size.y = 44.0
+	selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	selector.focus_mode = Control.FOCUS_ALL
+	selector.theme_type_variation = "UtilityButton"
+	selector.fit_to_longest_item = false
+	selector.clip_text = true
+	selector.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	selector.tooltip_text = hint
+	return selector
+
+func _living_ids(side: String) -> Array[String]:
+	var ids: Array[String] = []
+	for value: Variant in _battle.get(side, []):
+		if value is Dictionary:
+			var row: Dictionary = value
+			var id: String = str(row.get("id", ""))
+			if not id.is_empty() and float(row.get("hp", 0)) > 0.0 and not ids.has(id):
+				ids.append(id)
+	return ids
+
+func _target_ids() -> Array[String]:
+	var ids: Array[String] = [""]
+	var gate: Variant = _battle.get("gate")
+	if gate is Dictionary and float(gate.get("hp", 0)) > 0.0:
+		ids.append("gate")
+	ids.append_array(_living_ids("enemy"))
+	return ids
+
+func _selector_ids(selector: OptionButton) -> Array[String]:
+	var ids: Array[String] = []
+	for index: int in range(selector.item_count):
+		ids.append(str(selector.get_item_metadata(index)))
+	return ids
+
+func _formation_choice(side: String, id: String) -> String:
+	var row: Dictionary = _row(side, id)
+	var stats: Dictionary = row.get("stats", {})
+	var count: int = ceili(float(row.get("hp", 0)) / maxf(1.0, float(stats.get("hp", 1))))
+	return "%s · %s · %d 人" % ["我军" if side == "player" else "敌军", _unit_name(id), count]
+
+func _sync_selector(selector: OptionButton, ids: Array[String], side: String, selected: String) -> void:
+	# Keep the Control itself and unchanged item lists alive across polling and rounds.
+	if _selector_ids(selector) != ids:
+		selector.clear()
+		for id: String in ids:
+			selector.add_item("")
+			selector.set_item_metadata(selector.item_count - 1, id)
+	for index: int in range(ids.size()):
+		var id: String = ids[index]
+		var text: String = _formation_choice(side, id)
+		if side == "enemy" and id.is_empty():
+			text = "目标 · 自动寻敌"
+		elif side == "enemy" and id == "gate":
+			text = "目标 · 城门 · 耐久 %d" % int((_battle.get("gate", {}) as Dictionary).get("hp", 0))
+		selector.set_item_text(index, text)
+		selector.set_item_tooltip(index, text)
+	if not ids.is_empty():
+		selector.select(maxi(0, ids.find(selected)))
+
+func _refresh_selectors() -> void:
+	var own: Array[String] = _living_ids("player")
+	if not own.has(_selected):
+		_selected = own[0] if not own.is_empty() else ""
+	_sync_selector(_unit_selector, own, "player", _selected)
+	var targets: Array[String] = _target_ids()
+	var order: Dictionary = (_battle.get("orders", {}) as Dictionary).get(_selected, {})
+	var actual: String = str(order.get("target", ""))
+	if not bool(_target_dirty.get(_selected, false)) or not _target_drafts.has(_selected):
+		_target_drafts[_selected] = actual
+	var draft: String = str(_target_drafts.get(_selected, ""))
+	if not targets.has(draft):
+		draft = ""
+		_target_drafts[_selected] = draft
+	_target_dirty[_selected] = draft != actual
+	_sync_selector(_target_selector, targets, "enemy", draft)
+	_target_selector.tooltip_text = "已下达：%s\n待确认：%s\n选择目标仅预览；按“确认攻击目标”后下达。" % [_order_target_text(actual), _order_target_text(draft)]
+
+func _select_unit(index: int) -> void:
+	if _unit_selector.disabled or index < 0 or index >= _unit_selector.item_count:
+		return
+	var id: String = str(_unit_selector.get_item_metadata(index))
+	if not _living_ids("player").has(id):
+		return
+	_selected = id
+	_refresh_controls()
+	_layout_controls()
+	queue_redraw()
+
+func _select_target(index: int) -> void:
+	if _target_selector.disabled or _selected.is_empty() or index < 0 or index >= _target_selector.item_count:
+		return
+	var target: String = str(_target_selector.get_item_metadata(index))
+	if _target_ids().has(target):
+		_target_drafts[_selected] = target
+		_target_dirty[_selected] = true
+		_refresh_selectors()
+
+func _send_target() -> void:
+	if _confirm_target.disabled or not _living_ids("player").has(_selected):
+		return
+	var target: String = str(_target_drafts.get(_selected, ""))
+	var order: Dictionary = (_battle.get("orders", {}) as Dictionary).get(_selected, {})
+	var command: String = str(order.get("command", ""))
+	if _target_ids().has(target) and command in ["advance", "hold", "fallback"]:
+		_request("setBattleOrder", [_selected, command, target])
+
+func _restore_action_focus() -> void:
+	if not _actions_enabled or not is_inside_tree() or not is_visible_in_tree():
+		return
+	var target: Control = _paused_focus
+	_paused_focus = null
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if is_instance_valid(focused) and not is_ancestor_of(focused):
+		return
+	if is_instance_valid(target) and target.is_visible_in_tree() and not (target is BaseButton and (target as BaseButton).disabled):
+		target.grab_focus()
+	elif _logs.visible:
+		_logs.grab_focus()
+
+func _wire_focus() -> void:
+	if not is_inside_tree():
+		return
+	var controls: Array[Control] = []
+	for control: Control in [_unit_selector, _target_selector, _confirm_target, _logs]:
+		control.focus_previous = NodePath()
+		control.focus_next = NodePath()
+		control.focus_neighbor_top = NodePath()
+		control.focus_neighbor_bottom = NodePath()
+	for button: Button in _buttons:
+		button.focus_previous = NodePath()
+		button.focus_next = NodePath()
+		button.focus_neighbor_top = NodePath()
+		button.focus_neighbor_bottom = NodePath()
+	for button: Button in _buttons.slice(0, 4):
+		if button.is_visible_in_tree() and not button.disabled:
+			controls.append(button)
+	if _unit_selector.is_visible_in_tree() and not _unit_selector.disabled:
+		controls.append(_unit_selector)
+	for button: Button in _buttons.slice(4):
+		if button.is_visible_in_tree() and not button.disabled:
+			controls.append(button)
+	for control: Control in [_target_selector, _confirm_target, _logs]:
+		if control.is_visible_in_tree() and not (control is BaseButton and (control as BaseButton).disabled):
+			controls.append(control)
+	for index: int in range(controls.size()):
+		var control: Control = controls[index]
+		control.focus_previous = controls[index - 1].get_path() if index > 0 else NodePath()
+		control.focus_next = controls[index + 1].get_path() if index + 1 < controls.size() else NodePath()
+		control.focus_neighbor_top = control.focus_previous
+		control.focus_neighbor_bottom = control.focus_next
 
 func _add_button(parent: GridContainer, text: String, action: String, args: Array) -> void:
 	var button: Button = Button.new()
@@ -225,12 +418,16 @@ func _refresh_controls() -> void:
 		return
 	var exists: bool = not _battle.is_empty()
 	var finished: bool = bool(_battle.get("finished", false))
+	if finished and is_inside_tree():
+		var focused: Control = get_viewport().gui_get_focus_owner()
+		if focused is BaseButton and is_ancestor_of(focused):
+			_paused_focus = focused
 	_title.text = "%s · 第 %d / 30 回合" % [_battle.get("nodeName", _battle.get("node", "战场")), int(_battle.get("round", 0))] if exists else "军令与战场"
 	if exists and size.x < 480.0:
 		_title.text = "%s · 第 %d 回合" % [_battle.get("nodeName", _battle.get("node", "战场")), int(_battle.get("round", 0))]
 	if finished:
 		_title.text = "%s · 战斗%s" % [_battle.get("nodeName", _battle.get("node", "战场")), "胜利" if bool((_battle.get("result", {}) as Dictionary).get("won", false)) else "失利"]
-	_subtitle.text = "点选我军看射程 · 改令下回合生效" if exists else "在舆图选择据点，派遣将领与部队；抵达后交战。"
+	_subtitle.text = "选队查看射程 · 目标需确认 · 军令下回合生效" if exists else "在舆图选择据点，派遣将领与部队；抵达后交战。"
 	match animation_phase():
 		"move": _subtitle.text = "① 正在移动 → ② 攻击 → ③ 伤亡"
 		"attack": _subtitle.text = "① 已布阵 → ② 正在攻击 → ③ 伤亡"
@@ -238,11 +435,21 @@ func _refresh_controls() -> void:
 	if finished and animation_phase() == "settled":
 		_subtitle.text = "战斗已结算 · 战损、伤兵与去向见下方"
 	_commands.visible = exists and not bool(_battle.get("finished", false))
+	_refresh_selectors()
+	_unit_selector.visible = _commands.visible and not _selected.is_empty()
 	_unit_commands.visible = _commands.visible and not _selected.is_empty()
+	_target_commands.visible = _unit_commands.visible
+	var can_command: bool = exists and _actions_enabled and not finished and not _selected.is_empty()
+	_unit_selector.disabled = not can_command
+	_target_selector.disabled = not can_command
+	_confirm_target.disabled = not can_command
 	for button: Button in _buttons:
-		button.disabled = not _actions_enabled or bool(_battle.get("finished", false))
+		button.disabled = not can_command
 	_summary.visible = exists
 	_logs.visible = exists
+	_wire_focus()
+	if finished and _actions_enabled and is_instance_valid(_paused_focus):
+		call_deferred("_restore_action_focus")
 	if not exists:
 		return
 	var round_summary: Dictionary = _battle.get("currentRoundSummary", {})
@@ -276,6 +483,7 @@ func _layout_controls() -> void:
 		return
 	var narrow: bool = size.x < 480.0
 	_commands.columns = 2 if narrow else 4
+	_target_commands.columns = 1 if narrow else 2
 	_title.add_theme_font_size_override("font_size", 21 if narrow else 23)
 	_title.position = Vector2(18.0, 10.0)
 	var content_width: float = maxf(1.0, size.x - 36.0)
@@ -286,8 +494,12 @@ func _layout_controls() -> void:
 	_subtitle.size.y = maxf(20.0, _subtitle.get_minimum_size().y)
 	_commands.position = Vector2(18.0, _subtitle.position.y + _subtitle.size.y + 6.0)
 	_commands.size = Vector2(size.x - 36.0, _commands.get_combined_minimum_size().y)
-	_unit_commands.position = Vector2(18.0, _commands.position.y + _commands.size.y + 6.0)
+	_unit_selector.position = Vector2(18.0, _commands.position.y + _commands.size.y + 6.0)
+	_unit_selector.size = Vector2(content_width, 44.0)
+	_unit_commands.position = Vector2(18.0, _unit_selector.position.y + _unit_selector.size.y + 6.0)
 	_unit_commands.size = Vector2(size.x - 36.0, _unit_commands.get_combined_minimum_size().y)
+	_target_commands.position = Vector2(18.0, _unit_commands.position.y + _unit_commands.size.y + 6.0)
+	_target_commands.size = Vector2(content_width, _target_commands.get_combined_minimum_size().y)
 	var summary_height: float = 42.0 if narrow else 26.0
 	var minimum_height: float = maxf(540.0, _field_top() + 132.0 + 12.0 + summary_height + 6.0 + 88.0 + 12.0)
 	if not is_equal_approx(custom_minimum_size.y, minimum_height):
@@ -303,6 +515,8 @@ func _notification(what: int) -> void:
 		_refresh_controls()
 		_layout_controls()
 		queue_redraw()
+	elif what == NOTIFICATION_VISIBILITY_CHANGED and _built:
+		_wire_focus()
 
 func _process(delta: float) -> void:
 	var previous_phase: String = animation_phase()
@@ -328,12 +542,12 @@ func _field_top() -> float:
 	if _battle.is_empty():
 		return 111.0
 	if not _built:
-		return 254.0 if size.x < 480.0 else 185.0
+		return 398.0 if size.x < 480.0 else 285.0
 	var controls_end: float = _subtitle.position.y + _subtitle.size.y
 	if _commands.visible:
 		controls_end = _commands.position.y + _commands.size.y
 	if _unit_commands.visible:
-		controls_end = _unit_commands.position.y + _unit_commands.size.y
+		controls_end = _target_commands.position.y + _target_commands.size.y
 		# Two status lines sit below the order buttons on every screen size;
 		# leave the distance ruler its own space above the battlefield.
 		return controls_end + 72.0
@@ -388,7 +602,7 @@ func _draw() -> void:
 		var caption: String = "军令 %s · %s · 射程 %d" % [order_names.get(selected_order.get("command", ""), "未提供"), _unit_name(_selected), int(stats.get("range", 0))]
 		if size.x >= 720.0:
 			caption += " · 位置 %d" % int(selection.get("pos", 0))
-		var caption_position: Vector2 = Vector2(18.0, _unit_commands.position.y + _unit_commands.size.y + 18.0)
+		var caption_position: Vector2 = Vector2(18.0, _target_commands.position.y + _target_commands.size.y + 18.0)
 		_draw_caption_line(caption_position, caption)
 		_draw_caption_line(caption_position + Vector2(0.0, 18.0), "目标：" + _order_target_text(selected_order.get("target")))
 
@@ -559,6 +773,10 @@ func _event_text(event: Dictionary) -> String:
 	return "%s%s %s → %s%s · 伤害 %d%s" % [side, _unit_name(str(event.get("unit", ""))), verb, target_side, _unit_name(str(event.get("target", ""))), int(event.get("damage", 0)), " · 倒下 %d 人" % int(event.get("killed", 0)) if event.get("type", "") != "gate" else ""]
 
 func _result_text(result: Dictionary) -> String:
+	if result.get("practice", false):
+		var simulated: String = "借调演练胜利" if result.get("won", false) else "借调演练失利"
+		simulated += "\n模拟损失 %d · 模拟伤兵 %d · 幸存 %d" % [_army_total(result.get("lost", {})), _army_total(result.get("wounded", {})), _army_total(result.get("back", {}))]
+		return simulated + "\n" + str(result.get("summary", "演练战损和奖励不进入正式进度。"))
 	var title: String = "战斗胜利 · 旌旗报捷" if bool(result.get("won", false)) else "战斗失利 · 整军再战"
 	var lines: Array[String] = [title, "永久损失 %d · 伤兵 %d · 将领经验 +%d" % [_army_total(result.get("lost", {})), _army_total(result.get("wounded", {})), int(result.get("xp", 0))]]
 	if result.has("cargoLoaded"):
@@ -610,7 +828,12 @@ func _select_at(point: Vector2) -> void:
 	for value: Variant in _hit_boxes.keys():
 		var rect: Rect2 = _hit_boxes[value]
 		if rect.has_point(point):
-			_selected = str(value)
+			var id: String = str(value)
+			if not _living_ids("player").has(id):
+				continue
+			_selected = id
+			_refresh_controls()
+			_layout_controls()
 			queue_redraw()
 			accept_event()
 			return

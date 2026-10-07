@@ -33,12 +33,17 @@ When a token is configured, every state and mutation request needs `Authorizatio
 | GET | `/world` | `{width,height,home,tiles,marches,revision,serverTime,authorityId}` |
 | GET | `/node?id=wild_29_34` | `{revision,node,serverTime,authorityId}`; hidden task targets are rejected |
 | POST | `/quote` | Read-only canonical quotation for march, founding, transport or redeploy |
+| POST | `/practice` | Isolated borrowed-army session; no campaign state or revision writes |
 | POST | `/command` | Updated state envelope, plus `{result,replayed}` |
 | POST | `/import` | Updated state envelope, plus `{result,replayed}` |
 | GET | `/export` | Bare canonical save JSON, compatible with the original browser export |
 | POST | `/shutdown` | `{ok:true}`, then graceful shutdown |
 
 Quotations use JSON `{kind,args,requestId,sourceCity?}` with `kind` restricted to `march`, `foundCity`, `transport`, or `redeploy`. They return `{requestId,quote,revision,authorityId,serverTime}` plus shared identity fields where applicable. Quotes never commit a save, increment revision or write command receipts. Owned source cities, visible targets and private/shared capabilities are checked; commands recheck their native rules at execution time. A client must ignore stale request IDs and invalidate a quotation when its input changes.
+
+Borrowed practice is local-only and uses `{requestId,action,sessionId?,revision?,scenario?,type?,args?}`. Start with `action:"start"` and one of `shield_archer`, `spear_cavalry`, `siege_guard`; the last uses the actual third-chapter `luo_gate` fortification. Fixture troop counts are clearly labelled practice values. Subsequent `order`, `round`, `end` actions require the returned session ID and practice revision. Orders allow only `setBattleOrders` or `setBattleOrder`; round invokes the native `battleRound`. The response is `{ok,requestId,authorityId,serverTime,practice}`; `practice` contains its session revision, battle, units, result and evidence review, or is null after end. The API also accepts the `/api/` prefix. Browser callers must use the same origin even if another origin is allowed for ordinary bridge endpoints.
+
+Practice uses a fresh in-memory canonical runtime, never the player's save. Borrowed resources, troops, battle losses, experience, loot and conquests are discarded. It retains at most four sessions and 128 request receipts for 20 minutes of inactivity, clears on successful import/shutdown, and does not survive service restart. A repeated request ID with the same payload replays its receipt; changed payloads or stale practice revisions fail with 409. Retry the exact original request after an uncertain response and block new mutating practice actions until confirmed. A start carrying a live session ID and revision restarts/replaces that practice without adding another session; expired sessions require a fresh start. `action:"sync"` with the known session ID and a shaped revision reads its current projection/revision without invoking the runtime or changing battle state, and renews its idle TTL; this is the recovery for an explicit revision conflict. It also uses independent request receipts. Practice has no campaign CAS journal and must never update the client's campaign revision. Normal city timers continue while its window is open.
 
 Commands use JSON `{commandId,expectedRevision,type,args,sourceCity?}`. The original `executeGame` dispatcher enforces the existing rule whitelist. For example:
 

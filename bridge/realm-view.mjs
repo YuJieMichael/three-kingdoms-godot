@@ -1,10 +1,38 @@
 import {copy} from '../vendor/legacy/online/runtime.mjs';
 
+// Governance only exposes a named city already owned by this actor. Its
+// undiscovered parent/children and other cities' rules do not enter the DTO.
+function ownedCityGovernance(game, city, shared) {
+  if (shared || city.capital || !game.state.conquered?.[city.node] ||
+      game.state.realm?.cities?.[city.id]?.node !== city.node) return {};
+  const progress = game.namedCityProgress(city.node);
+  if (!progress?.owned || progress.id !== city.node) return {};
+  const identityKeys = ['id', 'name', 'tier', 'tierName', 'plotMax', 'goldFactor', 'owned'];
+  const identity = Object.fromEntries(identityKeys.filter(key => Object.hasOwn(progress, key))
+    .map(key => [key, copy(progress[key])]));
+  const quote = game.namedCityDevelopmentQuote(city.node);
+  if (!quote || quote.id !== city.node || quote.city !== city.id) return {identity};
+  const quoteKeys = ['id', 'city', 'name', 'tierName', 'claimed', 'ready', 'reason', 'key'];
+  const development = Object.fromEntries(quoteKeys.filter(key => Object.hasOwn(quote, key))
+    .map(key => [key, copy(quote[key])]));
+  development.checks = (Array.isArray(quote.checks) ? quote.checks : [])
+    .filter(check => check && typeof check === 'object' && !Array.isArray(check)).map(check =>
+    Object.fromEntries(['id', 'current', 'required', 'complete'].filter(key => Object.hasOwn(check, key))
+      .map(key => [key, copy(check[key])])));
+  development.reward = Object.fromEntries(Object.entries(quote.reward || {})
+    .filter(([id, count]) => Object.hasOwn(game.resources, id) && Number.isSafeInteger(count) && count >= 0));
+  if (quote.ready === true && quote.claimed === false && quote.reason === '' &&
+      typeof quote.key === 'string' && quote.key.length > 0) {
+    development.command = {type: 'claimNamedCityDevelopment', args: [quote.id, quote.key]};
+  }
+  return {identity, development};
+}
+
 /** Own-city management. Canonical methods supply plans, costs and eligibility. */
 export function realmView(runtime, {shared = false, now = runtime.Game.state.last} = {}) {
   const {Game: g, HeritageSystem: heritage} = runtime, s = g.state;
   const command = (type, args = []) => ({type, args});
-  const cities = g.cityList().map(city => ({...copy(city), selected: city.id === g.currentCityId(),
+  const cities = g.cityList().map(city => ({...copy(city), ...ownedCityGovernance(g, city, shared), selected: city.id === g.currentCityId(),
     command: command('switchCity', [city.id])}));
   const holdings = Object.keys(s.conquered).flatMap(id => {
     const node = g.getNode(id);

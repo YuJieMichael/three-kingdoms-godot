@@ -7,6 +7,7 @@ import {createGameRuntime, executeGame, validateInput, gameActions, GameError, c
 import {gameView, worldView, nodeView} from './dto.mjs';
 import {managementQuote} from './management-quotes.mjs';
 import {executeGrowthSupport, validGrowthSupport} from './growth-support.mjs';
+import {PracticeSessions} from './practice-session.mjs';
 
 const MAX_BODY = 16 * 1024 * 1024;
 const RECEIPT_LIMIT = 32;
@@ -147,6 +148,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
     if (stored.authorityId === undefined) { stored.authorityId = crypto.randomUUID(); await atomicJSON(filename, stored); }
   } catch (error) { await unlock(); throw error; }
 
+  const practices = new PracticeSessions();
   let pending = Promise.resolve();
   const serial = operation => {
     const result = pending.then(operation); pending = result.catch(() => {}); return result;
@@ -179,10 +181,24 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
       if (request.method === 'OPTIONS') { response.writeHead(204); response.end(); return; }
       const url = new URL(request.url, `http://${request.headers.host || '127.0.0.1'}`);
       const route = url.pathname.startsWith('/api/') ? url.pathname.slice(4) : url.pathname;
-      const apiRoutes = ['/health', '/state', '/world', '/export', '/node', '/quote', '/command', '/import', '/shutdown'];
+      const apiRoutes = ['/health', '/state', '/world', '/export', '/node', '/quote', '/practice', '/command', '/import', '/shutdown'];
       if (apiRoutes.includes(route) && route !== '/health' && secret.length && !authenticated(request)) throw new GameError('UNAUTHORIZED', '本地连接密钥不正确', 401);
       if (request.method === 'GET' && route === '/health') {
         reply(200, {ok: true, protocol: 1, runtimeHash, mode: 'local', authentication: !!secret.length, authorityId: stored.authorityId}); return;
+      }
+      if (request.method === 'POST' && route === '/practice') {
+        if ([...url.searchParams.keys()].length) throw new GameError('BAD_PRACTICE_REQUEST', '演练不接受查询参数');
+        // Native callers use the existing bearer guard. Browser practice is
+        // same-origin even when the ordinary local API has additional origins.
+        if (origin) {
+          let originURL;
+          try { originURL = new URL(origin); } catch { throw new GameError('ORIGIN_DENIED', '演练来源无效', 403); }
+          if (originURL.origin !== url.origin)
+            throw new GameError('ORIGIN_DENIED', '借调演练须从同源游戏页面进入', 403);
+        }
+        const input = await readBody(request);
+        const result = await serial(() => practices.execute(input, clock(), stored.authorityId));
+        reply(200, result); return;
       }
       if (request.method === 'GET' && ['/state', '/world', '/export', '/node'].includes(route)) {
         const result = await serial(() => {
@@ -247,6 +263,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             receipts: [...stored.receipts, {id: input.commandId, fingerprint, response: responseValue}].slice(-RECEIPT_LIMIT)};
           if (operation === 'import') await atomicJSON(path.join(dataDir, 'before-import.json'), stored);
           await atomicJSON(filename, candidate); stored = candidate;
+          if (operation === 'import') practices.clear();
           return responseValue;
         });
         reply(200, result); return;
@@ -283,6 +300,7 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
   const close = async () => {
     if (closed) return; closed = true;
     await pending;
+    practices.clear();
     await new Promise(resolve => server.close(resolve));
     await unlock();
     if (readyFile) await fs.unlink(readyFile).catch(() => {});
