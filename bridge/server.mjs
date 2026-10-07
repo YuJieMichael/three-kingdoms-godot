@@ -6,8 +6,9 @@ import {fileURLToPath} from 'node:url';
 import {createGameRuntime, executeGame, validateInput, gameActions, GameError, copy, runtimeHash, seededRandom} from '../vendor/legacy/online/runtime.mjs';
 import {gameView, worldView, nodeView} from './dto.mjs';
 import {managementQuote} from './management-quotes.mjs';
-import {executeGrowthSupport, validGrowthSupport} from './growth-support.mjs';
+import {executeGrowthSupport, validGrowthSupport, isGrowthSupportOffer} from './growth-support.mjs';
 import {PracticeSessions} from './practice-session.mjs';
+import {plotPlanKey} from './plot-plan-key.mjs';
 
 const MAX_BODY = 16 * 1024 * 1024;
 const RECEIPT_LIMIT = 32;
@@ -253,7 +254,15 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             if (!Object.hasOwn(runtime.Game.state.realm.cities, sourceCity)) throw new GameError('CITY_NOT_OWNED', '城市不属于你');
             if (runtime.Game.currentCityId() !== sourceCity) runtime.Game.switchCity(sourceCity);
             if (['dispatch', 'scout', 'dispatchScout'].includes(input.type) && !runtime.Game.landmarkVisible(input.args[0])) throw new GameError('NODE_HIDDEN', '请先完成当前任务据点', 403);
-            const executed = input.type === 'exchangeCopper' && input.args[0] === 'growth_coral' ?
+            if (input.type === 'applyPlotTemplate' && input.args.length === 3) {
+              // Match the settled read projection before checking the preview;
+              // expired construction and automation can change the native plan.
+              runtime.Game.tick(now, true);
+              const key = input.args[2], quote = runtime.Game.plotTemplateQuote(input.args[0], input.args[1]);
+              if (typeof key !== 'string' || !/^[a-f0-9]{64}$/.test(key) || key !== plotPlanKey(runtime.Game, quote))
+                throw new GameError('PLAN_CHANGED', '配田方案或受影响田地等级已变化，请重新预览');
+            }
+            const executed = input.type === 'exchangeCopper' && isGrowthSupportOffer(input.args[0]) ?
               executeGrowthSupport(runtime, input, now) : executeGame(stored.state, input, now, null, runtime);
             state = executed.state; actionResult = executed.result;
           }

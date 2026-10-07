@@ -1,4 +1,5 @@
 import {copy} from '../vendor/legacy/online/runtime.mjs';
+import {plotPlanKey} from './plot-plan-key.mjs';
 
 // Governance only exposes a named city already owned by this actor. Its
 // undiscovered parent/children and other cities' rules do not enter the DTO.
@@ -47,7 +48,10 @@ export function realmView(runtime, {shared = false, now = runtime.Game.state.las
       cancel: command('heritage.cancelGather', [id]), recall: command('recallGarrison', [id])}];
   });
   const templates = g.plotTemplates.map(template => ({...copy(template),
-    quotes: ['fill', 'replace'].map(mode => ({...copy(g.plotTemplateQuote(template.id, mode)), mode}))}));
+    quotes: ['fill', 'replace'].map(mode => {
+      const quote = g.plotTemplateQuote(template.id, mode);
+      return {...copy(quote), mode, key: plotPlanKey(g, quote)};
+    })}));
   const roles = Object.fromEntries(Object.entries(heritage.roles).map(([id, name]) => [id,
     {id, name, hero: heritage.roleHero(s, id)}]));
   const generals = s.generals.filter(id => g.heroCity(id) === g.currentCityId())

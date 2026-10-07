@@ -5,7 +5,7 @@ signal command_requested(type: String, args: Array)
 signal quote_requested(kind: String, args: Array, request_id: String)
 signal focus_requested(x: int, y: int)
 
-const SECTIONS: Dictionary = {"cities": "城池任职", "logistics": "运输调遣", "plots": "城外建设", "holdings": "领地采集", "automation": "挂机设置"}
+const SECTIONS: Dictionary = {"cities": "城池任职", "logistics": "运输调遣", "plots": "城外建设", "plans": "经营方案", "holdings": "领地采集", "automation": "挂机设置"}
 const SuburbScript: GDScript = preload("res://src/suburb_view.gd")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 const FIELD_NAMES: Dictionary = {"farm": "粮田", "lumber": "木场", "quarry": "石场", "mine": "铁矿"}
@@ -154,6 +154,7 @@ func _build() -> void:
 	_content.add_child(tabs)
 	for section: String in SECTIONS:
 		var tab: Button = Button.new()
+		tab.custom_minimum_size.y = 44
 		tab.text = str(SECTIONS[section])
 		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		tab.disabled = section == _section
@@ -168,6 +169,7 @@ func _build() -> void:
 			"cities": _build_cities()
 			"logistics": _build_logistics()
 			"plots": _build_plots()
+			"plans": _build_city_plans()
 			"holdings": _build_holdings()
 			"automation": _build_automation()
 	call_deferred("_restore_scroll")
@@ -197,6 +199,7 @@ func _heading(text: String) -> void:
 
 func _action(text: String, callback: Callable, reason: Callable = Callable()) -> Button:
 	var button: Button = Button.new()
+	button.custom_minimum_size.y = 44
 	button.text = text
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(func() -> void:
@@ -540,7 +543,7 @@ func _build_plots() -> void:
 			_live_label(func() -> String:
 				var q: Dictionary = _template_quote(id, mode)
 				return ("补齐空地" if mode == "fill" else "替换布局") + " · " + _cost(q.get("projectedCounts", q.get("counts", {}))) + "\n待安排 %s 块 · 总费用 %s\n%s" % [str(q.get("tasks", []).size()), _cost(q.get("cost", {})), str(q.get("reason", ""))])
-			_action("按样板补齐空地" if mode == "fill" else "确认替换布局", func() -> void: _send("applyPlotTemplate", [id, mode]), func() -> String: return "请先确认等级重置" if mode == "replace" and not confirmed.button_pressed else str(_template_quote(id, mode).get("error", "")))
+			_action("预览补齐空地" if mode == "fill" else "预览替换布局", func() -> void: _confirm_plot_plan(id, mode), func() -> String: return "请先确认等级重置" if mode == "replace" and not confirmed.button_pressed else str(_template_quote(id, mode).get("error", "")))
 	_action("暂停样板建设", func() -> void: _send("pausePlotTemplate", []))
 
 func _template_quote(id: String, mode: String) -> Dictionary:
@@ -548,6 +551,54 @@ func _template_quote(id: String, mode: String) -> Dictionary:
 		if str(quote.get("mode", "")) == mode:
 			return quote
 	return {}
+
+func _build_city_plans() -> void:
+	_live_label(func() -> String:
+		var city: Dictionary = _find("cities", _source)
+		return str(city.get("name", "当前城池")) + " · " + str(city.get("strategy", {}).get("name", "均衡城")) + "\n" + str(city.get("strategy", {}).get("description", "")))
+	_content.add_child(_label("兵城偏重军粮，资源城均衡配田，投石城按器械消耗配田。先比较现有田地与目标，再选择补齐或改建；高等级田地值得保留。"))
+	_live_label(func() -> String: return "当前执行：" + str(_realm().get("plotStatus", "未安排")))
+	for template: Dictionary in _realm().get("templates", []):
+		var id: String = str(template.id)
+		_heading(str(template.name))
+		_content.add_child(_label(str(template.get("desc", ""))))
+		_live_label(func() -> String:
+			var fill: Dictionary = _template_quote(id, "fill")
+			var replace: Dictionary = _template_quote(id, "replace")
+			var high: int = 0
+			for task: Dictionary in replace.get("tasks", []):
+				if str(task.get("kind", "")) == "replace" and int(_plot(int(task.get("index", -1))).get("level", 0)) > 1:
+					high += 1
+			return "现有：%s\n方案目标：%s\n补空地：%s · 工程 %d 块 · 费用 %s\n改布局：%s · 改建 %d 块（高等级田地 %d 块）· 费用 %s" % [_cost(fill.get("actualCounts", {})), _cost(fill.get("counts", {})), _cost(fill.get("projectedCounts", {})), int(fill.get("tasks", []).size()), _cost(fill.get("cost", {})), _cost(replace.get("projectedCounts", {})), int(replace.get("replaces", 0)), high, _cost(replace.get("cost", {}))])
+		for mode: String in ["fill", "replace"]:
+			_action("预览补空地" if mode == "fill" else "预览改布局", _confirm_plot_plan.bind(id, mode), func() -> String: return str(_template_quote(id, mode).get("error", "")))
+	_action("暂停当前方案", func() -> void: _send("pausePlotTemplate", []))
+
+func _plan_fingerprint(id: String, mode: String) -> String:
+	var quote: Dictionary = _template_quote(id, mode)
+	return str(quote.get("key", ""))
+
+func _confirm_plot_plan(id: String, mode: String) -> void:
+	var quote: Dictionary = _template_quote(id, mode)
+	if not _connected or _pending or quote.is_empty() or str(quote.get("key", "")).is_empty() or not str(quote.get("error", "")).is_empty():
+		return
+	var source: String = _source
+	var fingerprint: String = _plan_fingerprint(id, mode)
+	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
+	confirmation.title = "确认经营方案 · " + str(_find("templates", id).get("name", ""))
+	confirmation.dialog_text = "%s\n排定布局：%s\n待安排 %d 块 · 总费用 %s\n%s\n方案按空闲施工队逐块建设，逐次支付材料；资源不足时等待。应用后自动升级转为暂停。\n%s" % ["保留已有田地，补齐空地。" if mode == "fill" else "改建的田地重建为1级；匹配方案的高等级田地保留。", _cost(quote.get("projectedCounts", {})), int(quote.get("tasks", []).size()), _cost(quote.get("cost", {})), str(quote.get("reason", "")), "已开始的工程仍按原队列完成。"]
+	confirmation.dialog_autowrap = true
+	confirmation.exclusive = true
+	confirmation.min_size = Vector2i(280, 220)
+	add_child(confirmation)
+	confirmation.confirmed.connect(func() -> void:
+		if not _connected or _pending or _source != source or _plan_fingerprint(id, mode) != fingerprint:
+			show_error("城池或工程计划已变化，请重新预览。")
+		else:
+			_send("applyPlotTemplate", [id, mode, fingerprint])
+		confirmation.queue_free())
+	confirmation.canceled.connect(confirmation.queue_free)
+	confirmation.popup_centered(Vector2i(mini(580, maxi(280, int(get_tree().root.size.x) - 48)), mini(450, maxi(240, int(get_tree().root.size.y) - 100))))
 
 func _build_holdings() -> void:
 	if bool(_realm().get("shared", false)):

@@ -6,7 +6,7 @@ extends AcceptDialog
 signal command_requested(type: String, args: Array)
 signal route_requested(route: String, target: String)
 
-const TITLES: Dictionary = {"missions": "主线任务", "daily": "每日任务", "epic": "黄巾史诗", "honors": "官职爵位", "chapters": "征战章节", "gifts": "十阶礼包"}
+const TITLES: Dictionary = {"missions": "主线任务", "daily": "每日任务", "epic": "黄巾史诗", "honors": "官职爵位", "preparation": "晋升筹备", "chapters": "征战章节", "campaign": "战役军令", "gifts": "十阶礼包"}
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 var _view: Dictionary = {}
 var _section: String = "missions"
@@ -66,6 +66,8 @@ func update_view(view: Dictionary) -> void:
 			"daily": _daily_records(progression, records)
 			"epic": _epic_records(progression, records)
 			"honors": _honor_records(progression, records)
+			"preparation": _preparation_records(progression, records)
+			"campaign": _campaign_records(records)
 			"chapters": _chapter_records(progression, records)
 			"gifts": _gift_records(progression, records)
 	_sync_rows(records)
@@ -141,6 +143,7 @@ func _build_section() -> void:
 		"missions": filter_names.assign(["未领取", "可领取", "全部任务"])
 		"daily": filter_names.assign(["全部任务", "已接取", "可接取"])
 		"epic": filter_names.assign(["捐献资源", "捐献部队", "进献珍宝", "铜钱兑换"])
+		"campaign": filter_names.assign(["野战破阵", "攻坚拔寨", "精锐会战", "军功兑换"])
 	if not filter_names.is_empty():
 		_filter = OptionButton.new()
 		_filter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -168,7 +171,7 @@ func _label(text: String, font_size: int = 16) -> Label:
 func _button(text: String, callback: Callable) -> Button:
 	var button: Button = Button.new()
 	button.text = text
-	button.custom_minimum_size.y = 38.0
+	button.custom_minimum_size.y = 44.0
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	return button
@@ -276,7 +279,8 @@ func _epic_records(progression: Dictionary, records: Array[Dictionary]) -> void:
 	if filter_index == 3:
 		records.append(_record("copper", "铜钱 " + str(int(epic.get("copper", 0))), "每日任务获得铜钱；可兑换珍珠和当日宝物。县城筹备珊瑚共限5枚，不随每日刷新。"))
 		for offer: Dictionary in epic.get("exchanges", []):
-			var limit_text: String = "全存档已兑 %d / %d · 剩余 %d" % [int(offer.get("claimed", 0)), int(offer.get("limit", 0)), int(offer.get("remaining", 0))] if str(offer.get("period", "")) == "save" else "今日已兑 %d" % int(offer.get("claimed", 0))
+			var period: String = str(offer.get("period", "daily"))
+			var limit_text: String = ("全存档" if period == "save" else "本次晋升" if period == "rank" else "今日") + "已兑 %d / %d · 剩余 %d" % [int(offer.get("claimed", 0)), int(offer.get("limit", 0)), int(offer.get("remaining", 0))]
 			records.append(_record("exchange-" + str(offer.id), str(offer.name), "费用：铜钱 %d · %s\n%s" % [int(offer.get("cost", 0)), limit_text, str(offer.get("reason", ""))], [_action("兑换", offer.get("command", {}), str(offer.get("reason", "")))]))
 		return
 	var kinds: Array[String] = ["resource", "troop", "jewel"]
@@ -319,6 +323,93 @@ func _chapter_records(progression: Dictionary, records: Array[Dictionary]) -> vo
 		for node: Dictionary in chapter.get("visibleNodes", []):
 			body += "\n" + str(node.name) + (" · 已占领" if node.get("conquered", false) else " · 当前开放")
 		records.append(_record("chapter-" + str(chapter.chapter), str(chapter.title), body, actions))
+
+
+func _campaign_records(records: Array[Dictionary]) -> void:
+	var campaign: Dictionary = _view.get("campaign", {})
+	var summary: String = "可用军功 %d · 累计获得 %d\n首次普通通关获得双倍军功；战术挑战首次达标另有奖励。军功可选择用于将领专长或兑换宝物。" % [int(campaign.get("merit", 0)), int(campaign.get("earned", 0))]
+	if not campaign.get("unlocked", false):
+		records.append(_record("campaign-locked", "长期征战", str(campaign.get("reason", "正在读取战役军令")), [_navigate("查看章节目标", "chapters")]))
+		return
+	records.append(_record("campaign-summary", "三条军令路线", summary, [_navigate("将领专长训练", "specialization")]))
+	var filter_index: int = int(_filters.get("campaign", 0))
+	if filter_index == 3:
+		for offer: Dictionary in campaign.get("offers", []):
+			records.append(_record("merit-" + str(offer.id), str(offer.name), "军功 %d · 背包持有 %d\n%s\n%s" % [int(offer.cost), int(offer.get("owned", 0)), str(offer.get("description", "")), str(offer.get("reason", ""))], [_action("确认兑换1件", offer.get("command", {}), str(offer.get("reason", "")))]))
+		return
+	var routes: Array = campaign.get("routes", [])
+	if filter_index >= routes.size():
+		return
+	var route: Dictionary = routes[filter_index]
+	records.append(_record("route-" + str(route.id), str(route.name), "已通关 %d / %d 阶 · 胜利 %d 次\n整军剩余 %d 秒\n%s\n本路线队伍返城后可再出征；军令讨伐不会取得领地。" % [int(route.get("cleared", 0)), int(route.get("max", 0)), int(route.get("wins", 0)), int(route.get("recoverySeconds", 0)), str(route.get("hint", ""))]))
+	var targets: Array = route.get("targets", []).duplicate()
+	targets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_order: int = 0 if a.get("first", false) else 2 if a.get("completed", false) else 1
+		var b_order: int = 0 if b.get("first", false) else 2 if b.get("completed", false) else 1
+		return int(a.get("orderTier", 0)) < int(b.get("orderTier", 0)) if a_order == b_order else a_order < b_order)
+	for target: Dictionary in targets:
+		var body: String = ("已达成" if target.get("completed", false) else "待挑战") + " · 胜利军功 %d" % int(target.get("points", 0))
+		if int(target.get("bonus", 0)) > 0:
+			body += " · 首次达标额外 +%d" % int(target.bonus)
+		body += "\n" + str(target.get("condition", "")) + "\n" + str(target.get("hint", ""))
+		if target.get("intel", {}).get("public", false):
+			var enemies: PackedStringArray = []
+			for unit_id: String in target.get("army", {}):
+				if int(target.army[unit_id]) <= 0:
+					continue
+				var unit_name: String = unit_id
+				for unit: Dictionary in _view.get("units", []):
+					if str(unit.get("id", "")) == unit_id:
+						unit_name = str(unit.get("name", unit_id))
+				enemies.append(unit_name + " ×" + str(int(target.army[unit_id])))
+			body += "\n公开守军：" + "、".join(enemies)
+		var gate: Variant = target.get("gate")
+		if gate is Dictionary:
+			body += "\n%s · 耐久 %d" % [str(gate.get("name", "门墙")), int(gate.get("hp", 0))]
+		var attempt: Variant = target.get("lastAttempt")
+		if attempt is Dictionary:
+			body += "\n上次 %d 回合 · 永久损失 %d / 出征 %d · %s" % [int(attempt.get("round", 0)), int(attempt.get("lost", 0)), int(attempt.get("deployed", 0)), "战术达标" if attempt.get("met", false) else "战术未达标"]
+		body += "\n" + str(target.get("reason", ""))
+		records.append(_record("order-" + str(target.id), str(target.name), body, [_navigate("配兵讨伐", "campaign", str(target.id), str(target.get("reason", "")))]))
+
+
+func _preparation_records(progression: Dictionary, records: Array[Dictionary]) -> void:
+	var honors: Dictionary = progression.get("honors", {})
+	var stocks: Dictionary = {}
+	var names: Dictionary = {}
+	for jewel: Dictionary in honors.get("jewels", []):
+		stocks[str(jewel.id)] = int(jewel.get("count", 0))
+		names[str(jewel.id)] = str(jewel.get("name", jewel.id))
+	records.append(_record("prepare-summary", "晋升筹备 · 铜钱 %d" % int(progression.get("epic", {}).get("copper", 0)), "每天完成小任务获得铜钱。珍珠可每日固定兑换；各类晋升珍宝也可按当前阶段的有限份额筹备。新增筹备价格为试玩设定。\n兑换的珍宝进入共同库存，请为晋升保留所需数量。", [_navigate("接取每日任务", "daily"), _navigate("查看野地采集", "holdings")]))
+	if progression.get("shared", false):
+		records.append(_record("prepare-shared", "房间进度", "阶段筹备用于本机进度；当前房间保留原有每日兑换。"))
+	for promotion: Dictionary in honors.get("promotions", []):
+		var next: Variant = promotion.get("next")
+		if not next is Dictionary:
+			continue
+		var kind: String = str(promotion.kind)
+		var rule: Dictionary = promotion.get("rule", {})
+		var gold_required: int = int(rule.get("gold", 0))
+		var gold_owned: int = int(_view.get("res", {}).get("gold", 0))
+		var lines: PackedStringArray = ["声望需要 %d · 当前 %d" % [int(rule.get("prestige", 0)), int(honors.get("prestige", 0))], "黄金 %d / %d · 还缺 %d" % [gold_owned, gold_required, maxi(0, gold_required - gold_owned)]]
+		for jewel: String in rule.get("jewels", {}):
+			var required: int = int(rule.jewels[jewel])
+			var owned: int = int(stocks.get(jewel, 0))
+			lines.append("%s %d / %d · 还缺 %d" % [str(names.get(jewel, jewel)), owned, required, maxi(0, required - owned)])
+		lines.append(str(promotion.get("reason", "")))
+		records.append(_record("prepare-" + kind, "下一" + ("官职" if kind == "office" else "爵位") + " · " + str(next.get("name", "")), "\n".join(lines), [_navigate("核对并晋升", "honors")]))
+		for offer: Dictionary in progression.get("epic", {}).get("exchanges", []):
+			var is_pearl: bool = str(offer.id) == "pearl" and rule.get("jewels", {}).has("pearl")
+			var is_first_coral: bool = str(offer.id) == "growth_coral" and kind == "noble" and int(next.get("id", 0)) == 1
+			var is_stage: bool = str(offer.get("kind", "")) == kind and int(offer.get("rank", 0)) == int(next.get("id", -1))
+			if not is_pearl and not is_first_coral and not is_stage:
+				continue
+			var label: String = "今日" if str(offer.get("period", "")) == "daily" else "全存档" if str(offer.get("period", "")) == "save" else "本次晋升"
+			var body: String = "固定获得1枚 · 铜钱 %d\n%s已兑 %d / %d · 剩余 %d\n%s" % [int(offer.get("cost", 0)), label, int(offer.get("claimed", 0)), int(offer.get("limit", 0)), int(offer.get("remaining", 0)), str(offer.get("reason", ""))]
+			var reason: String = str(offer.get("reason", ""))
+			if is_first_coral and int(stocks.get("coral", 0)) >= int(rule.get("jewels", {}).get("coral", 0)):
+				reason = "本次晋升所需珊瑚已备齐"
+			records.append(_record("prepare-offer-" + kind + "-" + str(offer.id), str(offer.name), body, [_action("确认兑换1枚", offer.get("command", {}), reason)]))
 
 
 func _gift_records(progression: Dictionary, records: Array[Dictionary]) -> void:

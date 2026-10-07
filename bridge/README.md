@@ -79,6 +79,18 @@ The map preserves the existing 64 × 64 coordinates. Future task sites are repre
 
 ## Current boundary
 
+### Additional local gameplay projections
+
+`view.campaign` exposes canonical `WarOrders` routes, currently unlocked targets, public military intelligence, classic tactical-condition attempts, cooldowns, merit and native `war.exchange` offers. It opens after `north_keep` in private PVE; shared rooms receive no private target list. Targets are board entries, not invented world-map coordinates. Dispatch still uses the native march quote, `occupy` mode and automatic return; native battle settlement awards merit once.
+
+`heroes.owned[].specialization` includes the original GeneralGrowth profile, stat bonus and four route training quotes. `trainGeneralSkill` takes `[heroId,routeId,key]`; the existing native rule validates mutually exclusive routes, levels, availability and payment. No training formula is copied into the DTO.
+
+`realmManagement.templates[].quotes.fill/replace` include a `key` binding the canonical plan, city, affected field levels and reserve. The private service accepts `applyPlotTemplate [templateId,mode,key]`, settles time before checking the key and returns `PLAN_CHANGED` if the preview no longer matches. Original two-argument clients remain compatible. The room dispatcher currently uses only the original rule; it does not enforce this additional preview key.
+
+Private `exchangeCopper` also accepts quoted `growth_prepare_<office|noble>_<rank>_<jewel>` offers for the actor's next rank, after conquering `camp`. Their caps equal the native rank requirement; current stock already sufficient for that promotion blocks the corresponding stage offer. The new fixed prices are **prototype design**: pearl40, coral80, glass120, amber160, agate200, crystal240, jadeite280, jade320, nightPearl400 copper per jewel. The first noble's coral continues to use the previous five-per-save `growth_coral` offer; native daily exchange remains separate. Jewels enter shared inventory and can be spent on other native systems; spent quotas do not replenish.
+
+Optional save-wide `growthSupport` v1 remains accepted as `{version:1,coralExchanged}`. First stage purchase upgrades it to `{version:2,coralExchanged,preparation:{[offerId]:count}}`, retaining the existing coral count. The adapter validates known current/historical ranks and count caps before import/load and after its mutation. The same serialized revision check and persisted replay receipt protect exchanges; no quota resets on day rollover or city switching. The canonical vendor snapshot remains unchanged. These additions received parser/static review only in this batch, without functional execution.
+
 The private `bridge/server.mjs` service exposes canonical private-save JSON to its authenticated local client and is deliberately loopback-only. It has no public player identities, multi-account authorization, global-world database, hosted Supabase project or Steamworks integration. The local token and authority UUID do not stand in for those systems. Keep private saves, ready files and token files outside the web resource tree. The separate account-bound room service described below does not change private-save import/export.
 
 The original browser JSON import/export format is maintained. The Godot interface exposes the current migration's playable flows; retaining the full canonical save does not imply that every original system already has a finished native interface. Windows export and actual Windows-device playtesting are distinct validation steps.

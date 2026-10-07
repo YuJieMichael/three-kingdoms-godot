@@ -1,6 +1,6 @@
 // Read-only presentation of the canonical progression systems. No award or
 // promotion is applied here; commands still run through executeGame/CAS.
-import {growthSupportQuote} from './growth-support.mjs';
+import {growthSupportQuote, growthPreparationQuotes} from './growth-support.mjs';
 const copy = value => JSON.parse(JSON.stringify(value));
 const command = (type, args = []) => ({type, args});
 const SHARED_REASON = '共享演练尚未接入私人据点主线，请切换本机进度继续';
@@ -79,8 +79,10 @@ export function progressionView(runtime, options = {}) {
     command: command('donateEpic', [kind, id])}));
   const exchanges = progression.exchangeOffers(state).map(offer => ({...copy(offer),
     reason: probe('exchange', offer.id), command: command('exchangeCopper', [offer.id]),
-    claimed: state.daily.exchangeClaims.filter(id => id === offer.id).length}));
-  if (!shared) exchanges.unshift(growthSupportQuote(runtime));
+    claimed: state.daily.exchangeClaims.filter(id => id === offer.id).length,
+    period: 'daily', limit: offer.id === 'pearl' ? 10 : 1,
+    remaining: Math.max(0, (offer.id === 'pearl' ? 10 : 1) - state.daily.exchangeClaims.filter(id => id === offer.id).length)}));
+  if (!shared) exchanges.unshift(growthSupportQuote(runtime), ...growthPreparationQuotes(runtime));
   const promotions = ['office', 'noble'].map(kind => {
     const quote = copy(heritage.promotionQuote(state, kind));
     return {kind, current: copy(heritage[kind](state)), ...quote, command: command('heritage.promote', [kind]),

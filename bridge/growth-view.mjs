@@ -146,8 +146,11 @@ export function growthView(runtime, options = {}) {
   const coralGap = missingJewels.find(row => row.id === 'jewel:coral');
   const preparation = progression.epic.exchanges.find(row => row.id === 'growth_coral');
   if (coralGap && preparation?.remaining > 0) {
-    addAdvice('county-preparation', `珊瑚还缺 ${coralGap.missing} 枚；县城筹备每枚需 ${preparation.cost} 铜钱，全存档剩余 ${preparation.remaining}/${preparation.limit} 枚。${preparation.reason || '可在兑换页面逐枚确认。'} 铜钱通过每日任务获得。`, navigation('epic', 'exchange', '查看县城筹备兑换'));
+    addAdvice('county-preparation', `珊瑚还缺 ${coralGap.missing} 枚；县城筹备每枚需 ${preparation.cost} 铜钱，全存档剩余 ${preparation.remaining}/${preparation.limit} 枚。${preparation.reason || '可在兑换页面逐枚确认。'} 铜钱通过每日任务获得。`, navigation('preparation', '', '查看晋升筹备'));
   }
+  const stageSupplies = progression.epic.exchanges.filter(row => row.period === 'rank' && row.remaining > 0 &&
+    missingJewels.some(gap => gap.id === 'jewel:' + row.jewel));
+  if (stageSupplies.length) addAdvice('promotion-preparation', '当前缺少的晋升珍宝有固定铜钱筹备途径；份额按每个晋升阶段计算，不随日期或城池重置。新增价格为试玩设定，请核对费用后逐枚兑换。', navigation('preparation', '', '查看材料缺口与筹备份额'));
   if (missingJewels.length) {
     const boxes = game.manual.shop.filter(item => item.effect === 'jewelBox' && state.inventory[item.id] > 0);
     if (boxes.length) addAdvice('owned-jewel-boxes', `已拥有 ${boxes.reduce((sum, item) => sum + state.inventory[item.id], 0)} 个珠宝盒；开箱种类和数量随机，请先核对结果再筹备晋升。`, navigation('inventory', boxes[0].id, '查看已拥有珠宝盒'));
@@ -168,6 +171,7 @@ export function growthView(runtime, options = {}) {
     const count = progression.missions.filter(row => row.ready && !row.claimed).length;
     if (count) addAdvice('earned-rewards', `已有 ${count} 项主线奖励达成，领取后可补充物资；路线仍按真实占领进度推进。`, navigation('missions', '', '查看已达成奖励'));
   }
+  if (runtime.WarOrders.unlocked(state)) addAdvice('campaign-development', '战役军令已开放：野战、攻坚与精锐路线可反复讨伐，首次普通通关与首次战术达标有额外军功。军功在将领专长与补给兑换之间共用，请保留准备培养所需的份额。', navigation('campaign', '', '查看军令与战术挑战'));
   if (!result.current) currentStep('route', '查看成长进度', '当前目标将在进度刷新后显示。', navigation('missions', '', '查看进度'));
   result.speedup = speedupView();
   return result;

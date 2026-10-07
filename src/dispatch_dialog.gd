@@ -125,10 +125,13 @@ func show_tab(tab: String) -> void:
 
 
 func configure_target(node: Dictionary) -> void:
+	var was_order: bool = not str(_target.get("orderRoute", "")).is_empty()
 	if str(_target.get("id", "")) != str(node.get("id", "")):
 		_invalidate_march("目标已变化，请重新预览。")
 		_march_error = ""
 	super.configure_target(node)
+	if was_order and str(node.get("orderRoute", "")).is_empty() and is_instance_valid(_mode):
+		_mode.select(0)
 	if is_instance_valid(_march_intro):
 		_render_march()
 
@@ -371,7 +374,8 @@ func _collect_march() -> Array:
 	for id: String in _army_inputs:
 		var raw: String = _army_inputs[id].get_line_edit().text.strip_edges()
 		army[id] = clampi(int(raw), 0, int(_army_stock.get(id, 0))) if raw.is_valid_int() else -1
-	return [str(_target.get("id", "")), _selected_general(), army, "raid" if not is_instance_valid(_mode) or _mode.selected == 0 else "occupy", is_instance_valid(_occupy_return) and _occupy_return.button_pressed]
+	var order: bool = not str(_target.get("orderRoute", "")).is_empty()
+	return [str(_target.get("id", "")), _selected_general(), army, "occupy" if order else "raid" if not is_instance_valid(_mode) or _mode.selected == 0 else "occupy", order or is_instance_valid(_occupy_return) and _occupy_return.button_pressed]
 
 
 func _normalize_march() -> bool:
@@ -510,7 +514,13 @@ func _refresh_march_actions() -> void:
 	var usable: bool = _march_usable()
 	_general.disabled = not usable or _general.item_count == 0
 	_mode.disabled = not usable
-	_occupy_return.visible = _mode.selected == 1
+	var order: bool = not str(_target.get("orderRoute", "")).is_empty()
+	_mode.set_item_disabled(0, order)
+	_mode.set_item_text(1, "讨伐军令（胜利后返城）" if order else "占领")
+	if order:
+		_mode.select(1)
+	_mode.tooltip_text = "军令使用讨伐模式，胜利后返城；本场不取得领地。" if order else "选择掠夺资源或占领目标。"
+	_occupy_return.visible = _mode.selected == 1 and not order
 	_occupy_return.disabled = not usable
 	for id: String in _army_inputs:
 		_army_inputs[id].editable = usable and int(_army_stock.get(id, 0)) > 0

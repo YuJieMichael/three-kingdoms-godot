@@ -591,6 +591,7 @@ func _build_shell() -> void:
 	_growth_button = _button("成长路线", _show_growth_route)
 	_growth_button.disabled = true
 	_side.add_child(_growth_button)
+	_side.add_child(_button("晋升筹备", _show_progression.bind("preparation")))
 	_side.add_child(HSeparator.new())
 	_side.add_child(_label("常用事务", 14, Color("baae85")))
 	_side.add_child(_button("领取已解锁礼包", func() -> void: _send_command("onboarding.claimAvailable")))
@@ -928,6 +929,7 @@ func _show_page(page: String) -> void:
 				tab.set_pressed_no_signal(_city_zone == str(zone[0]))
 				_city_toolbar.add_child(tab)
 			_city_toolbar.add_child(_button("城务", _city_affairs_dialog))
+			_city_toolbar.add_child(_button("经营方案", _show_realm.bind("plans")))
 			if api == null or api.mode != "shared":
 				_city_toolbar.add_child(_button("领地治理", _show_county_governance))
 				_county_identity_label = _label("", 14, Color("d8c28b"))
@@ -961,6 +963,7 @@ func _show_page(page: String) -> void:
 		"army":
 			_center.add_child(_label("军队 · 城防与出征", 22))
 			if api == null or api.mode != "shared":
+				_center.add_child(_button("战役军令 · 长期征战与挑战", _show_progression.bind("campaign")))
 				_center.add_child(_button("借调演练 · 比较三种战术", _show_practice))
 			_battle = BattleScript.new() as KingdomBattleView
 			_battle.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -986,7 +989,7 @@ func _show_page(page: String) -> void:
 					var action: Button = _button(str(entry[1]), _show_management.bind(str(entry[0])))
 					action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 					general_actions.add_child(action)
-				for entry: Array in [["generals", "培养与忠诚"], ["wild", "野地抓将"], ["captives", "俘虏将领"], ["equipment", "装备与打造"]]:
+				for entry: Array in [["generals", "培养与忠诚"], ["specializations", "专长训练"], ["wild", "野地抓将"], ["captives", "俘虏将领"], ["equipment", "装备与打造"]]:
 					general_actions.add_child(_button(str(entry[1]), _show_heroes.bind(str(entry[0]))))
 			var scroll: ScrollContainer = ScrollContainer.new()
 			scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1799,6 +1802,8 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 			"dispatch": "出征操作已结算，请查看行军", "dispatchScout": "侦察派遣已结算，请查看行军",
 			"healWounded": "伤兵治疗已结算", "recruitCaptives": "士兵招降已结算", "recruitAllCaptives": "士兵招降已结算",
 			"wild.recruit": "俘将招降已结算", "hero.equip": "装备穿戴已结算", "hero.forge": "装备打造已结算",
+			"trainGeneralSkill": "将领专长训练已结算", "war.exchange": "军功兑换已结算，请在背包查看",
+			"exchangeCopper": "铜钱兑换已结算，请核对珍宝库存", "applyPlotTemplate": "经营方案已安排，请查看施工队列",
 			"setBattleOrders": "全军军令已更新", "setBattleOrder": "兵队军令已更新", "battleRound": "本回合已结算",
 			"recall": "部队已开始返程"
 		}
@@ -2307,6 +2312,9 @@ func _present_battle() -> Variant:
 	return display
 
 func _node_name(id: String) -> String:
+	var campaign_target: Dictionary = _campaign_target(id)
+	if not campaign_target.is_empty():
+		return str(campaign_target.get("name", id))
 	var name: String = id
 	for node: Dictionary in _view.get("nodes", []):
 		if str(node.get("id", "")) == id:
@@ -2652,8 +2660,11 @@ func _route_objective(route: String, target: String = "") -> void:
 					return
 		"wildGenerals": _show_heroes("wild")
 		"heroes": _show_heroes("equipment" if target == "equipment" else "generals")
+		"specialization": _show_heroes("specializations")
+		"campaign": _prepare_campaign_target(target)
+		"plans": _show_realm("plans")
 		"gift": _show_progression("gifts")
-		"epic", "honors", "chapters", "missions":
+		"epic", "honors", "chapters", "missions", "daily", "preparation":
 			_show_progression(route)
 			if route == "epic" and target == "exchange":
 				_progression.select_filter(3)
@@ -2783,6 +2794,9 @@ func _intel_now() -> float:
 func _scouting_view() -> Dictionary:
 	var view: Dictionary = _view.duplicate(true)
 	view["serverTime"] = _intel_now()
+	var campaign_target: Dictionary = _campaign_target(_scouting_target_id)
+	if not campaign_target.is_empty():
+		view["nodes"].append(campaign_target.duplicate(true))
 	# The state DTO contains landmarks; ordinary wilds live in the safe world DTO.
 	# Add only the current target, with military data rebuilt from current intel.
 	if not _scouting_target_id.is_empty():
@@ -2803,6 +2817,9 @@ func _intel_node(tile: Dictionary) -> Dictionary:
 	# A tile may be the previous selection; revoke its derived military data.
 	node.erase("intel")
 	node["army"] = {}
+	var campaign_target: Dictionary = _campaign_target(str(tile.get("id", "")))
+	if not campaign_target.is_empty():
+		node.merge(campaign_target, true)
 	for current: Dictionary in _view.get("nodes", []):
 		if str(current.get("id", "")) == str(tile.get("id", "")):
 			node.merge(current, true)
@@ -2813,6 +2830,27 @@ func _intel_node(tile: Dictionary) -> Dictionary:
 		# Only the normalized server intel decides which numbers may be read.
 		node["army"] = node.intel.get("army", {}).duplicate(true) if node.intel.get("army", {}) is Dictionary else {}
 	return node
+
+func _campaign_target(id: String) -> Dictionary:
+	if not _view.get("campaign", {}).get("unlocked", false):
+		return {}
+	for route: Dictionary in _view.get("campaign", {}).get("routes", []):
+		for target: Dictionary in route.get("targets", []):
+			if str(target.get("id", "")) == id:
+				return target
+	return {}
+
+func _prepare_campaign_target(id: String) -> void:
+	if id.is_empty():
+		_show_progression("campaign")
+		return
+	if api == null or api.mode != "local" or not api.connected or api._has_mutation():
+		return
+	var target: Dictionary = _campaign_target(id)
+	if target.is_empty() or not str(target.get("reason", "")).is_empty():
+		_show_toast(str(target.get("reason", "当前军令已变化，请刷新后选择。")), true)
+		return
+	_open_dispatch_flow(target, "march")
 
 func _sync_scouting_intel() -> void:
 	if api == null or api.mode == "shared":

@@ -10,6 +10,7 @@ import {intelView, scoutingView, scoutMarchesView} from './scouting-view.mjs';
 import {buildingComparisons} from './building-comparison.mjs';
 import {raidTargetsView} from './raid-targets-view.mjs';
 import {battleReview} from './battle-review.mjs';
+import {campaignView} from './campaign-view.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
@@ -214,7 +215,7 @@ export function gameView(game, now, runtime = null, options = {}) {
   const management = runtime ? {
     heroes: heroView(runtime, {...options, now}), progression: progressionView(runtime, {...options, now}),
     warManagement: warView(runtime, {...options, now}), realmManagement: realmView(runtime, {...options, now}),
-    inventoryManagement: inventoryView(runtime, {...options, now})} : {};
+    inventoryManagement: inventoryView(runtime, {...options, now}), campaign: campaignView(runtime, {...options, now})} : {};
   if (runtime) {
     management.growth = growthView(runtime, {...options, now, progression: management.progression});
     management.raidTargets = raidTargetsView(game, management.growth, {...options, now});
