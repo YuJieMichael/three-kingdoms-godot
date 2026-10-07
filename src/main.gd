@@ -5,6 +5,8 @@ const MapScript: Script = preload("res://src/world_map.gd")
 const CityScript: Script = preload("res://src/city_view.gd")
 const SuburbScript: Script = preload("res://src/suburb_view.gd")
 const BattleScript: Script = preload("res://src/battle_view.gd")
+const CombatWindowScript: Script = preload("res://src/combat_window.gd")
+const BeginnerGuideScript: Script = preload("res://src/beginner_guide.gd")
 const ManagementScript: Script = preload("res://src/management_dialog.gd")
 const InputSettingsScript: Script = preload("res://src/input_settings.gd")
 const InputSettingsDialogScript: Script = preload("res://src/input_settings_dialog.gd")
@@ -166,6 +168,10 @@ var _county_conquest_button: Button
 var _county_after_switch: String = ""
 var _county_battle_pending: Dictionary = {}
 var _first_steps: HFlowContainer
+var _beginner_guide: KingdomBeginnerGuide
+var _welcome_authority: String = ""
+var _combat_window: KingdomCombatWindow
+var _combat_opened_identity: String = ""
 
 func _ready() -> void:
 	get_window().title = "山河策"
@@ -192,7 +198,7 @@ func _ready() -> void:
 	_clock.timeout.connect(_refresh_clock)
 	add_child(_clock)
 	_clock.start()
-	_show_page("world")
+	_show_page("city")
 	var arguments: PackedStringArray = OS.get_cmdline_user_args()
 	var explicit_url: String = ""
 	var lobby_url: String = ""
@@ -239,7 +245,7 @@ func _initialize_presentation() -> void:
 	_guide.theme = theme
 	add_child(_guide)
 	_menu.input_requested.connect(_show_input_settings)
-	_menu.guide_requested.connect(_guide.start)
+	_menu.guide_requested.connect(_open_beginner_guide)
 	_menu.practice_requested.connect(_show_practice)
 	_menu.save_requested.connect(_save_dialog)
 	_menu.connection_requested.connect(_show_lobby)
@@ -566,6 +572,14 @@ func _build_shell() -> void:
 	_county_conquest_button.theme_type_variation = "PrimaryButton"
 	_county_conquest_button.visible = false
 	first_steps.add_child(_county_conquest_button)
+	_beginner_guide = BeginnerGuideScript.new() as KingdomBeginnerGuide
+	root.add_child(_beginner_guide)
+	_beginner_guide.visible = false
+	_beginner_guide.navigate_requested.connect(_route_objective)
+	_beginner_guide.navigate_requested.connect(func(_route: String, _target: String) -> void: _audio.click())
+	_beginner_guide.reward_requested.connect(_objective_action)
+	_beginner_guide.reward_requested.connect(func() -> void: _audio.click())
+	_beginner_guide.details_requested.connect(_show_growth_route)
 	_body = HBoxContainer.new()
 	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(_body)
@@ -697,6 +711,8 @@ func _adapt_layout() -> void:
 		_input_settings_dialog._fit_window()
 	if is_instance_valid(_lobby) and _lobby.visible:
 		_lobby._fit_window()
+	if is_instance_valid(_combat_window) and _combat_window.visible:
+		_combat_window._fit_window()
 	for panel: Window in [_progression, _heroes, _war_management, _inventory, _scouting]:
 		if is_instance_valid(panel) and panel.visible:
 			panel._fit_window()
@@ -962,19 +978,16 @@ func _show_page(page: String) -> void:
 				call_deferred("_adapt_layout")
 		"army":
 			_center.add_child(_label("军队 · 城防与出征", 22))
+			var combat_entry: Button = _button("进入战场指挥 · 查看兵力、位置与军令", _open_combat)
+			combat_entry.theme_type_variation = "PrimaryButton"
+			_center.add_child(combat_entry)
+			_center.add_child(_label("战场使用独立大窗口。城内事务与战斗分开，返回城池不会撤退。", 15))
+			_center.add_child(_button("训练与驻军", _training_dialog))
+			_center.add_child(_button("行军与驻扎部队", _marches_dialog))
 			if api == null or api.mode != "shared":
 				_center.add_child(_button("战役军令 · 长期征战与挑战", _show_progression.bind("campaign")))
 				_center.add_child(_button("征战补给模式 · 占领获得元宝与道具", _show_progression.bind("conquest")))
 				_center.add_child(_button("借调演练 · 比较三种战术", _show_practice))
-			_battle = BattleScript.new() as KingdomBattleView
-			_battle.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			_battle.custom_minimum_size.y = 260.0
-			_center.add_child(_battle)
-			_battle.custom_minimum_size = Vector2(260.0, 540.0)
-			_battle.action_requested.connect(_battle_action)
-			_battle.set_battle(_present_battle(), _unit_dictionary())
-			_center.add_child(_button("训练与驻军", _training_dialog))
-			_center.add_child(_button("行军与驻扎部队", _marches_dialog))
 			var war_actions: GridContainer = GridContainer.new()
 			war_actions.columns = 2
 			_center.add_child(war_actions)
@@ -1092,6 +1105,8 @@ func _receive_snapshot(payload: Dictionary) -> void:
 	_refresh_objective()
 	_sync_tasks_hub()
 	_sync_growth_route()
+	_sync_beginner_guide()
+	_sync_combat_window()
 	_sync_report_economy()
 	_sync_county_governance()
 	_establish_county_baseline()
@@ -1244,6 +1259,10 @@ func _sync_objective_actions() -> void:
 	var blocked: bool = api == null or not api.connected or api._has_mutation()
 	if is_instance_valid(_battle):
 		_battle.set_actions_enabled(not blocked and api.mode == "local")
+	if is_instance_valid(_combat_window):
+		_combat_window.battlefield.set_actions_enabled(not blocked and api.mode == "local")
+	if is_instance_valid(_beginner_guide):
+		_beginner_guide.update_view(_view, api != null and api.connected, blocked)
 	_objective_button.disabled = blocked
 	_compact_objective_button.disabled = blocked
 	if is_instance_valid(_growth_button):
@@ -1861,6 +1880,79 @@ func _send_record_command(record: Dictionary) -> void:
 	if record.is_empty():
 		return
 	_send_command(str(record.type), record.get("args", []), str(record.get("sourceCity", "")))
+
+func _sync_beginner_guide() -> void:
+	if not is_instance_valid(_beginner_guide):
+		return
+	var first: Dictionary = _view.get("progression", {}).get("firstBattle", {})
+	_beginner_guide.visible = api.mode == "local" and not first.is_empty() and not bool(first.get("complete", false))
+	_beginner_guide.update_view(_view, api.connected, api._has_mutation())
+	var authority: String = str(api.last_snapshot.get("authorityId", ""))
+	if not _beginner_guide.visible or authority.is_empty() or _welcome_authority == authority:
+		return
+	_welcome_authority = authority
+	var config: ConfigFile = ConfigFile.new()
+	config.load("user://beginner-guide.cfg")
+	if not bool(config.get_value("welcomed", authority, false)):
+		config.set_value("welcomed", authority, true)
+		config.save("user://beginner-guide.cfg")
+		call_deferred("_open_beginner_guide")
+
+func _open_beginner_guide() -> void:
+	if api == null or not api.connected:
+		return
+	var content: VBoxContainer = _open_dialog("新手指导 · 从经营一座城开始", 620)
+	content.add_child(_label("先建设，再研究和募兵，最后带部队出城。", 20))
+	var instructions: Label = _label("① 城内点空地，建设民房、书院、军营等设施。\n② 领取任务奖励；工程排好后，可以使用已持有加速。\n③ 满足科技条件后募兵，在地图选择目标和出征方式。\n④ 部队抵达后进入战场，按兵种指挥前进、防守、后退。", 16)
+	instructions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(instructions)
+	var current: Dictionary = _view.get("growth", {}).get("current", {}) if _view.get("growth", {}).get("current") is Dictionary else {}
+	content.add_child(_label("你当前要做：" + str(current.get("title", "查看任务")), 18))
+	content.add_child(_button("从当前步骤开始", _beginner_next))
+	content.add_child(_button("查看任务奖励和新手礼包", func() -> void: _dialog.hide(); _show_progression("gifts")))
+	content.add_child(_button("先学习战斗指挥", func() -> void: _dialog.hide(); _show_practice()))
+	content.add_child(_label("顶部的新手指导会跟随真实进度更新；不需要自己猜下一步。菜单中可随时重新打开。", 14))
+
+func _beginner_next() -> void:
+	if is_instance_valid(_dialog):
+		_dialog.hide()
+	if bool(_view.get("objective", {}).get("ready", false)):
+		_objective_action()
+		return
+	var step: Dictionary = _view.get("growth", {}).get("current", {}) if _view.get("growth", {}).get("current") is Dictionary else {}
+	var route: Dictionary = step.get("navigate", {})
+	_route_objective(str(route.get("route", "growth")), str(route.get("target", "")))
+
+func _open_combat() -> void:
+	if api == null or api.mode != "local":
+		_show_toast("共享战争由服务器结算，请查看共享战报")
+		return
+	if not is_instance_valid(_combat_window):
+		_combat_window = CombatWindowScript.new() as KingdomCombatWindow
+		_combat_window.theme = theme
+		add_child(_combat_window)
+		_combat_window.action_requested.connect(_battle_action)
+		_combat_window.visibility_changed.connect(func() -> void: _sync_combat_music())
+	_combat_window.update_battle(_present_battle(), _unit_dictionary(), api.connected and not api._has_mutation())
+	_combat_window.open_battle()
+	call_deferred("_watch_buttons", _combat_window)
+
+func _sync_combat_music() -> void:
+	if is_instance_valid(_audio):
+		var combat_visible: bool = is_instance_valid(_combat_window) and _combat_window.visible and not bool(_view.get("battle", {}).get("finished", false)) if _view.get("battle") is Dictionary else false
+		_audio.set_context(combat_visible or (is_instance_valid(_practice) and _practice.visible))
+
+func _sync_combat_window() -> void:
+	var battle: Variant = _view.get("battle")
+	if is_instance_valid(_combat_window):
+		_combat_window.update_battle(_present_battle(), _unit_dictionary(), api.connected and not api._has_mutation())
+	if battle is Dictionary and not battle.is_empty() and not bool(battle.get("finished", false)) and api.mode == "local":
+		var expedition: Dictionary = _state.get("expedition", {}) if _state.get("expedition") is Dictionary else {}
+		var identity: String = "%s|%s|%s|%s" % [battle.get("node", ""), battle.get("general", ""), battle.get("sourceCity", ""), expedition.get("start", "")]
+		if identity != _combat_opened_identity:
+			_combat_opened_identity = identity
+			_open_combat()
+	_sync_combat_music()
 
 func _battle_action(type: String, args: Array) -> void:
 	_send_command(type, args)

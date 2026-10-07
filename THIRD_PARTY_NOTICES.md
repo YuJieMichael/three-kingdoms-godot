@@ -19,3 +19,7 @@ The demonstration synthesized music and cues in src/presentation_audio.gd are or
 ## node-postgres
 
 Cloud room persistence uses node-postgres (`pg` 8.23.1), licensed under MIT. The license is included at [docs/licenses/node-postgres-MIT.txt](docs/licenses/node-postgres-MIT.txt). It is installed on the Node server; account passwords and database credentials are not included in exported clients.
+
+## Preview music
+
+"Temple of the Manes" and "Five Armies" by Kevin MacLeod (incompetech.com). Licensed under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/). Source, ISRCs and download provenance: [music credits](assets/audio/CREDITS.txt). Complete MP3 files are unchanged; playback loops and crossfades in the client. These replace earlier synthesized preview music.

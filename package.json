@@ -1,6 +1,6 @@
 {
   "name": "three-kingdoms-godot",
-  "version": "0.6.0-dev.13",
+  "version": "0.6.0-dev.14",
   "private": true,
   "scripts": {
     "test": "node --test tests/*.test.cjs",

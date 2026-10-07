@@ -5,7 +5,7 @@ import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.6.0-dev.13'
+VERSION = '0.6.0-dev.14'
 GODOT_VERSION = '4.7.2'
 NODE_WINDOWS_SHA256 = '158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541'
 
@@ -36,6 +36,7 @@ def notices(destination):
     for source in (ROOT/'docs/licenses').glob('*.txt'):
         shutil.copy2(source, folder/source.name)
     shutil.copy2(ROOT/'THIRD_PARTY_NOTICES.md',destination/'THIRD_PARTY_NOTICES.md')
+    shutil.copy2(ROOT/'assets/audio/CREDITS.txt', folder/'MUSIC-CREDITS.txt')
 
 def zip_folder(folder, target):
     with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
@@ -65,7 +66,7 @@ web_package = build/'web-package'; web_package.mkdir(exist_ok=True)
 shutil.copytree(web,web_package/'web',dirs_exist_ok=True)
 for package in [windows,web_package]:
     service(package/'rule-service'); notices(package)
-    (package/'新版玩法.txt').write_text('山河策 '+VERSION+' · 征战补给试玩\n\n本版包含首战借调演练、战术复盘、县城治理、战役军令、将领专长、经营方案、晋升筹备、商城军需及占领元宝奖励。\n\nWindows 完整解压后双击 ThreeKingdoms.exe，自动启动本地规则服务，单机无需网页登录。想用独立的新档测试，请双击 测试新档.cmd；测试进度保存在包内 playtest-data，继续双击同一个入口会保留该测试进度。直接打开 EXE 使用原来的默认存档位置。\n\n推荐测试入口：\n1. 成长路线 → 免费首战工程补给；菜单 → 借调演练。\n2. 出征前填写将领和兵力 → 预览出征，查看阵容分析。\n3. 商城 → 创新军需；购买后在背包预览开包，百工调拨令可选择加速类型。\n4. 军务 → 征战补给 → 开启；之后首次真正占领野地／据点得5–23元宝、城池得25–70元宝，额外随机获得1件商城道具。已占领地点不补发，放弃重占不重复奖励。只破门或降民心时还需继续攻城。规则、道具概率及所得记录可查看。\n5. 城池 → 经营方案；将领 → 专长训练；侧栏 → 晋升筹备。战役军令在占领北境大营后开放。\n\n新价格与元宝奖励为试玩设定。单机与本机房间进度分开，本机房间演练不含上述私人征战补给。账号登录界面已在客户端内，但公网账号服务仍需后续部署。\n',encoding='utf-8-sig')
+    (package/'新版玩法.txt').write_text('山河策 '+VERSION+' · 新手指导与战场整改\n\n这次优先调整基础体验：开局进入城内；首次进入当前存档显示操作指引；顶部指引根据真实进度说明下一步，任务达成后直接领当前奖励。军队页打开独立战斗指挥窗口，兵种使用写实图卡，蓝色我军／红色敌军，显示人数、血条、位置与射程。战场内部可滚动，指令区保持在战场下方；回合动画展示完成再允许下一回合。完整经营／战斗音乐分开播放。\n\n本版包含首战借调演练、战术复盘、县城治理、战役军令、将领专长、经营方案、晋升筹备、商城军需及占领元宝奖励。\n\nWindows 完整解压后双击 ThreeKingdoms.exe，自动启动本地规则服务，单机无需网页登录。想用独立的新档测试，请双击 测试新档.cmd；测试进度保存在包内 playtest-data，继续双击同一个入口会保留该测试进度。直接打开 EXE 使用原来的默认存档位置。\n\n推荐测试入口：\n1. 成长路线 → 免费首战工程补给；菜单 → 借调演练。\n2. 出征前填写将领和兵力 → 预览出征，查看阵容分析。\n3. 商城 → 创新军需；购买后在背包预览开包，百工调拨令可选择加速类型。\n4. 军务 → 征战补给 → 开启；之后首次真正占领野地／据点得5–23元宝、城池得25–70元宝，额外随机获得1件商城道具。已占领地点不补发，放弃重占不重复奖励。只破门或降民心时还需继续攻城。规则、道具概率及所得记录可查看。\n5. 城池 → 经营方案；将领 → 专长训练；侧栏 → 晋升筹备。战役军令在占领北境大营后开放。\n\n新价格与元宝奖励为试玩设定。单机与本机房间进度分开，本机房间演练不含上述私人征战补给。账号登录界面已在客户端内，但公网账号服务仍需后续部署。\n',encoding='utf-8-sig')
     runtime = package/'runtime'; runtime.mkdir(exist_ok=True)
     with zipfile.ZipFile(args.node_win_zip) as archive:
         for name in ['node.exe','LICENSE']:

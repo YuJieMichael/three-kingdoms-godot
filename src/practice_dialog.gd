@@ -229,7 +229,7 @@ func _api_identity() -> String:
 func _fit_window() -> void:
 	var viewport: Vector2 = get_tree().root.get_visible_rect().size
 	min_size = Vector2i(280, 340)
-	size = Vector2i(int(minf(880.0, viewport.x - 24.0)), int(minf(800.0, viewport.y - 54.0)))
+	size = Vector2i(int(minf(1380.0, viewport.x - 24.0)), int(minf(800.0, viewport.y - 54.0)))
 	if visible:
 		position = Vector2i((viewport - Vector2(size)) / 2.0)
 

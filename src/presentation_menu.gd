@@ -91,7 +91,7 @@ func _ready() -> void:
 		_display_feedback.text = "显示设置暂不可用。"
 	var credits: VBoxContainer = _tab("鸣谢")
 	var text: Label = Label.new()
-	text.text = "声音：Nathan Hoad · Sound Manager\n剧情：Nathan Hoad · Dialogue Manager\n菜单分页：Maaack · Game Template\n以上代码采用 MIT 许可证。\n当前合成音乐与提示音为项目自制，可替换为正式素材。"
+	text.text = "声音：Nathan Hoad · Sound Manager\n剧情：Nathan Hoad · Dialogue Manager\n菜单分页：Maaack · Game Template\n以上代码采用 MIT 许可证。\n背景音乐：Kevin MacLeod (incompetech.com)\nTemple of the Manes / Five Armies\nCC BY 4.0 · https://creativecommons.org/licenses/by/4.0/\n完整署名及来源见 assets/audio/CREDITS.txt。"
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	credits.add_child(text)
 	confirmed.connect(audio.click)
