@@ -445,20 +445,27 @@ test('same-origin web assets are isolated from saves, ready metadata and symlink
   const webDir = path.join(directory,'web'), dataDir = path.join(directory,'private'), readyFile = path.join(directory,'ready.json');
   await fs.mkdir(webDir); await fs.writeFile(path.join(webDir,'index.html'), '<html>Godot web</html>');
   await fs.writeFile(path.join(directory,'secret.html'), 'private-secret');
-  await fs.symlink(path.join(directory,'secret.html'), path.join(webDir,'escape.html'));
+  let fileSymlink = true;
+  try { await fs.symlink(path.join(directory,'secret.html'), path.join(webDir,'escape.html')); }
+  catch (error) {
+    if (process.platform !== 'win32' || error.code !== 'EPERM') throw error;
+    fileSymlink = false;
+  }
   const bridge = await module.startBridge({dataDir,webDir,readyFile,port:0,token:'web-secret',clock:()=>NOW});
   t.after(async()=>{await bridge.close();await fs.rm(directory,{recursive:true,force:true});});
   const ready=JSON.parse(await fs.readFile(readyFile,'utf8')); assert.equal(ready.url,`http://127.0.0.1:${bridge.port}`); assert.equal(ready.token,undefined);
   const index = await fetch(ready.url+'/'); assert.equal(index.status,200); assert.equal(await index.text(),'<html>Godot web</html>');
   assert.equal(index.headers.get('cross-origin-opener-policy'),'same-origin');
-  assert.equal((await fetch(ready.url+'/escape.html')).status,404);
+  await t.test('file symlink escape', {skip: !fileSymlink && 'Windows account cannot create file symlinks'}, async () => {
+    assert.equal((await fetch(ready.url+'/escape.html')).status,404);
+  });
   assert.equal((await fetch(ready.url+'/../secret.html')).status,404);
   assert.equal((await fetch(ready.url+'/%2e%2e%2fsecret.html')).status,404);
   assert.equal((await fetch(ready.url+'/save.json')).status,404);
   assert.equal((await fetch(ready.url+'/api/state')).status,401);
   const state=await fetch(ready.url+'/api/state',{headers:{Authorization:'Bearer web-secret',Origin:ready.url}}); assert.equal(state.status,200);
   await fs.mkdir(path.join(webDir,'private'));
-  await fs.symlink(path.join(webDir,'private'),path.join(directory,'private-alias'));
+  await fs.symlink(path.join(webDir,'private'),path.join(directory,'private-alias'), process.platform === 'win32' ? 'junction' : 'dir');
   await assert.rejects(module.startBridge({dataDir:path.join(directory,'private-alias'),webDir,port:0}),/separate from private/);
   const tokenFile=path.join(webDir,'token.txt');await fs.writeFile(tokenFile,'private-token');
   await assert.rejects(module.startBridge({dataDir:path.join(directory,'other-save'),webDir,tokenFile,port:0}),/separate from private/);

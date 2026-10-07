@@ -5,7 +5,7 @@ import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.6.0-dev.12'
+VERSION = '0.6.0-dev.13'
 GODOT_VERSION = '4.7.2'
 NODE_WINDOWS_SHA256 = '158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541'
 
@@ -16,14 +16,15 @@ def digest(path):
     return value.hexdigest()
 
 def command(args, log):
-    run = subprocess.run(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    log.write_text(run.stdout)
+    run = subprocess.run(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')
+    log.write_text(run.stdout, encoding='utf-8')
     if run.returncode or re.search(r'(^|\n)(SCRIPT ERROR:|ERROR:)', run.stdout):
         print(run.stdout[-8000:]); raise SystemExit('Godot build failed; see ' + str(log))
 
 def service(destination):
     for name in ('bridge', 'vendor/legacy', 'vendor/shared'):
-        shutil.copytree(ROOT / name, destination / name, dirs_exist_ok=True)
+        shutil.copytree(ROOT / name, destination / name, dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns('.git', '.local', 'node_modules', '.env*', '*.env', '*.tmp'))
     (destination/'scripts').mkdir(exist_ok=True)
     for name in ('start-pvp.mjs','join-pvp.mjs','start-rooms.mjs'):
         shutil.copy2(ROOT/'scripts'/name,destination/'scripts'/name)
@@ -50,12 +51,12 @@ args = parser.parse_args()
 actual = subprocess.check_output([args.godot,'--version'], text=True).strip()
 if not actual.startswith(GODOT_VERSION+'.stable'): raise SystemExit('Requires Godot '+GODOT_VERSION+' stable')
 if digest(args.node_win_zip) != NODE_WINDOWS_SHA256: raise SystemExit('Node Windows archive checksum mismatch')
-build = args.output_dir.resolve(); build.mkdir(exist_ok=True)
+build = args.output_dir.resolve(); build.mkdir(parents=True,exist_ok=True)
 (build/'.gdignore').touch()
 windows = build/'windows'; web = build/'web'
 windows.mkdir(exist_ok=True); web.mkdir(exist_ok=True)
 if not args.skip_export:
-    command([args.godot,'--headless','--path',str(ROOT),'--editor','--import'],build/'import.log')
+    command([args.godot,'--headless','--path',str(ROOT),'--editor','--import','--quit'],build/'import.log')
     command([args.godot,'--headless','--path',str(ROOT),'--export-release','Windows Desktop',str(windows/'ThreeKingdoms.exe')],build/'windows-export.log')
     command([args.godot,'--headless','--path',str(ROOT),'--export-release','Web',str(web/'index.html')],build/'web-export.log')
 if (windows/'ThreeKingdoms.exe').read_bytes()[:2] != b'MZ': raise SystemExit('Windows PE executable missing')
@@ -64,6 +65,7 @@ web_package = build/'web-package'; web_package.mkdir(exist_ok=True)
 shutil.copytree(web,web_package/'web',dirs_exist_ok=True)
 for package in [windows,web_package]:
     service(package/'rule-service'); notices(package)
+    (package/'新版玩法.txt').write_text('山河策 '+VERSION+' · 征战补给试玩\n\n本版包含首战借调演练、战术复盘、县城治理、战役军令、将领专长、经营方案、晋升筹备、商城军需及占领元宝奖励。\n\nWindows 完整解压后双击 ThreeKingdoms.exe，自动启动本地规则服务，单机无需网页登录。想用独立的新档测试，请双击 测试新档.cmd；测试进度保存在包内 playtest-data，继续双击同一个入口会保留该测试进度。直接打开 EXE 使用原来的默认存档位置。\n\n推荐测试入口：\n1. 成长路线 → 免费首战工程补给；菜单 → 借调演练。\n2. 出征前填写将领和兵力 → 预览出征，查看阵容分析。\n3. 商城 → 创新军需；购买后在背包预览开包，百工调拨令可选择加速类型。\n4. 军务 → 征战补给 → 开启；之后首次真正占领野地／据点得5–23元宝、城池得25–70元宝，额外随机获得1件商城道具。已占领地点不补发，放弃重占不重复奖励。只破门或降民心时还需继续攻城。规则、道具概率及所得记录可查看。\n5. 城池 → 经营方案；将领 → 专长训练；侧栏 → 晋升筹备。战役军令在占领北境大营后开放。\n\n新价格与元宝奖励为试玩设定。单机与本机房间进度分开，本机房间演练不含上述私人征战补给。账号登录界面已在客户端内，但公网账号服务仍需后续部署。\n',encoding='utf-8-sig')
     runtime = package/'runtime'; runtime.mkdir(exist_ok=True)
     with zipfile.ZipFile(args.node_win_zip) as archive:
         for name in ['node.exe','LICENSE']:
@@ -75,6 +77,7 @@ for package in [windows,web_package]:
 (web_package/'start-web.sh').chmod(0o755)
 for package in [windows,web_package]:
     if package == windows:
+        (package/'测试新档.cmd').write_text('@echo off\r\nsetlocal\r\ncd /d "%~dp0"\r\nset "APPDATA=%~dp0playtest-data"\r\nif not exist "%APPDATA%" mkdir "%APPDATA%"\r\nstart "" "%~dp0ThreeKingdoms.exe"\r\n',encoding='ascii')
         (package/'StartPvP.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\necho Keep this window open. Then run PlayPvP1.cmd through PlayPvP4.cmd.\r\nruntime\\node.exe rule-service\\bridge\\shared-server.mjs --port 17342 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\SharedPvP"\r\n',encoding='ascii')
     else:
         (package/'StartPvP.cmd').write_text('@echo off\r\ncd /d "%~dp0"\r\nruntime\\node.exe rule-service\\scripts\\start-pvp.mjs --port 17342 --data-dir "%LOCALAPPDATA%\\ThreeKingdomsGodot\\SharedPvPWeb" --web-dir web\r\n',encoding='ascii')
@@ -92,8 +95,8 @@ for package in [windows,web_package]:
         (package/'start-rooms.sh').write_text('#!/bin/sh\nset -eu\ncd "$(dirname "$0")"\nnode rule-service/scripts/start-rooms.mjs --port 17343 --data-dir "${XDG_DATA_HOME:-$HOME/.local/share}/three-kingdoms-godot-rooms" --web-dir web\n')
         (package/'start-rooms.sh').chmod(0o755)
     (package/'房间试玩说明.txt').write_text('山河策 1–8人房间演练\n\nWindows 桌面包：先运行 StartRooms.cmd 并保持窗口开启，再运行 PlayRooms.cmd 打开联机大厅。\n网页包：运行 StartRooms.cmd / start-rooms.sh，在自动打开的大厅创建或加入房间。\n创建时选择人数上限1–8。邀请码只能申请空席位；自己的恢复密钥才可回到已有城池，请自行保存。未确认请求请保持窗口开启并使用原请求重试；关闭或刷新会丢失本次重试信息。\n每位成员使用同样的备战资源与兵力，加入时按席位交替分入青、赤两盟，后续以当前游戏联盟关系为准。抵达自动交战，返程后物资入库。\n房间、四账号演练与私人试玩各有独立存档，不要将已有进度目录用于另一种启动入口。\n当前房间服务仅接受本机连接，尚未部署外网账号、跨电脑服务或Steamworks。\n',encoding='utf-8-sig')
-manifest = {'version':VERSION,'godot':actual,'nodeWindows':'24.21.0','legacyCommit':'c7674df45b9595405e57907524e737e633b0ff63','editionRules':{'countyPreparation':{'costCopper':80,'limitPerSave':5,'unlock':'camp','shared':False}},'runtimeHash':re.search(r'export const runtimeHash="([a-f0-9]+)"', (ROOT/'vendor/legacy/supabase/functions/_shared/game-runtime.mjs').read_text()).group(1),'artifacts':[]}
-art_metadata = json.loads((ROOT/'data/city-rts-art-atlas.json').read_text())
+manifest = {'version':VERSION,'godot':actual,'nodeWindows':'24.21.0','legacyCommit':'c7674df45b9595405e57907524e737e633b0ff63','editionRules':{'countyPreparation':{'costCopper':80,'limitPerSave':5,'unlock':'camp','shared':False},'conquestSupply':{'optional':True,'firstOccupationPerSave':True,'wildGems':'3 + 2 * level','cityGems':'20 + 5 * level','randomShopItem':1,'shared':False}},'runtimeHash':re.search(r'export const runtimeHash="([a-f0-9]+)"', (ROOT/'vendor/legacy/supabase/functions/_shared/game-runtime.mjs').read_text(encoding='utf-8')).group(1),'artifacts':[]}
+art_metadata = json.loads((ROOT/'data/city-rts-art-atlas.json').read_text(encoding='utf-8'))
 manifest['cityArt'] = {'metadataSha256':digest(ROOT/'data/city-rts-art-atlas.json'), 'spriteCount':len(art_metadata.get('regions',{}))+len(art_metadata.get('sprites',[])), 'sources':[{'path':row['texture'],'bytes':(ROOT/row['texture'].removeprefix('res://')).stat().st_size,'sha256':digest(ROOT/row['texture'].removeprefix('res://'))} for row in art_metadata['sources']]}
 ground = art_metadata['ground']
 ground_path = ROOT/ground['texture'].removeprefix('res://')
@@ -104,13 +107,13 @@ environment = art_metadata.get('environment', {})
 if environment:
     environment_path = ROOT/environment['texture'].removeprefix('res://')
     manifest['cityArt']['environment'] = {'path':environment['texture'],'spriteCount':len(environment.get('regions',{})),'bytes':environment_path.stat().st_size,'sha256':digest(environment_path)}
-map_metadata = json.loads((ROOT/'data/world-map-art-atlas.json').read_text())
+map_metadata = json.loads((ROOT/'data/world-map-art-atlas.json').read_text(encoding='utf-8'))
 map_source = ROOT/map_metadata['texture'].removeprefix('res://')
 manifest['worldMapArt'] = {'metadataSha256':digest(ROOT/'data/world-map-art-atlas.json'), 'spriteCount':len(map_metadata['regions']), 'source':{'path':map_metadata['texture'],'bytes':map_source.stat().st_size,'sha256':digest(map_source)}}
 for folder,label in [(windows,'Windows-x64'),(web_package,'Web-preview')]:
     archive = build/('ThreeKingdoms-Godot-v'+VERSION+'-'+label+'.zip')
     zip_folder(folder,archive)
     manifest['artifacts'].append({'file':archive.name,'bytes':archive.stat().st_size,'sha256':digest(archive)})
-(build/'build-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+(build/'build-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 (build/'SHA256SUMS.txt').write_text(''.join(item['sha256']+'  '+item['file']+'\n' for item in manifest['artifacts']))
 print(json.dumps(manifest,ensure_ascii=False,indent=2))
