@@ -5,7 +5,7 @@ import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.6.0-dev.16'
+VERSION = '0.6.0-dev.17'
 GODOT_VERSION = '4.7.2'
 NODE_WINDOWS_SHA256 = '158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541'
 
@@ -66,7 +66,7 @@ web_package = build/'web-package'; web_package.mkdir(exist_ok=True)
 shutil.copytree(web,web_package/'web',dirs_exist_ok=True)
 for package in [windows,web_package]:
     service(package/'rule-service'); notices(package)
-    (package/'新版玩法.txt').write_text('山河策 '+VERSION+' · 图标商城与开场示范战\n\n商城采用原备份道具图标、分类货架，展示单价、持有数量、实际用途与限购条件；选中商品查看详情，底部调整数量并确认购买。新档先进入刀盾护弓示范战，手动推进回合并跟随提示观察；可以跳过。旧档可从菜单进入“开场示范战”，原来的三种借调演练继续提供。\n\n上一版城外整改：城外资源地显示农田、伐木场、采石场和铁矿图片，以及当前等级、产量。点空地先选用途，再看建成前后产量、全城净收入、用工、费用和工期，确认后建设。升级同样提供前后收益比较；人口不足或仓库已满时明确提示。费用和确认按钮固定在底部，窄屏内容可以滚动。\n\n此前基础体验整改：开局进入城内；首次进入当前存档显示操作指引；顶部指引根据真实进度说明下一步，任务达成后直接领当前奖励。军队页打开独立战斗指挥窗口，兵种使用写实图卡，蓝色我军／红色敌军，显示人数、血条、位置与射程。战场内部可滚动，指令区保持在战场下方；回合动画展示完成再允许下一回合。完整经营／战斗音乐分开播放。\n\n本版包含首战借调演练、战术复盘、县城治理、战役军令、将领专长、经营方案、晋升筹备、商城军需及占领元宝奖励。\n\nWindows 完整解压后双击 ThreeKingdoms.exe，自动启动本地规则服务，单机无需网页登录。想用独立的新档测试，请双击 测试新档.cmd；测试进度保存在包内 playtest-data，继续双击同一个入口会保留该测试进度。直接打开 EXE 使用原来的默认存档位置。\n\n推荐测试入口：\n1. 成长路线 → 免费首战工程补给；菜单 → 借调演练。\n2. 出征前填写将领和兵力 → 预览出征，查看阵容分析。\n3. 商城 → 创新军需；购买后在背包预览开包，百工调拨令可选择加速类型。\n4. 军务 → 征战补给 → 开启；之后首次真正占领野地／据点得5–23元宝、城池得25–70元宝，额外随机获得1件商城道具。已占领地点不补发，放弃重占不重复奖励。只破门或降民心时还需继续攻城。规则、道具概率及所得记录可查看。\n5. 城池 → 经营方案；将领 → 专长训练；侧栏 → 晋升筹备。战役军令在占领北境大营后开放。\n\n新价格与元宝奖励为试玩设定。单机与本机房间进度分开，本机房间演练不含上述私人征战补给。账号登录界面已在客户端内，但公网账号服务仍需后续部署。\n',encoding='utf-8-sig')
+    (package/'新版玩法.txt').write_text('山河策 '+VERSION+' · 均匀野地与随机刷新\n\n新增：空闲野地的七种类型与1–10级在每个8×8区域均衡打散，每30分钟重新随机生成，真实守军与收益同步变化。城池、已占领、采集、驻军和行军／侦察／战斗目标保留；旧侦察情报与过期出征预览失效。地图显示下次刷新倒计时，离线后进入最新一轮。此规则仅用于单机PVE，为试玩设定。\n\n商城采用原备份道具图标、分类货架，展示单价、持有数量、实际用途与限购条件；选中商品查看详情，底部调整数量并确认购买。新档先进入刀盾护弓示范战，手动推进回合并跟随提示观察；可以跳过。旧档可从菜单进入“开场示范战”，原来的三种借调演练继续提供。\n\n上一版城外整改：城外资源地显示农田、伐木场、采石场和铁矿图片，以及当前等级、产量。点空地先选用途，再看建成前后产量、全城净收入、用工、费用和工期，确认后建设。升级同样提供前后收益比较；人口不足或仓库已满时明确提示。费用和确认按钮固定在底部，窄屏内容可以滚动。\n\n此前基础体验整改：开局进入城内；首次进入当前存档显示操作指引；顶部指引根据真实进度说明下一步，任务达成后直接领当前奖励。军队页打开独立战斗指挥窗口，兵种使用写实图卡，蓝色我军／红色敌军，显示人数、血条、位置与射程。战场内部可滚动，指令区保持在战场下方；回合动画展示完成再允许下一回合。完整经营／战斗音乐分开播放。\n\n本版包含首战借调演练、战术复盘、县城治理、战役军令、将领专长、经营方案、晋升筹备、商城军需及占领元宝奖励。\n\nWindows 完整解压后双击 ThreeKingdoms.exe，自动启动本地规则服务，单机无需网页登录。想用独立的新档测试，请双击 测试新档.cmd；测试进度保存在包内 playtest-data，继续双击同一个入口会保留该测试进度。直接打开 EXE 使用原来的默认存档位置。\n\n推荐测试入口：\n1. 成长路线 → 免费首战工程补给；菜单 → 借调演练。\n2. 出征前填写将领和兵力 → 预览出征，查看阵容分析。\n3. 商城 → 创新军需；购买后在背包预览开包，百工调拨令可选择加速类型。\n4. 军务 → 征战补给 → 开启；之后首次真正占领野地／据点得5–23元宝、城池得25–70元宝，额外随机获得1件商城道具。已占领地点不补发，放弃重占不重复奖励。只破门或降民心时还需继续攻城。规则、道具概率及所得记录可查看。\n5. 城池 → 经营方案；将领 → 专长训练；侧栏 → 晋升筹备。战役军令在占领北境大营后开放。\n\n新价格与元宝奖励为试玩设定。单机与本机房间进度分开，本机房间演练不含上述私人征战补给。账号登录界面已在客户端内，但公网账号服务仍需后续部署。\n',encoding='utf-8-sig')
     runtime = package/'runtime'; runtime.mkdir(exist_ok=True)
     with zipfile.ZipFile(args.node_win_zip) as archive:
         for name in ['node.exe','LICENSE']:
@@ -97,6 +97,10 @@ for package in [windows,web_package]:
         (package/'start-rooms.sh').chmod(0o755)
     (package/'房间试玩说明.txt').write_text('山河策 1–8人房间演练\n\nWindows 桌面包：先运行 StartRooms.cmd 并保持窗口开启，再运行 PlayRooms.cmd 打开联机大厅。\n网页包：运行 StartRooms.cmd / start-rooms.sh，在自动打开的大厅创建或加入房间。\n创建时选择人数上限1–8。邀请码只能申请空席位；自己的恢复密钥才可回到已有城池，请自行保存。未确认请求请保持窗口开启并使用原请求重试；关闭或刷新会丢失本次重试信息。\n每位成员使用同样的备战资源与兵力，加入时按席位交替分入青、赤两盟，后续以当前游戏联盟关系为准。抵达自动交战，返程后物资入库。\n房间、四账号演练与私人试玩各有独立存档，不要将已有进度目录用于另一种启动入口。\n当前房间服务仅接受本机连接，尚未部署外网账号、跨电脑服务或Steamworks。\n',encoding='utf-8-sig')
 manifest = {'version':VERSION,'godot':actual,'nodeWindows':'24.21.0','legacyCommit':'c7674df45b9595405e57907524e737e633b0ff63','editionRules':{'countyPreparation':{'costCopper':80,'limitPerSave':5,'unlock':'camp','shared':False},'conquestSupply':{'optional':True,'firstOccupationPerSave':True,'wildGems':'3 + 2 * level','cityGems':'20 + 5 * level','randomShopItem':1,'shared':False}},'runtimeHash':re.search(r'export const runtimeHash="([a-f0-9]+)"', (ROOT/'vendor/legacy/supabase/functions/_shared/game-runtime.mjs').read_text(encoding='utf-8')).group(1),'artifacts':[]}
+manifest['baseRuntimeHash'] = manifest['runtimeHash']
+manifest['runtimeHash'] = subprocess.check_output([str(windows/'runtime/node.exe'), '--input-type=module', '-e', "import {runtimeHash} from './bridge/world-runtime.mjs'; process.stdout.write(runtimeHash);"], cwd=ROOT, text=True, encoding='utf-8').strip()
+if not re.fullmatch(r'[a-f0-9]{64}', manifest['runtimeHash']): raise SystemExit('World runtime hash unavailable')
+manifest['editionRules']['wildRefresh'] = {'intervalSeconds':1800, 'types':7, 'levels':[1,10], 'balancedBlock':[8,8], 'shared':False, 'protected':['owned','city','garrison','gathering','expedition','scout','battle'], 'sources':[{'path':name,'sha256':digest(ROOT/name)} for name in ('bridge/wild-fields.mjs','bridge/world-runtime.mjs')]}
 art_metadata = json.loads((ROOT/'data/city-rts-art-atlas.json').read_text(encoding='utf-8'))
 manifest['cityArt'] = {'metadataSha256':digest(ROOT/'data/city-rts-art-atlas.json'), 'spriteCount':len(art_metadata.get('regions',{}))+len(art_metadata.get('sprites',[])), 'sources':[{'path':row['texture'],'bytes':(ROOT/row['texture'].removeprefix('res://')).stat().st_size,'sha256':digest(ROOT/row['texture'].removeprefix('res://'))} for row in art_metadata['sources']]}
 ground = art_metadata['ground']

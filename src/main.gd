@@ -97,6 +97,7 @@ var _shortcut_hint: Label
 var _nav_buttons: Dictionary = {}
 var _map_home_button: Button
 var _map_toolbar: HFlowContainer
+var _wild_refresh_label: Label
 var _map_filter: OptionButton
 var _map_filter_kind: String = "all"
 var _input_window_active: bool = true
@@ -922,10 +923,15 @@ func _show_page(page: String) -> void:
 	_battle = null
 	_map_home_button = null
 	_map_toolbar = null
+	_wild_refresh_label = null
 	_map_filter = null
 	match page:
 		"world":
 			_build_map_toolbar()
+			_wild_refresh_label = _label("", 14)
+			_wild_refresh_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_center.add_child(_wild_refresh_label)
+			_update_wild_refresh_label()
 			var map_panel: PanelContainer = PanelContainer.new()
 			map_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			_center.add_child(map_panel)
@@ -1096,6 +1102,7 @@ func _receive_snapshot(payload: Dictionary) -> void:
 	_intel_server_offset = float(payload.get("serverTime", Time.get_unix_time_from_system() * 1000.0)) - Time.get_unix_time_from_system() * 1000.0
 	_view = payload.get("view", {})
 	_state = payload.get("state", {})
+	_update_wild_refresh_label()
 	if _toast.text == "正在读取当前进度…":
 		_show_toast("当前进度已加载")
 	if api.mode == "shared":
@@ -1142,7 +1149,17 @@ func _receive_snapshot(payload: Dictionary) -> void:
 
 func _receive_world(world: Dictionary) -> void:
 	var first_world: bool = _world.is_empty()
+	var old_generation: int = int(_world.get("wildRefresh", {}).get("generation", -1))
 	_world = world
+	_update_wild_refresh_label()
+	if old_generation >= 0 and int(world.get("wildRefresh", {}).get("generation", -1)) > old_generation:
+		_show_toast("空闲野地已刷新 · 请重新侦察；已占领和行军目标保留。")
+	if api.mode == "local" and not _selected.is_empty():
+		for tile: Dictionary in world.get("tiles", []):
+			if str(tile.get("id", "")) == str(_selected.get("id", "")):
+				_selected = _intel_node(tile)
+				break
+		_render_detail()
 	if api.mode == "shared":
 		_update_pvp()
 		if not _selected.is_empty():
@@ -1160,6 +1177,19 @@ func _receive_world(world: Dictionary) -> void:
 			_map.focus_home()
 	_smoke_world = true
 	_check_smoke()
+
+func _update_wild_refresh_label() -> void:
+	if not is_instance_valid(_wild_refresh_label):
+		return
+	var info: Dictionary = _view.get("wildRefresh", {})
+	var map_info: Dictionary = _world.get("wildRefresh", {})
+	if int(map_info.get("generation", -1)) > int(info.get("generation", -1)):
+		info = map_info
+	_wild_refresh_label.visible = api != null and api.mode == "local" and bool(info.get("enabled", false))
+	if _wild_refresh_label.visible:
+		var remaining: float = maxf(0, (float(info.get("nextAt", 0)) - _intel_now()) / 1000.0)
+		_wild_refresh_label.text = "空闲野地随机刷新 · 下次 %s · 已占领和行军目标保留" % _time_text(remaining)
+		_wild_refresh_label.tooltip_text = str(info.get("description", ""))
 
 func _check_smoke() -> void:
 	if _smoke and _smoke_snapshot and _smoke_world:

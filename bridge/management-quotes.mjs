@@ -1,4 +1,5 @@
-import {GameError, copy, createGameRuntime} from '../vendor/legacy/online/runtime.mjs';
+import {GameError, copy} from '../vendor/legacy/online/runtime.mjs';
+import {createGameRuntime} from './world-runtime.mjs';
 import {scopedRuntime} from '../vendor/shared/runtime.mjs';
 import {scoutQuoteView} from './scouting-view.mjs';
 import {formationView} from './formation-view.mjs';
@@ -36,7 +37,7 @@ export function managementQuote(runtime, input, {shared = false} = {}) {
     const q = g.scoutQuote(...args);
     if (!q) throw new GameError('BAD_QUOTE', '侦察条件无效');
     quote = {...scoutQuoteView(q), sourceCity: city, reason: q.reason || '',
-      command: {type: 'dispatchScout', args: [...args, q.key], sourceCity: city}};
+      command: {type: 'dispatchScout', args: [...args, q.key, ...(g.getNode(args[0]).wildKey ? [g.getNode(args[0]).wildKey] : [])], sourceCity: city}};
   } else if (input.kind === 'foundCity') {
     if (shared) throw new GameError('COMMAND_NOT_ALLOWED', '共享演练尚未开放野地建城');
     if (args.length !== 2 || !text(args[0]) || !text(args[1], 12)) throw new GameError('BAD_QUOTE', '请选择野地和城名');
@@ -63,7 +64,7 @@ export function managementQuote(runtime, input, {shared = false} = {}) {
     // dispatch supplies the complete eligibility and fee; the mutated clone is discarded.
     const reason = g.dispatch(...args) || '';
     quote = {...copy(q), reason, foodCost: reason ? null : before - g.state.res.food,
-      carry: g.carry(args[2]), formation, conquestReward, command: {type: 'dispatch', args: copy(args), sourceCity: city}};
+      carry: g.carry(args[2]), formation, conquestReward, command: {type: 'dispatch', args: [...copy(args), ...(g.getNode(args[0]).wildKey ? [g.getNode(args[0]).wildKey] : [])], sourceCity: city}};
   }
   return {requestId: input.requestId, kind: input.kind, sourceCity: city, quote};
 }

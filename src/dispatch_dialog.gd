@@ -164,7 +164,7 @@ func update_view(view: Dictionary) -> void:
 	var marches: Array = []
 	for march: Dictionary in _view.get("marches", []):
 		marches.append([march.get("id", ""), march.get("node", ""), march.get("general", ""), march.get("sourceCity", ""), march.get("status", "")])
-	var signature: String = JSON.stringify([_source, stock, generals, levels, techs, marches])
+	var signature: String = JSON.stringify([_source, stock, generals, levels, techs, marches, _view.get("wildRefresh", {}).get("generation", -1), _current_node().get("wildKey")])
 	if not old_source.is_empty() and old_source != _source:
 		_invalidate_march("已切换城池，请重新选择将领与兵力。")
 		_clear_army_inputs()
@@ -479,7 +479,11 @@ func _valid_march_terms() -> bool:
 
 func _valid_march_command(command: Dictionary) -> bool:
 	var args: Variant = command.get("args")
-	if str(command.get("type", "")) != "dispatch" or str(command.get("sourceCity", "")) != _source or not args is Array or args.size() != 5:
+	var key: Variant = _current_node().get("wildKey")
+	var has_key: bool = key is String and not key.is_empty()
+	if str(command.get("type", "")) != "dispatch" or str(command.get("sourceCity", "")) != _source or not args is Array or args.size() != (6 if has_key else 5):
+		return false
+	if has_key and args[5] != key:
 		return false
 	var selected: Array = _collect_march()
 	if not args[0] is String or not args[1] is String or args[0] != selected[0] or args[1] != selected[1] or not args[2] is Dictionary or args[3] != selected[3] or not args[4] is bool or args[4] != selected[4]:

@@ -12,6 +12,7 @@ import {raidTargetsView} from './raid-targets-view.mjs';
 import {battleReview} from './battle-review.mjs';
 import {campaignView} from './campaign-view.mjs';
 import {conquestSupplyView, conquestReportReceipt} from './conquest-supply.mjs';
+import {wildRefreshView} from './wild-fields.mjs';
 import {plotEffect} from './plot-effects.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
@@ -54,7 +55,7 @@ export function nodeView(game, node, now = game.state.last, options = {}) {
     id: node.id, x: node.x, y: node.y, name: node.name,
     terrain: node.terrain || (home ? 'plain' : node.type), tileType: node.type || node.terrain,
     kind: city ? 'city' : node.wild ? 'wild' : 'landmark',
-    level: node.level || 0, owned, hidden: false, selectable: true,
+    level: node.level || 0, owned, hidden: false, selectable: true, wildKey: node.wildKey || null,
     description: node.desc || '', reward: node.reward || '', faction: node.faction || '',
     chapter: node.chapter || null, namedCity: !!node.namedCity, openCity: !!node.openCity,
     ...(city ? cityPresentation(game, node) : {}),
@@ -118,12 +119,13 @@ export function worldView(game, now) {
     tiles.push({id: node.id, x, y, name: node.name,
       terrain: node.terrain || (node.id === 'home' ? 'plain' : node.type), tileType: node.type || node.terrain,
       kind: city ? 'city' : node.wild ? 'wild' : 'landmark',
+      wildKey: node.wildKey || null, description: node.desc || '', reward: node.reward || '',
       level: node.level || 0, owned: node.id === 'home' || !!game.state.conquered[node.id] || !!node.ownCity,
       hidden: false, selectable: true, faction: node.faction || '', namedCity: !!node.namedCity,
       ...(city ? cityPresentation(game, node) : {})});
   }
   return {width: game.WORLD_SIZE, height: game.WORLD_SIZE, home: point(game.currentHome()),
-    tiles, marches: marchesView(game, now)};
+    tiles, marches: marchesView(game, now), wildRefresh: wildRefreshView(game.state)};
 }
 
 export function gameView(game, now, runtime = null, options = {}) {
@@ -234,7 +236,7 @@ export function gameView(game, now, runtime = null, options = {}) {
   const safeCities = cities => cities.map(city => ({...copy(city),
     scoutQueue: scoutMarches.filter(march => march.sourceCity === city.id).map(march => copy(march))}));
   if (management.realmManagement) management.realmManagement.cities = safeCities(management.realmManagement.cities);
-  return {...management, scouting: scoutingView(game, now, options), res: copy(state.res), gold: state.res.gold, gems: state.gems,
+  return {...management, wildRefresh: wildRefreshView(state), scouting: scoutingView(game, now, options), res: copy(state.res), gold: state.res.gold, gems: state.gems,
     caps: Object.fromEntries(Object.keys(game.resources).map(id => [id, game.capacity(id)])),
     rates: copy(rates), rateUnit: 'per-minute', city: copy(game.cityMeta()), cityList: safeCities(game.cityList()),
     population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),

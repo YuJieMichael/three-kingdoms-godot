@@ -1,7 +1,7 @@
 extends Control
 class_name KingdomWorldMap
 
-## A viewport renderer for the unchanged legacy world. Camera positions use tile
+## A viewport renderer for the authoritative world DTO. Camera positions use tile
 ## coordinates; positions in the DTO denote tile centres without changing rules.
 signal tile_selected(tile: Dictionary)
 
@@ -724,6 +724,13 @@ func _draw_tile_features(tile: Dictionary, coordinates: Vector2i) -> void:
 			"mountain", "iron":
 				short_label = "铁"
 		_draw_badge(center + Vector2(0, -3), short_label, Color("514a39"))
+	if tile_kind == "wild" and zoom >= 0.80 and filter_kind in ["all", "resources"] and bool(world.get("wildRefresh", {}).get("enabled", false)):
+		var names: Dictionary = {"plain":"平地", "grass":"草原", "forest":"森林", "hill":"荒漠", "mountain":"山地", "lake":"湖泊", "swamp":"沼泽"}
+		var name: String = str(names.get(terrain, "野地"))
+		if zoom < 1.05:
+			name = name.left(1)
+		var label: String = "%s·%d" % [name, int(tile.get("level", 0))]
+		_draw_map_label(label, center + Vector2(0, cell_pixels() * 0.35), 11, GOLD if bool(tile.get("owned", false)) else TEXT, tile == selected_tile)
 
 
 func _draw_tile_landscape(tile: Dictionary, coordinates: Vector2i) -> void:
@@ -734,11 +741,40 @@ func _draw_tile_landscape(tile: Dictionary, coordinates: Vector2i) -> void:
 		return
 	var center: Vector2 = world_to_screen(Vector2(coordinates) + Vector2.ONE * 0.5)
 	var terrain: String = str(tile.get("terrain", _terrain_at(coordinates)))
+	if bool(world.get("wildRefresh", {}).get("enabled", false)):
+		if terrain in ["lake", "swamp"]:
+			_draw_wild_water(center, coordinates, terrain == "swamp")
+			return
+		if terrain == "hill":
+			var unit: float = cell_pixels() * 0.35
+			draw_colored_polygon(PackedVector2Array([center + Vector2(-unit, unit * 0.3), center + Vector2(-unit * 0.2, -unit * 0.4), center + Vector2(unit, unit * 0.15), center + Vector2(unit * 0.5, unit * 0.5)]), Color("bca16e"))
+			draw_line(center + Vector2(-unit * 0.2, -unit * 0.4), center + Vector2(unit, unit * 0.15), Color("dcc08a"), 2.0, true)
+			return
 	match terrain:
 		"forest", "wood", "woods": _draw_forest(center, coordinates)
 		"mountain", "stone", "iron", "hill": _draw_mountain(center, coordinates)
 		"plain", "farm", "food", "grass":
 			if zoom >= 0.75: _draw_fields(center, coordinates)
+
+
+func _draw_wild_water(center: Vector2, coordinates: Vector2i, swamp: bool) -> void:
+	var unit: float = cell_pixels() * 0.38
+	var edge: PackedVector2Array = PackedVector2Array()
+	for i: int in range(20):
+		var angle: float = TAU * float(i) / 20.0
+		var radius: float = unit * (1.0 + sin(angle * 3.0 + float(coordinates.x + coordinates.y)) * 0.12)
+		edge.append(center + Vector2(cos(angle), sin(angle) * 0.65) * radius)
+	draw_colored_polygon(edge, Color("60796b") if swamp else Color("477c8a"))
+	var border: PackedVector2Array = edge.duplicate()
+	border.append(edge[0])
+	draw_polyline(border, Color("a0aa7c") if swamp else Color("8aa7a1"), 1.5, true)
+	for row: int in range(3):
+		var point: Vector2 = center + Vector2(float(row - 1) * unit * 0.45, float(row % 2) * unit * 0.15)
+		if swamp:
+			draw_line(point + Vector2(0, unit * 0.15), point + Vector2(-unit * 0.1, -unit * 0.25), Color("a5af70"), 1.5, true)
+			draw_line(point + Vector2(0, unit * 0.15), point + Vector2(unit * 0.1, -unit * 0.2), Color("8e9858"), 1.5, true)
+		else:
+			draw_line(point - Vector2(unit * 0.14, 0), point + Vector2(unit * 0.14, 0), Color("92b2b4"), 1.0, true)
 
 
 func _draw_forest(center: Vector2, coordinates: Vector2i) -> void:
