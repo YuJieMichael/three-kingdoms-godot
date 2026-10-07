@@ -1,0 +1,5434 @@
+{
+  "method": "Fresh seed604, legal commands and earned speedups/resources; rule-clock simulation only, not human playtime; prepared shared UI fixtures are separate.",
+  "version": "0.6.0-dev.4",
+  "routes": [
+    {
+      "id": "no-speedups",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 799.8461,
+      "commandCount": 59,
+      "speedupCount": 0,
+      "battleCount": 1,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 799.8461,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 78179.12117022208,
+            "gold": 118633.41649000831
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 240,
+          "freePopulation": 50,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1
+        }
+      ],
+      "supportCommands": []
+    },
+    {
+      "id": "conserve-first",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 59.19148333333333,
+      "commandCount": 83,
+      "speedupCount": 24,
+      "battleCount": 1,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 59.19148333333333,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119201.04967187771
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 203.08754738362626,
+          "freePopulation": 13,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1
+        }
+      ],
+      "supportCommands": []
+    },
+    {
+      "id": "natural-cover",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 734.1225666666667,
+      "commandCount": 848,
+      "speedupCount": 71,
+      "battleCount": 85,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1,
+          "honors": {
+            "office": 0,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {},
+          "dailyClaims": 0
+        },
+        {
+          "id": "county-gate-check",
+          "atMinutes": 734.1225666666667,
+          "res": {
+            "food": 772706.6804101731,
+            "wood": 527162,
+            "stone": 1571602,
+            "iron": 847215.4066666667,
+            "gold": 2497221.4140247125
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 74805,
+          "copper": 1160,
+          "jewels": {
+            "pearl": 70,
+            "coral": 1,
+            "glass": 1,
+            "amber": 2,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 85,
+          "honors": {
+            "office": 1,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true
+          },
+          "dailyClaims": 18
+        }
+      ],
+      "supportCommands": []
+    },
+    {
+      "id": "gather-hall6",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 7430.0133,
+      "commandCount": 675,
+      "speedupCount": 79,
+      "battleCount": 36,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1,
+          "honors": {
+            "office": 0,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {},
+          "dailyClaims": 0
+        },
+        {
+          "id": "county-gate-check",
+          "atMinutes": 6506.889716666667,
+          "res": {
+            "food": 1021652.4977983873,
+            "wood": 790608,
+            "stone": 1715726,
+            "iron": 1053103.4066666667,
+            "gold": 2703210.377585656
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 68357,
+          "copper": 2760,
+          "jewels": {
+            "pearl": 7,
+            "coral": 0,
+            "glass": 1,
+            "amber": 0,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 27,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "wild_14_24": true
+          },
+          "dailyClaims": 28
+        },
+        {
+          "id": "county-occupied-natural",
+          "atMinutes": 7368.551516666666,
+          "res": {
+            "food": 1060847.362958984,
+            "wood": 791508,
+            "stone": 1980046,
+            "iron": 1098659.4066666667,
+            "gold": 3317834.4131142534
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 77652,
+          "copper": 3720,
+          "jewels": {
+            "pearl": 10,
+            "coral": 0,
+            "glass": 1,
+            "amber": 0,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 30,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "wild_14_24": true,
+            "fort": true
+          },
+          "dailyClaims": 34
+        },
+        {
+          "id": "chapter2-completed-natural",
+          "atMinutes": 7430.0133,
+          "res": {
+            "food": 1406686.0797896832,
+            "wood": 1112731,
+            "stone": 2420320,
+            "iron": 1449528.4066666667,
+            "gold": 4538730.490847695
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1384,
+          "freePopulation": 1154,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 88309,
+          "copper": 4200,
+          "jewels": {
+            "pearl": 24,
+            "coral": 8,
+            "glass": 6,
+            "amber": 5,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 36,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "wild_14_24": true,
+            "fort": true,
+            "north_road": true,
+            "north_granary": true,
+            "north_ford": true,
+            "north_camp": true,
+            "north_pass": true,
+            "north_keep": true
+          },
+          "dailyClaims": 37
+        }
+      ],
+      "supportCommands": [],
+      "gatherings": [
+        {
+          "node": "wild_14_24",
+          "batch": 1,
+          "startMinutes": 265.3897166666667,
+          "endMinutes": 505.3897166666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 2,
+          "startMinutes": 505.3897166666667,
+          "endMinutes": 745.3897166666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 3,
+          "startMinutes": 745.3897166666667,
+          "endMinutes": 985.3897166666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 4,
+          "startMinutes": 985.3897166666667,
+          "endMinutes": 1225.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 5,
+          "startMinutes": 1225.3897166666666,
+          "endMinutes": 1465.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 6,
+          "startMinutes": 1465.3897166666666,
+          "endMinutes": 1705.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 7,
+          "startMinutes": 1705.3897166666666,
+          "endMinutes": 1945.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 890,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 890,
+            "overCapacity": 890,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.13249586188407023,
+            "xp": 8,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 8,
+          "startMinutes": 1945.3897166666666,
+          "endMinutes": 2185.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 890,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 890,
+            "overCapacity": 890,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.13249586188407023,
+            "xp": 8,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 9,
+          "startMinutes": 2185.3897166666666,
+          "endMinutes": 2425.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 890,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 890,
+            "overCapacity": 890,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.13249586188407023,
+            "xp": 8,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 10,
+          "startMinutes": 2425.3897166666666,
+          "endMinutes": 2665.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 890,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 890,
+            "overCapacity": 890,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.13249586188407023,
+            "xp": 8,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 11,
+          "startMinutes": 2665.3897166666666,
+          "endMinutes": 2905.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 890,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 890,
+            "overCapacity": 890,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.13249586188407023,
+            "xp": 8,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 12,
+          "startMinutes": 2905.3897166666666,
+          "endMinutes": 3145.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 890,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 890,
+            "overCapacity": 890,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.13249586188407023,
+            "xp": 8,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 13,
+          "startMinutes": 3145.3897166666666,
+          "endMinutes": 3385.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 698,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 698,
+            "overCapacity": 698,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.11464704542171439,
+            "xp": 6,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 14,
+          "startMinutes": 3385.3897166666666,
+          "endMinutes": 3625.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 698,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 698,
+            "overCapacity": 698,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.11464704542171439,
+            "xp": 6,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 15,
+          "startMinutes": 3625.3897166666666,
+          "endMinutes": 3865.3897166666666,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 698,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 698,
+            "overCapacity": 698,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.11464704542171439,
+            "xp": 6,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 16,
+          "startMinutes": 3865.3897166666666,
+          "endMinutes": 4105.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 698,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 698,
+            "overCapacity": 698,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.11464704542171439,
+            "xp": 6,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 17,
+          "startMinutes": 4105.389716666667,
+          "endMinutes": 4345.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 698,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 698,
+            "overCapacity": 698,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.11464704542171439,
+            "xp": 6,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 18,
+          "startMinutes": 4345.389716666667,
+          "endMinutes": 4585.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 698,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 698,
+            "overCapacity": 698,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.11464704542171439,
+            "xp": 6,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 19,
+          "startMinutes": 4585.389716666667,
+          "endMinutes": 4825.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 410,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 410,
+            "overCapacity": 410,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.0880178401692393,
+            "xp": 4,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 20,
+          "startMinutes": 4825.389716666667,
+          "endMinutes": 5065.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 410,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 410,
+            "overCapacity": 410,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.0880178401692393,
+            "xp": 4,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 21,
+          "startMinutes": 5065.389716666667,
+          "endMinutes": 5305.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 410,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 410,
+            "overCapacity": 410,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.0880178401692393,
+            "xp": 4,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 22,
+          "startMinutes": 5305.389716666667,
+          "endMinutes": 5545.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 410,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 410,
+            "overCapacity": 410,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.0880178401692393,
+            "xp": 4,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 1,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 23,
+          "startMinutes": 5545.389716666667,
+          "endMinutes": 5785.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 410,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 410,
+            "overCapacity": 410,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.0880178401692393,
+            "xp": 4,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 2,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 24,
+          "startMinutes": 5785.389716666667,
+          "endMinutes": 6025.389716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 410,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 410,
+            "overCapacity": 410,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.0880178401692393,
+            "xp": 4,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 25,
+          "startMinutes": 6026.514716666667,
+          "endMinutes": 6266.514716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.15594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 26,
+          "startMinutes": 6266.514716666667,
+          "endMinutes": 6506.514716666667,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.15594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "gather-hall8",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 2683.3171333333335,
+      "commandCount": 600,
+      "speedupCount": 96,
+      "battleCount": 32,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1,
+          "honors": {
+            "office": 0,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {},
+          "dailyClaims": 0
+        },
+        {
+          "id": "county-gate-check",
+          "atMinutes": 2482.1902,
+          "res": {
+            "food": 1850232.8103516244,
+            "wood": 1304668,
+            "stone": 2421826,
+            "iron": 1997724.4066666667,
+            "gold": 4058035.1270566992
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "prestige": 71258,
+          "copper": 3080,
+          "jewels": {
+            "pearl": 3,
+            "coral": 0,
+            "glass": 0,
+            "amber": 5,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 8,
+            "wall": 6
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 23,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "wild_14_24": true
+          },
+          "dailyClaims": 31
+        },
+        {
+          "id": "county-occupied-natural",
+          "atMinutes": 2549.34405,
+          "res": {
+            "food": 1846608.219162645,
+            "wood": 1254568,
+            "stone": 2643146,
+            "iron": 1995248.4066666667,
+            "gold": 4598693.429255841
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1600.2308499999997,
+          "freePopulation": 1370,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "prestige": 78453,
+          "copper": 3720,
+          "jewels": {
+            "pearl": 6,
+            "coral": 0,
+            "glass": 0,
+            "amber": 5,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 8,
+            "wall": 6
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 26,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "wild_14_24": true,
+            "fort": true
+          },
+          "dailyClaims": 35
+        },
+        {
+          "id": "chapter2-completed-natural",
+          "atMinutes": 2683.3171333333335,
+          "res": {
+            "food": 2243275.2810716187,
+            "wood": 1639993,
+            "stone": 3141597,
+            "iron": 2397661.4066666667,
+            "gold": 5948321.2984930845
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1382,
+          "freePopulation": 1152,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "prestige": 89110,
+          "copper": 4200,
+          "jewels": {
+            "pearl": 20,
+            "coral": 8,
+            "glass": 5,
+            "amber": 10,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 8,
+            "wall": 6
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 32,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "wild_14_24": true,
+            "fort": true,
+            "north_road": true,
+            "north_granary": true,
+            "north_ford": true,
+            "north_camp": true,
+            "north_pass": true,
+            "north_keep": true
+          },
+          "dailyClaims": 38
+        }
+      ],
+      "supportCommands": [],
+      "gatherings": [
+        {
+          "node": "wild_14_24",
+          "batch": 1,
+          "startMinutes": 801.8152,
+          "endMinutes": 1041.8152,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 1,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 2,
+          "startMinutes": 1041.8152,
+          "endMinutes": 1281.8152,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 3,
+          "startMinutes": 1281.8152,
+          "endMinutes": 1521.8152,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 4,
+          "startMinutes": 1521.8152,
+          "endMinutes": 1761.8152,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 5,
+          "startMinutes": 1761.8152,
+          "endMinutes": 2001.8152,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 6,
+          "startMinutes": 2001.8152,
+          "endMinutes": 2241.8152,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 1036,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 1036,
+            "overCapacity": 1036,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.14594037510254843,
+            "xp": 10,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        },
+        {
+          "node": "wild_14_24",
+          "batch": 7,
+          "startMinutes": 2241.8152,
+          "endMinutes": 2481.8152,
+          "hours": 4,
+          "canonicalStationaryFoodCost": 2400,
+          "quote": {
+            "elapsed": 14400000,
+            "hours": 4,
+            "amount": 890,
+            "resource": "food",
+            "carry": 7500,
+            "room": 0,
+            "received": 890,
+            "overCapacity": 890,
+            "discarded": 0,
+            "rolls": 4,
+            "chance": 0.13249586188407023,
+            "xp": 8,
+            "ready": true,
+            "cap": false
+          },
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "stationed": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "support-hall6",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 1286.5868,
+      "commandCount": 530,
+      "speedupCount": 76,
+      "battleCount": 34,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1,
+          "honors": {
+            "office": 0,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {},
+          "dailyClaims": 0
+        },
+        {
+          "id": "county-gate-check",
+          "atMinutes": 264.6397166666667,
+          "res": {
+            "food": 714296.4439107887,
+            "wood": 458111,
+            "stone": 1384726,
+            "iron": 738103.4066666667,
+            "gold": 2036100.7575860796
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 52781,
+          "copper": 520,
+          "jewels": {
+            "pearl": 0,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 25,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true
+          },
+          "dailyClaims": 16
+        },
+        {
+          "id": "county-occupied-natural",
+          "atMinutes": 1145.7132666666666,
+          "res": {
+            "food": 773157.83525476,
+            "wood": 481961,
+            "stone": 1673046,
+            "iron": 793727.4066666667,
+            "gold": 2677766.8560352274
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 62079,
+          "copper": 1480,
+          "jewels": {
+            "pearl": 3,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 28,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true
+          },
+          "dailyClaims": 22
+        },
+        {
+          "id": "chapter2-completed-natural",
+          "atMinutes": 1286.5868,
+          "res": {
+            "food": 1102468.4002999938,
+            "wood": 796567,
+            "stone": 2103005,
+            "iron": 1125721.4066666667,
+            "gold": 3860624.048336996
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1376,
+          "freePopulation": 1146,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 71538,
+          "copper": 1800,
+          "jewels": {
+            "pearl": 17,
+            "coral": 8,
+            "glass": 5,
+            "amber": 5,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 34,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true,
+            "north_road": true,
+            "north_granary": true,
+            "north_ford": true,
+            "north_camp": true,
+            "north_pass": true,
+            "north_keep": true
+          },
+          "dailyClaims": 24
+        }
+      ],
+      "supportCommands": [
+        {
+          "atMinutes": 264.6397166666667,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 264.6397166666667,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 264.6397166666667,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 264.6397166666667,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        }
+      ],
+      "firstBattleEconomy": {
+        "basis": "current-canonical-prices",
+        "scope": "own-force",
+        "cityId": "capital",
+        "status": "delivered",
+        "loot": {
+          "food": 583,
+          "wood": 117
+        },
+        "received": {
+          "food": 583,
+          "wood": 117
+        },
+        "permanentLoss": {
+          "archer": 2
+        },
+        "replacement": {
+          "resources": {
+            "food": 600,
+            "wood": 700,
+            "iron": 600
+          },
+          "soldiers": 2,
+          "people": 4
+        },
+        "treatment": {
+          "resources": {},
+          "people": 0,
+          "available": false,
+          "reason": "本城没有待治疗的伤兵",
+          "currentPool": {
+            "people": 0,
+            "gold": 0
+          }
+        },
+        "net": {
+          "kind": "projected",
+          "resources": {
+            "food": -17,
+            "wood": -583,
+            "stone": 0,
+            "iron": -600,
+            "gold": 0
+          }
+        },
+        "notes": [
+          "按当前规则估算恢复预算，尚未扣款；资源分别计算，不折算黄金。",
+          "治疗预算按本战伤兵估算，并非仍需支付；当前伤兵池另算，不能判定本战已治疗人数。",
+          "本机战斗按现有规则在战果结算时入库，部队返城另计。"
+        ]
+      },
+      "finalConquered": {
+        "camp": true,
+        "fort": true,
+        "north_road": true,
+        "north_granary": true,
+        "north_ford": true,
+        "north_camp": true,
+        "north_pass": true,
+        "north_keep": true
+      },
+      "gatherings": []
+    },
+    {
+      "id": "support-hall8",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 1051.2306166666667,
+      "commandCount": 551,
+      "speedupCount": 96,
+      "battleCount": 31,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1,
+          "honors": {
+            "office": 0,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {},
+          "dailyClaims": 0
+        },
+        {
+          "id": "county-gate-check",
+          "atMinutes": 801.0652,
+          "res": {
+            "food": 1716856.471576492,
+            "wood": 1166668,
+            "stone": 2283825,
+            "iron": 1859724.4066666667,
+            "gold": 3772451.550130222
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 300,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 770.9999999999997,
+          "freePopulation": 540,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "prestige": 66920,
+          "copper": 2360,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 5,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 8,
+            "wall": 6
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 22,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true
+          },
+          "dailyClaims": 28
+        },
+        {
+          "id": "county-occupied-natural",
+          "atMinutes": 915.8152166666666,
+          "res": {
+            "food": 1682826.740974717,
+            "wood": 1096596,
+            "stone": 2476710,
+            "iron": 1823280.4066666667,
+            "gold": 4268953.368576406
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1339.75035,
+          "freePopulation": 1109,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "prestige": 71715,
+          "copper": 2680,
+          "jewels": {
+            "pearl": 4,
+            "coral": 0,
+            "glass": 0,
+            "amber": 5,
+            "agate": 1,
+            "crystal": 1,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 8,
+            "wall": 6
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 25,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true
+          },
+          "dailyClaims": 30
+        },
+        {
+          "id": "chapter2-completed-natural",
+          "atMinutes": 1051.2306166666667,
+          "res": {
+            "food": 1991363.809129499,
+            "wood": 1394093,
+            "stone": 2881582,
+            "iron": 2137735.4066666667,
+            "gold": 5424529.0065801805
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1382,
+          "freePopulation": 1152,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "prestige": 79972,
+          "copper": 2840,
+          "jewels": {
+            "pearl": 18,
+            "coral": 8,
+            "glass": 5,
+            "amber": 10,
+            "agate": 1,
+            "crystal": 1,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 1
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 8,
+            "wall": 6
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 31,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true,
+            "north_road": true,
+            "north_granary": true,
+            "north_ford": true,
+            "north_camp": true,
+            "north_pass": true,
+            "north_keep": true
+          },
+          "dailyClaims": 31
+        }
+      ],
+      "supportCommands": [
+        {
+          "atMinutes": 801.0652,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 801.0652,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 801.0652,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        }
+      ],
+      "firstBattleEconomy": {
+        "basis": "current-canonical-prices",
+        "scope": "own-force",
+        "cityId": "capital",
+        "status": "delivered",
+        "loot": {
+          "food": 583,
+          "wood": 117
+        },
+        "received": {
+          "food": 583,
+          "wood": 117
+        },
+        "permanentLoss": {
+          "archer": 2
+        },
+        "replacement": {
+          "resources": {
+            "food": 600,
+            "wood": 700,
+            "iron": 600
+          },
+          "soldiers": 2,
+          "people": 4
+        },
+        "treatment": {
+          "resources": {},
+          "people": 0,
+          "available": false,
+          "reason": "本城没有待治疗的伤兵",
+          "currentPool": {
+            "people": 0,
+            "gold": 0
+          }
+        },
+        "net": {
+          "kind": "projected",
+          "resources": {
+            "food": -17,
+            "wood": -583,
+            "stone": 0,
+            "iron": -600,
+            "gold": 0
+          }
+        },
+        "notes": [
+          "按当前规则估算恢复预算，尚未扣款；资源分别计算，不折算黄金。",
+          "治疗预算按本战伤兵估算，并非仍需支付；当前伤兵池另算，不能判定本战已治疗人数。",
+          "本机战斗按现有规则在战果结算时入库，部队返城另计。"
+        ]
+      },
+      "finalConquered": {
+        "camp": true,
+        "fort": true,
+        "north_road": true,
+        "north_granary": true,
+        "north_ford": true,
+        "north_camp": true,
+        "north_pass": true,
+        "north_keep": true
+      },
+      "gatherings": []
+    },
+    {
+      "id": "cover-first",
+      "seed": 604,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 0.25,
+      "commandCount": 90,
+      "speedupCount": 29,
+      "battleCount": 1,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 91612,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1
+        }
+      ],
+      "supportCommands": [],
+      "finalConquered": {}
+    },
+    {
+      "id": "support-hall6-seed7",
+      "seed": 7,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 1419.5361,
+      "commandCount": 523,
+      "speedupCount": 75,
+      "battleCount": 33,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 81458,
+            "wood": 22007,
+            "stone": 88920,
+            "iron": 67553.40666666668,
+            "gold": 89190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 10962,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 1,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1,
+          "honors": {
+            "office": 0,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {},
+          "dailyClaims": 0
+        },
+        {
+          "id": "county-occupied-natural",
+          "atMinutes": 1281.6037333333334,
+          "res": {
+            "food": 791684.0391144067,
+            "wood": 497709,
+            "stone": 1691514,
+            "iron": 813277.4066666667,
+            "gold": 2704981.079734306
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 61753,
+          "copper": 1400,
+          "jewels": {
+            "pearl": 3,
+            "coral": 0,
+            "glass": 2,
+            "amber": 1,
+            "agate": 1,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 27,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true
+          },
+          "dailyClaims": 22
+        },
+        {
+          "id": "chapter2-completed-natural",
+          "atMinutes": 1419.5361,
+          "res": {
+            "food": 1119354.034373219,
+            "wood": 809520,
+            "stone": 2122287,
+            "iron": 1142338.4066666667,
+            "gold": 3888798.8392627416
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1380,
+          "freePopulation": 1150,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 71211,
+          "copper": 1720,
+          "jewels": {
+            "pearl": 17,
+            "coral": 8,
+            "glass": 8,
+            "amber": 6,
+            "agate": 2,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 33,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true,
+            "north_road": true,
+            "north_granary": true,
+            "north_ford": true,
+            "north_camp": true,
+            "north_pass": true,
+            "north_keep": true
+          },
+          "dailyClaims": 24
+        }
+      ],
+      "supportCommands": [
+        {
+          "atMinutes": 404.94193333333334,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 404.94193333333334,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 404.94193333333334,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 404.94193333333334,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 404.94193333333334,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        }
+      ],
+      "finalConquered": {
+        "camp": true,
+        "fort": true,
+        "north_road": true,
+        "north_granary": true,
+        "north_ford": true,
+        "north_camp": true,
+        "north_pass": true,
+        "north_keep": true
+      }
+    },
+    {
+      "id": "support-hall6-seed42",
+      "seed": 42,
+      "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+      "validSave": true,
+      "elapsedMinutes": 1428.9949833333333,
+      "commandCount": 552,
+      "speedupCount": 76,
+      "battleCount": 37,
+      "milestones": [
+        {
+          "id": "first-guide-complete",
+          "atMinutes": 0.25,
+          "res": {
+            "food": 91458,
+            "wood": 32007,
+            "stone": 98920,
+            "iron": 77553.40666666668,
+            "gold": 119190.14
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 30,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 236,
+          "freePopulation": 46,
+          "gifts": [
+            1,
+            2
+          ],
+          "prestige": 11262,
+          "copper": 0,
+          "jewels": {
+            "pearl": 1,
+            "coral": 0,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 2,
+            "academy": 4,
+            "inn": 0,
+            "market": 0,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 0,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 2,
+            "wall": 0
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 25,
+            "killRewards": 0,
+            "resources": {
+              "food": 0,
+              "wood": 0,
+              "stone": 0,
+              "iron": 0,
+              "gold": 0
+            },
+            "troops": 0,
+            "treasures": 0,
+            "legacyAccess": false
+          },
+          "victories": 1,
+          "honors": {
+            "office": 0,
+            "noble": 0,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {},
+          "dailyClaims": 0
+        },
+        {
+          "id": "county-occupied-natural",
+          "atMinutes": 1292.5332,
+          "res": {
+            "food": 808866.2389003198,
+            "wood": 514789,
+            "stone": 1719601,
+            "iron": 833915.4066666667,
+            "gold": 2753443.7986215944
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1680,
+          "freePopulation": 1450,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 64217,
+          "copper": 1720,
+          "jewels": {
+            "pearl": 3,
+            "coral": 0,
+            "glass": 1,
+            "amber": 0,
+            "agate": 6,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 31,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true
+          },
+          "dailyClaims": 23
+        },
+        {
+          "id": "chapter2-completed-natural",
+          "atMinutes": 1428.9949833333333,
+          "res": {
+            "food": 1106386.5743394345,
+            "wood": 802349,
+            "stone": 2125232,
+            "iron": 1136269.4066666667,
+            "gold": 3877133.87635503
+          },
+          "army": {
+            "worker": 0,
+            "militia": 0,
+            "scout": 0,
+            "spear": 0,
+            "shield": 0,
+            "archer": 1000,
+            "cavalry": 0,
+            "heavy": 0,
+            "wagon": 0,
+            "ballista": 0,
+            "ram": 0,
+            "catapult": 0
+          },
+          "population": 1388,
+          "freePopulation": 1158,
+          "gifts": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "prestige": 72474,
+          "copper": 1880,
+          "jewels": {
+            "pearl": 17,
+            "coral": 8,
+            "glass": 6,
+            "amber": 5,
+            "agate": 6,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "buildings": {
+            "house": 6,
+            "academy": 4,
+            "inn": 1,
+            "market": 1,
+            "warehouse": 0,
+            "drill": 1,
+            "barracks": 4,
+            "tavern": 0,
+            "embassy": 0,
+            "smith": 4,
+            "workshop": 1,
+            "stable": 0,
+            "post": 0,
+            "beacon": 0,
+            "hall": 6,
+            "wall": 4
+          },
+          "tech": {
+            "plant": 0,
+            "logging": 0,
+            "mining": 0,
+            "smelting": 0,
+            "manufacture": 0,
+            "leadership": 0,
+            "scouting": 0,
+            "training": 4,
+            "combat": 0,
+            "protection": 0,
+            "load": 0,
+            "march": 0,
+            "riding": 0,
+            "shooting": 1,
+            "storage": 0,
+            "supply": 0,
+            "construction": 0,
+            "fortification": 0,
+            "repair": 0,
+            "plunder": 0,
+            "researching": 0
+          },
+          "epic": {
+            "kills": 1500,
+            "killRewards": 3,
+            "resources": {
+              "food": 100000,
+              "wood": 100000,
+              "stone": 100000,
+              "iron": 100000,
+              "gold": 100000
+            },
+            "troops": 2,
+            "treasures": 2,
+            "legacyAccess": false
+          },
+          "victories": 37,
+          "honors": {
+            "office": 1,
+            "noble": 1,
+            "salaryClaims": {
+              "office": 0,
+              "noble": 0
+            }
+          },
+          "conquered": {
+            "camp": true,
+            "fort": true,
+            "north_road": true,
+            "north_granary": true,
+            "north_ford": true,
+            "north_camp": true,
+            "north_pass": true,
+            "north_keep": true
+          },
+          "dailyClaims": 24
+        }
+      ],
+      "supportCommands": [
+        {
+          "atMinutes": 415.8714,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 415.8714,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        },
+        {
+          "atMinutes": 415.8714,
+          "type": "exchangeCopper",
+          "args": [
+            "growth_coral"
+          ],
+          "resourceDelta": {
+            "food": 0,
+            "wood": 0,
+            "stone": 0,
+            "iron": 0,
+            "gold": 0
+          },
+          "copperDelta": -80,
+          "jewelDelta": {
+            "pearl": 0,
+            "coral": 1,
+            "glass": 0,
+            "amber": 0,
+            "agate": 0,
+            "crystal": 0,
+            "jadeite": 0,
+            "jade": 0,
+            "nightPearl": 0
+          },
+          "inventoryDelta": {},
+          "ok": true
+        }
+      ],
+      "finalConquered": {
+        "camp": true,
+        "fort": true,
+        "north_road": true,
+        "north_granary": true,
+        "north_ford": true,
+        "north_camp": true,
+        "north_pass": true,
+        "north_keep": true
+      }
+    }
+  ]
+}

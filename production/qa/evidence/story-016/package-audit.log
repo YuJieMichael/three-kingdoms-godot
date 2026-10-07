@@ -1,0 +1,26 @@
+{
+  "version": "0.6.0-dev.10",
+  "checks": 196,
+  "failures": 0,
+  "packages": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Windows-x64.zip",
+      "sha256": "9ef271eadb6202807d39c9a909e8132e9fc7693977af86b566fd0a785a8122b5",
+      "bytes": 101238597,
+      "kind": "windows",
+      "extractedTo": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-6b81hz_c",
+      "pck": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-6b81hz_c/ThreeKingdoms.pck",
+      "windowsExeExecuted": false
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Web-preview.zip",
+      "sha256": "113982760086bcc4fbf8cf3b800e70727e7bd236d40267d8e2a9396680089219",
+      "bytes": 73396123,
+      "kind": "web",
+      "extractedTo": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-_6yo5dxk",
+      "pck": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-_6yo5dxk/web/index.pck",
+      "windowsExeExecuted": false
+    }
+  ],
+  "boundary": "Archive/PE/WASM checks only; Windows EXE has not run on Windows."
+}

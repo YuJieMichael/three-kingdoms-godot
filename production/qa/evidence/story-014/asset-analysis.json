@@ -1,0 +1,58 @@
+{
+  "file": "assets/environment/city/city_buildings_commanding_v1.png",
+  "sha256": "79aac8d80bf5ed2d5f295a0b938fd1e73764bbb079a4db6d30e151e14b833d0d",
+  "bytes": 2825655,
+  "size": [
+    1536,
+    1024
+  ],
+  "mode": "RGBA",
+  "alphaRange": [
+    0,
+    254
+  ],
+  "fullyTransparentPixels": 692611,
+  "pixelsUnder16": 737872,
+  "pixelsAtLeast240": 809588,
+  "totalPixels": 1572864,
+  "regions": {
+    "hall": [
+      39,
+      56,
+      491,
+      423
+    ],
+    "gateway": [
+      542,
+      62,
+      463,
+      373
+    ],
+    "barracks": [
+      1018,
+      108,
+      486,
+      335
+    ],
+    "warehouse": [
+      27,
+      560,
+      487,
+      357
+    ],
+    "market": [
+      524,
+      510,
+      480,
+      394
+    ],
+    "house": [
+      1011,
+      555,
+      505,
+      365
+    ]
+  },
+  "pixelEditingPerformed": false,
+  "method": "Read-only alpha histograms and component bounds; selected atlas regions recorded for Godot native sampling."
+}

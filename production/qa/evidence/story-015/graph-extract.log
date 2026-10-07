@@ -1,0 +1,12 @@
+  warning: 1 .sql file(s) contributed nothing to the graph because a dependency is missing: tree_sitter_sql not installed. Install it with: pip install "graphifyy[sql]" (#1745)
+[graphify] Replaced 32 node(s) from re-extracted source file(s).
+[graphify extract] incremental scan of /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot
+[graphify extract] re-queuing 45 manifest-stamped code file(s) with no nodes in graph.json (prior failed extraction, #2543)
+[graphify extract] --code-only: skipping 268 non-code file(s) (60 docs, 0 papers, 208 images) — no LLM extraction
+[graphify extract] 51 code, 0 docs, 0 papers, 0 images changed; 152 unchanged; 0 deleted
+[graphify extract] 382 file(s) not classified (no supported extension or shebang), skipped: .dockerignore, .gdignore, .gitignore, Caddyfile, DialogueActionable2D.cs.uid, DialogueActionable3D.cs.uid (+376 more)
+[graphify extract] AST extraction on 51 code files...
+[graphify extract] wrote /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/graphify-out/graph.json: 1327 nodes, 3508 edges, 77 communities
+[graphify extract] wrote /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/graphify-out/.graphify_analysis.json
+[graphify extract] incremental summary: 152 files cached/unchanged, 51 re-extracted, 0 deleted
+[graphify extract] next: run `graphify cluster-only /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot` to generate GRAPH_REPORT.md and name communities

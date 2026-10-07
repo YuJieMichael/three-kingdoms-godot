@@ -93,11 +93,11 @@ func _run() -> void:
 		_assert(client._shortcut_blocked(), "Menu blocks game shortcuts")
 		_assert(client._menu.size.x <= width - 24, "Menu fits viewport")
 		_assert(client._menu.size.x >= mini(560, width - 24), "Menu uses the root viewport instead of its own small viewport")
-		_assert(client._menu._tabs.get_tab_count() == 3, "Game/audio/credits tabs exist")
+		_assert(client._menu._tabs.get_tab_count() == 4, "Game/audio/display/credits tabs exist")
 		client._menu._tabs.current_tab = 1
 		await _settle()
 		await _capture_view("audio-%d" % width)
-		client._menu._tabs.current_tab = 2
+		client._menu._tabs.current_tab = 3
 		var page_down: InputEventAction = InputEventAction.new()
 		page_down.action = "ui_page_down"
 		page_down.pressed = true

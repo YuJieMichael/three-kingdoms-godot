@@ -1,0 +1,15 @@
+{
+  "command": "node --test tests/bridge.test.cjs tests/realm-management.test.cjs",
+  "exitCode": 0,
+  "result": {
+    "tests": 31,
+    "pass": 31,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "durationMs": 39027.939417
+  },
+  "log": ".local/historic-0607-qa/canonical-final.log",
+  "scope": "Canonical bridge+realm HTTP, four resource-type quotations vs actual charges/timers, and scoped playthroughs using isolated saves."
+}

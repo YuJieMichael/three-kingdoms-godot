@@ -1,0 +1,2 @@
+08eed38db4d6a46d1dcfd69abd8838654b3f4054a695a0cbf7b97fcf39d44f38  ThreeKingdoms-Godot-v0.6.0-dev.11-Windows-x64.zip
+17e34e41d1aecb63bd0e54637758533a08b0315819666a229f2cba5db97fef47  ThreeKingdoms-Godot-v0.6.0-dev.11-Web-preview.zip

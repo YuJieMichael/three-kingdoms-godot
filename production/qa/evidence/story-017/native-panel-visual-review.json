@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "story": "story-017",
+  "reviewer": "root",
+  "recordedDate": "2026-10-07",
+  "file": "construction-panel-phone-compare.png",
+  "sha256": "d919c2c344d594ada91744123be839eee83b43e48b0aaed0edd5694f5227ab28",
+  "dimensions": [
+    390,
+    844
+  ],
+  "method": "Native macOS Godot Window capture from production Controls; root visually inspected final image after objective button height and queue dialog repairs.",
+  "result": "passed",
+  "observations": [
+    "Entire construction Window remains within 390x844 application viewport.",
+    "Capacity comparison is expanded and has its own visible vertical scrollbar.",
+    "House new-build capacity100/current100/after200, costs and time are readable.",
+    "Fixed exact cost/time quotation, confirmation, return-to-catalog and close controls are all visible.",
+    "Resource row, construction queue entry, military entry and bottom navigation remain visible around the modal."
+  ],
+  "boundary": "Prepared isolated canonical fixture without a live API; final Web with live API is verified separately. Not a physical-phone or Windows EXE test."
+}

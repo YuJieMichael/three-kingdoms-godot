@@ -1,0 +1,82 @@
+[
+  {
+    "texture": "res://assets/environment/city/city_rts_core_v1.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "sha256": "a31978895c9e09d2cf3a6f69c27d360141354a83e7fc83d4d84f83f650ee1249",
+    "bytes": 2692462,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-b4ffb05e-d9b9-4c39-a2c3-4214b37592a6.png"
+  },
+  {
+    "texture": "res://assets/environment/city/city_rts_civic_v1.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "sha256": "b8993f60daf08d71ea381d1373d6a29dfbce3e9c7add4249d89cfc59e607a800",
+    "bytes": 2837694,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-dda20b1f-95b4-4a0b-abb0-5a157a9d4cea.png"
+  },
+  {
+    "texture": "res://assets/environment/city/city_rts_smith_v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "3b06bf24480b0eb1e6b133fadd2b724f2540b32288b5390efc9fe2bd000fc645",
+    "bytes": 1733442,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-a64ad61e-2119-415e-a711-f3928c868873.png"
+  },
+  {
+    "texture": "res://assets/environment/city/city_rts_workshop_v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "b5e483bcf99d5e6ec20400566975a47551a81df12df96742dfdb5d9e81d05a79",
+    "bytes": 1737581,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-d4c13c41-241e-4c6e-b5e0-307449a6d2f2.png"
+  },
+  {
+    "texture": "res://assets/environment/city/city_rts_beacon_v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "4c3482a1268584804af829e9f9ad805a93954137951e0e6009ec1891c19870f2",
+    "bytes": 1311415,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-8da55a05-e6fc-4095-a6cd-3e5c7847f74d.png"
+  },
+  {
+    "texture": "res://assets/environment/city/city_rts_wall_v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "97d84f1001efbb9aa4dd2457c91b6084ee707ca76aac29b3a46597d25906774e",
+    "bytes": 1613944,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-da3d9497-65cb-4159-977b-2a23eea328b5.png"
+  },
+  {
+    "texture": "res://assets/environment/city/city_rts_post_v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "bc9582d9a4667af4eeb3e7701ecac3bec828b855ac70ca596cd7392d1ef82e80",
+    "bytes": 1664775,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-b484150a-bbb5-41d1-b5d7-4f68bc329d81.png"
+  },
+  {
+    "texture": "res://assets/environment/city/city_ground_rts_v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "c5c9689971a39e6cf414782f49b568912894a4d89e26065c697af9fadef6694a",
+    "bytes": 4333111,
+    "generatedSource": "/Users/lihuazeng/.codex/generated_images/01a10a3f-8671-7790-a02d-873eb8b5e8d5/exec-a4a56651-8c68-4ec3-a7a5-a83916f0a95b.png"
+  }
+]

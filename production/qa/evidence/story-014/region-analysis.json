@@ -1,0 +1,276 @@
+{
+  "city_buildings_commanding_v1.png": [
+    {
+      "id": "hall",
+      "bounds": [
+        39,
+        56,
+        491,
+        423
+      ],
+      "edgeMaxAlpha": 2,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.160756501182033
+    },
+    {
+      "id": "gateway",
+      "bounds": [
+        542,
+        62,
+        463,
+        373
+      ],
+      "edgeMaxAlpha": 2,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.2412868632707774
+    },
+    {
+      "id": "barracks",
+      "bounds": [
+        1018,
+        108,
+        486,
+        335
+      ],
+      "edgeMaxAlpha": 4,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.4507462686567165
+    },
+    {
+      "id": "warehouse",
+      "bounds": [
+        27,
+        560,
+        487,
+        357
+      ],
+      "edgeMaxAlpha": 1,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.3641456582633054
+    },
+    {
+      "id": "market",
+      "bounds": [
+        524,
+        510,
+        480,
+        394
+      ],
+      "edgeMaxAlpha": 3,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.218274111675127
+    },
+    {
+      "id": "house",
+      "bounds": [
+        1011,
+        555,
+        505,
+        365
+      ],
+      "edgeMaxAlpha": 3,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.3835616438356164
+    }
+  ],
+  "city_facilities_commanding_v1.png": [
+    {
+      "id": "academy",
+      "bounds": [
+        20,
+        24,
+        354,
+        308
+      ],
+      "edgeMaxAlpha": 4,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.1493506493506493
+    },
+    {
+      "id": "embassy",
+      "bounds": [
+        400,
+        24,
+        358,
+        309
+      ],
+      "edgeMaxAlpha": 4,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.1585760517799353
+    },
+    {
+      "id": "inn",
+      "bounds": [
+        784,
+        22,
+        356,
+        310
+      ],
+      "edgeMaxAlpha": 5,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.1483870967741936
+    },
+    {
+      "id": "tavern",
+      "bounds": [
+        1170,
+        20,
+        349,
+        310
+      ],
+      "edgeMaxAlpha": 4,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.1258064516129032
+    },
+    {
+      "id": "stable",
+      "bounds": [
+        22,
+        389,
+        352,
+        255
+      ],
+      "edgeMaxAlpha": 4,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.380392156862745
+    },
+    {
+      "id": "smith",
+      "bounds": [
+        406,
+        392,
+        357,
+        252
+      ],
+      "edgeMaxAlpha": 7,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.4166666666666667
+    },
+    {
+      "id": "workshop",
+      "bounds": [
+        787,
+        385,
+        359,
+        260
+      ],
+      "edgeMaxAlpha": 5,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.3807692307692307
+    },
+    {
+      "id": "beacon",
+      "bounds": [
+        1191,
+        347,
+        308,
+        306
+      ],
+      "edgeMaxAlpha": 3,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.0065359477124183
+    },
+    {
+      "id": "wall",
+      "bounds": [
+        18,
+        690,
+        361,
+        289
+      ],
+      "edgeMaxAlpha": 7,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.2491349480968859
+    },
+    {
+      "id": "drill",
+      "bounds": [
+        400,
+        681,
+        361,
+        292
+      ],
+      "edgeMaxAlpha": 4,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.2363013698630136
+    },
+    {
+      "id": "post",
+      "bounds": [
+        783,
+        694,
+        359,
+        284
+      ],
+      "edgeMaxAlpha": 3,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.2640845070422535
+    },
+    {
+      "id": "recruit",
+      "bounds": [
+        1163,
+        706,
+        359,
+        274
+      ],
+      "edgeMaxAlpha": 4,
+      "regionAlphaExtrema": [
+        0,
+        254
+      ],
+      "sourceAspect": 1.3102189781021898
+    }
+  ]
+}

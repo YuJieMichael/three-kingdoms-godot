@@ -1,0 +1,9 @@
+{
+  "src/world_map.gd": "a11600cd631ee663c6b1dc62857e86de15f5d67620b4f24bdaacd925df34a983",
+  "src/main.gd": "3b3729af34619a2240058eb8e3e6ae2445e06715ea5d000deb9dd3641db5d65f",
+  "bridge/dto.mjs": "9d4a6adaace89a7bfd036b436c758e46c50f1dae907155665408fd68d9bea57a",
+  "tests/world_map_art_test.gd": "f54d9cea26158c9c50efde201298fc3be97d0baec0b70dbfbec9f6edebe80014",
+  "tests/world-map-presentation.test.cjs": "97dafa06a09f22eafc2eb8fc528817c8b888b8ea103cb4b451d4e1fa91f2c3bd",
+  "data/world-map-art-atlas.json": "c5bf74ed87802c02c5fcd55f9158c66ef081f3eec44f5100ad7898e5d87e53d7",
+  "assets/environment/world-map/world_map_relief_v1.png": "17aab33d8a0af320086a0bf6fbe6f26947d90dcc205de0d04cb8a9125ea2db39"
+}

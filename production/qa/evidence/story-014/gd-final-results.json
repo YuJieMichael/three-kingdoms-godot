@@ -1,0 +1,144 @@
+[
+  {
+    "test": "tests/commanding_city_art_test.gd",
+    "checks": 449,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "COMMANDING_CITY_ART_CHECKS=449 failures=0"
+    ],
+    "seconds": 47.337,
+    "log": ".local/commanding-art-0608-qa/commanding_city_art_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/historic_city_test.gd",
+    "checks": 2714,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Commanding historical city: 2714 checks, 0 failures"
+    ],
+    "seconds": 16.169,
+    "log": ".local/commanding-art-0608-qa/historic_city_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/historic_suburb_test.gd",
+    "checks": 893,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "historic_suburb_test: 893 checks, 0 failures"
+    ],
+    "seconds": 11.728,
+    "log": ".local/commanding-art-0608-qa/historic_suburb_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/historic_structure_client_test.gd",
+    "checks": 82,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "HISTORIC_STRUCTURE_CLIENT_CHECKS=82 failures=0"
+    ],
+    "log": ".local/commanding-art-0608-qa/historic-client-phone-final.log",
+    "phase": "after phone cost wrap fix"
+  },
+  {
+    "test": "tests/battle_view_test.gd",
+    "checks": 70,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "City / battle presentation: 70 checks, 0 failures"
+    ],
+    "seconds": 6.87,
+    "log": ".local/commanding-art-0608-qa/battle_view_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/client_test.gd",
+    "checks": 236,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot client checks: 236 passed, 0 failed"
+    ],
+    "log": ".local/commanding-art-0608-qa/client-after-wrap-test.log",
+    "phase": "after phone cost wrap fix"
+  },
+  {
+    "test": "tests/management_test.gd",
+    "checks": 85,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "MANAGEMENT_TEST_CHECKS=85 failures=0"
+    ],
+    "seconds": 31.996,
+    "log": ".local/commanding-art-0608-qa/management_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/input_test.gd",
+    "checks": 255,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "INPUT_TEST_CHECKS=255 failures=0"
+    ],
+    "seconds": 23.677,
+    "log": ".local/commanding-art-0608-qa/input_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/realm_management_test.gd",
+    "checks": 22,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "REALM_UI_TEST checks=22 failures=0"
+    ],
+    "seconds": 7.962,
+    "log": ".local/commanding-art-0608-qa/realm_management_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/playable_ui_test.gd",
+    "checks": 125,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "PLAYABLE_UI_TEST checks=125 failures=0"
+    ],
+    "seconds": 25.152,
+    "log": ".local/commanding-art-0608-qa/playable_ui_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/ui_polish_test.gd",
+    "checks": 351,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "UI_POLISH_TEST_CHECKS=351 failures=0"
+    ],
+    "seconds": 13.738,
+    "log": ".local/commanding-art-0608-qa/ui_polish_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  },
+  {
+    "test": "tests/war_interface_test.gd",
+    "checks": 98,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "WAR_INTERFACE_CHECKS=98 failures=0"
+    ],
+    "seconds": 22.405,
+    "log": ".local/commanding-art-0608-qa/war_interface_test.log",
+    "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+  }
+]

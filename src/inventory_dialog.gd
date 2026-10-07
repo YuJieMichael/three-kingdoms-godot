@@ -62,6 +62,33 @@ func update_view(view: Dictionary) -> void:
 		_refresh()
 
 
+func select_item(item_id: String, target_id: String = "") -> bool:
+	if _section != "inventory" or not is_instance_valid(_items): return false
+	var found: bool = false
+	for item: Dictionary in _data().get("items", []):
+		if str(item.get("id", "")) == item_id and int(item.get("count", 0)) > 0:
+			found = true
+			break
+	if not found: return false
+	_remember()
+	# Old editors must not overwrite the newly selected item's saved draft.
+	_target = null
+	_text = null
+	_count = null
+	_selected_item = item_id
+	_selected_category = ""
+	_category.select(0)
+	_search.text = ""
+	if not target_id.is_empty():
+		var draft: Dictionary = _drafts.get(item_id, {}).duplicate()
+		draft.target = target_id
+		_drafts[item_id] = draft
+	_item_signature = ""
+	_sync_items(true)
+	_build_detail()
+	return true
+
+
 func set_command_state(connected: bool, pending: bool) -> void:
 	_connected = connected
 	_pending = pending

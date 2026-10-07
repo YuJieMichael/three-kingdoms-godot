@@ -1,0 +1,52 @@
+{
+  "version": "0.6.0-dev.9",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "nodeWindows": "24.21.0",
+  "legacyCommit": "c7674df45b9595405e57907524e737e633b0ff63",
+  "editionRules": {
+    "countyPreparation": {
+      "costCopper": 80,
+      "limitPerSave": 5,
+      "unlock": "camp",
+      "shared": false
+    }
+  },
+  "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+  "artifacts": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.9-Windows-x64.zip",
+      "bytes": 93690934,
+      "sha256": "456685fa291fdf3f65fd1b6e81e87196719e4d3f4ee71fe60238afb94754bcff"
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.9-Web-preview.zip",
+      "bytes": 65848368,
+      "sha256": "bc37f3d69cc5bf8d798e960c56c207d9a7a326af44ce4f5ebb7c5c42a3f13526"
+    }
+  ],
+  "cityArt": {
+    "metadataSha256": "3fa31b4888936541d5fde1d9252bf451310cff18701fe9885838b9024080b1d2",
+    "spriteCount": 18,
+    "sources": [
+      {
+        "path": "res://assets/environment/city/city_buildings_commanding_v1.png",
+        "bytes": 2825655,
+        "sha256": "79aac8d80bf5ed2d5f295a0b938fd1e73764bbb079a4db6d30e151e14b833d0d"
+      },
+      {
+        "path": "res://assets/environment/city/city_facilities_commanding_v1.png",
+        "bytes": 3131067,
+        "sha256": "068a3d669d571de96f3ad89946d7a796fda78614e1d6676a9e4631c934e1d458"
+      }
+    ]
+  },
+  "worldMapArt": {
+    "metadataSha256": "c5bf74ed87802c02c5fcd55f9158c66ef081f3eec44f5100ad7898e5d87e53d7",
+    "spriteCount": 6,
+    "source": {
+      "path": "res://assets/environment/world-map/world_map_relief_v1.png",
+      "bytes": 2694355,
+      "sha256": "17aab33d8a0af320086a0bf6fbe6f26947d90dcc205de0d04cb8a9125ea2db39"
+    }
+  }
+}

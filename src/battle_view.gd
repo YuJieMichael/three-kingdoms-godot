@@ -9,6 +9,8 @@ const PLAYER: Color = Color("96b6ad")
 const ENEMY: Color = Color("d3947c")
 const PAPER: Color = Color("eee3cc")
 const ANIMATION_SECONDS: float = 0.95
+const MOVE_SECONDS: float = 0.32
+const ATTACK_END: float = 0.62
 const CHINESE_FONT: Font = preload("res://assets/fonts/UI.tres")
 
 var _battle: Dictionary = {}
@@ -19,10 +21,15 @@ var _events: Array = []
 var _identity: String = ""
 var _observed_round: int = -1
 var _animation_elapsed: float = ANIMATION_SECONDS
+var _movement_end: float = MOVE_SECONDS
+var _attack_end: float = ATTACK_END
+var _animation_end: float = ANIMATION_SECONDS
 var _selected: String = ""
 var _hit_boxes: Dictionary = {}
 var _actions_enabled: bool = true
 var _built: bool = false
+var _feedback: Node
+var _reduced_motion: bool = false
 var _title: Label
 var _subtitle: Label
 var _summary: Label
@@ -35,11 +42,13 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(320.0, 540.0)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_controls()
+	_bind_feedback()
 	_refresh_controls()
 	_layout_controls()
 	set_process(false)
 
 func set_battle(battle: Variant, units: Dictionary = {}) -> void:
+	_bind_feedback()
 	_units = units.duplicate(true)
 	if not battle is Dictionary or (battle as Dictionary).is_empty():
 		_battle.clear()
@@ -62,8 +71,9 @@ func set_battle(battle: Variant, units: Dictionary = {}) -> void:
 		_previous = _battle.duplicate(true)
 		var summary: Dictionary = next.get("currentRoundSummary", {})
 		_events = summary.get("events", []).duplicate(true) if int(summary.get("round", -1)) == next_round else []
-		_animation_elapsed = 0.0 if not _events.is_empty() else ANIMATION_SECONDS
-		set_process(not _events.is_empty())
+		_configure_animation()
+		_animation_elapsed = 0.0 if _animation_end > 0.0 and not _reduced_motion else ANIMATION_SECONDS
+		set_process(_animation_elapsed < _animation_end)
 	elif not same_battle or next_round > _observed_round + 1:
 		# A restored or newly opened battle seeds the baseline without replaying it.
 		_previous.clear()
@@ -101,6 +111,52 @@ func animation_events() -> Array:
 func observed_round() -> int:
 	return _observed_round
 
+func animation_phase() -> String:
+	if _reduced_motion or _animation_elapsed >= _animation_end:
+		return "settled"
+	if _animation_elapsed < _movement_end:
+		return "move"
+	if _animation_elapsed < _attack_end:
+		return "attack"
+	return "impact"
+
+func _configure_animation() -> void:
+	var has_moves: bool = false
+	var has_attacks: bool = false
+	var has_impacts: bool = false
+	for value: Variant in _events:
+		var event: Dictionary = value
+		var type: String = str(event.get("type", ""))
+		has_moves = has_moves or type == "move"
+		has_attacks = has_attacks or type in ["strike", "tower", "gate"]
+		has_impacts = has_impacts or type == "recoil"
+	_movement_end = MOVE_SECONDS if has_moves else 0.0
+	_attack_end = _movement_end + (ATTACK_END - MOVE_SECONDS if has_attacks else 0.0)
+	_animation_end = _attack_end + (ANIMATION_SECONDS - ATTACK_END if has_impacts else 0.0)
+
+func _bind_feedback() -> void:
+	if not is_inside_tree():
+		return
+	var service: Node = get_tree().get_first_node_in_group("ui_feedback")
+	if service != _feedback:
+		if is_instance_valid(_feedback) and _feedback.is_connected("preferences_changed", _feedback_preferences_changed):
+			_feedback.disconnect("preferences_changed", _feedback_preferences_changed)
+		_feedback = service
+		if is_instance_valid(_feedback) and _feedback.has_signal("preferences_changed"):
+			_feedback.connect("preferences_changed", _feedback_preferences_changed)
+	_feedback_preferences_changed()
+
+func _feedback_preferences_changed() -> void:
+	_reduced_motion = bool(_feedback.get("reduced_motion")) if is_instance_valid(_feedback) else false
+	if _reduced_motion:
+		# Preferences settle presentation immediately; canonical state and commands stay live.
+		_animation_elapsed = ANIMATION_SECONDS
+		_previous.clear()
+		set_process(false)
+	_refresh_controls()
+	_layout_controls()
+	queue_redraw()
+
 func _build_controls() -> void:
 	if _built:
 		return
@@ -108,12 +164,12 @@ func _build_controls() -> void:
 	_title = Label.new()
 	_title.add_theme_font_size_override("font_size", 23)
 	_title.add_theme_color_override("font_color", PAPER)
-	_title.clip_text = true
+	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(_title)
 	_subtitle = Label.new()
 	_subtitle.add_theme_font_size_override("font_size", 13)
 	_subtitle.add_theme_color_override("font_color", Color("aab5a5"))
-	_subtitle.clip_text = true
+	_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(_subtitle)
 	_commands = GridContainer.new()
 	_commands.columns = 4
@@ -130,14 +186,13 @@ func _build_controls() -> void:
 	for entry: Array in [["前进", "advance"], ["固守", "hold"], ["后退", "fallback"]]:
 		var button: Button = Button.new()
 		button.text = str(entry[0])
-		button.custom_minimum_size = Vector2(70.0, 34.0)
+		button.custom_minimum_size = Vector2(70.0, 44.0)
 		button.pressed.connect(_unit_order.bind(str(entry[1])))
 		_unit_commands.add_child(button)
 		_buttons.append(button)
 	_summary = Label.new()
 	_summary.add_theme_font_size_override("font_size", 14)
 	_summary.add_theme_color_override("font_color", GOLD)
-	_summary.clip_text = true
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(_summary)
 	_logs = RichTextLabel.new()
@@ -151,7 +206,7 @@ func _build_controls() -> void:
 func _add_button(parent: GridContainer, text: String, action: String, args: Array) -> void:
 	var button: Button = Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(86.0, 36.0)
+	button.custom_minimum_size = Vector2(86.0, 44.0)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(_request.bind(action, args))
 	parent.add_child(button)
@@ -169,8 +224,19 @@ func _refresh_controls() -> void:
 	if not _built:
 		return
 	var exists: bool = not _battle.is_empty()
+	var finished: bool = bool(_battle.get("finished", false))
 	_title.text = "%s · 第 %d / 30 回合" % [_battle.get("nodeName", _battle.get("node", "战场")), int(_battle.get("round", 0))] if exists else "军令与战场"
-	_subtitle.text = "点击我军兵队查看射程 · 改令从下一回合生效" if exists else "在大地图选择据点，派遣将领与部队；抵达后开始战斗。"
+	if exists and size.x < 480.0:
+		_title.text = "%s · 第 %d 回合" % [_battle.get("nodeName", _battle.get("node", "战场")), int(_battle.get("round", 0))]
+	if finished:
+		_title.text = "%s · 战斗%s" % [_battle.get("nodeName", _battle.get("node", "战场")), "胜利" if bool((_battle.get("result", {}) as Dictionary).get("won", false)) else "失利"]
+	_subtitle.text = "点选我军看射程 · 改令下回合生效" if exists else "在舆图选择据点，派遣将领与部队；抵达后交战。"
+	match animation_phase():
+		"move": _subtitle.text = "① 正在移动 → ② 攻击 → ③ 伤亡"
+		"attack": _subtitle.text = "① 已布阵 → ② 正在攻击 → ③ 伤亡"
+		"impact": _subtitle.text = "① 已布阵 → ② 已命中 → ③ 伤亡"
+	if finished and animation_phase() == "settled":
+		_subtitle.text = "战斗已结算 · 战损、伤兵与去向见下方"
 	_commands.visible = exists and not bool(_battle.get("finished", false))
 	_unit_commands.visible = _commands.visible and not _selected.is_empty()
 	for button: Button in _buttons:
@@ -210,41 +276,52 @@ func _layout_controls() -> void:
 		return
 	var narrow: bool = size.x < 480.0
 	_commands.columns = 2 if narrow else 4
+	_title.add_theme_font_size_override("font_size", 21 if narrow else 23)
 	_title.position = Vector2(18.0, 10.0)
-	_title.size = Vector2(size.x - 36.0, 30.0)
-	_subtitle.position = Vector2(18.0, 43.0)
-	_subtitle.size = Vector2(size.x - 36.0, 22.0)
-	_commands.position = Vector2(18.0, 74.0)
+	var content_width: float = maxf(1.0, size.x - 36.0)
+	_title.size = Vector2(content_width, 30.0)
+	_title.size.y = maxf(30.0, _title.get_minimum_size().y)
+	_subtitle.position = Vector2(18.0, _title.position.y + _title.size.y + 2.0)
+	_subtitle.size = Vector2(content_width, 20.0)
+	_subtitle.size.y = maxf(20.0, _subtitle.get_minimum_size().y)
+	_commands.position = Vector2(18.0, _subtitle.position.y + _subtitle.size.y + 6.0)
 	_commands.size = Vector2(size.x - 36.0, _commands.get_combined_minimum_size().y)
 	_unit_commands.position = Vector2(18.0, _commands.position.y + _commands.size.y + 6.0)
 	_unit_commands.size = Vector2(size.x - 36.0, _unit_commands.get_combined_minimum_size().y)
 	var summary_height: float = 42.0 if narrow else 26.0
-	var minimum_height: float = maxf(600.0 if narrow else 540.0, _field_top() + 150.0 + 15.0 + summary_height + 8.0 + 104.0 + 16.0)
+	var minimum_height: float = maxf(540.0, _field_top() + 132.0 + 12.0 + summary_height + 6.0 + 88.0 + 12.0)
 	if not is_equal_approx(custom_minimum_size.y, minimum_height):
 		custom_minimum_size.y = minimum_height
 	var field: Rect2 = _field_rect()
-	_summary.position = Vector2(18.0, field.end.y + 15.0)
+	_summary.position = Vector2(18.0, field.end.y + 12.0)
 	_summary.size = Vector2(size.x - 36.0, 42.0 if narrow else 26.0)
-	_logs.position = Vector2(18.0, _summary.position.y + _summary.size.y + 8.0)
-	_logs.size = Vector2(size.x - 36.0, maxf(104.0, size.y - _logs.position.y - 16.0))
+	_logs.position = Vector2(18.0, _summary.position.y + _summary.size.y + 6.0)
+	_logs.size = Vector2(content_width, maxf(88.0, size.y - _logs.position.y - 12.0))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
+		_refresh_controls()
 		_layout_controls()
 		queue_redraw()
 
 func _process(delta: float) -> void:
-	_animation_elapsed = minf(ANIMATION_SECONDS, _animation_elapsed + delta)
+	var previous_phase: String = animation_phase()
+	_animation_elapsed = minf(_animation_end, _animation_elapsed + delta)
+	if previous_phase != animation_phase():
+		_refresh_controls()
+		_layout_controls()
+	if _animation_elapsed >= _animation_end:
+		_previous.clear()
 	queue_redraw()
-	if _animation_elapsed >= ANIMATION_SECONDS:
+	if _animation_elapsed >= _animation_end:
 		set_process(false)
 
 func _field_rect() -> Rect2:
 	var narrow: bool = size.x < 480.0
 	var top: float = _field_top()
 	var summary_height: float = 42.0 if narrow else 26.0
-	var available_height: float = maxf(150.0, size.y - top - 15.0 - summary_height - 8.0 - 104.0 - 16.0)
-	var field_height: float = minf(clampf(size.y * 0.35, 150.0, 520.0), available_height)
+	var available_height: float = maxf(132.0, size.y - top - 12.0 - summary_height - 6.0 - 88.0 - 12.0)
+	var field_height: float = minf(clampf(size.y * 0.35, 132.0, 520.0), available_height)
 	return Rect2(Vector2(78.0, top), Vector2(maxf(180.0, size.x - 114.0), field_height))
 
 func _field_top() -> float:
@@ -252,7 +329,12 @@ func _field_top() -> float:
 		return 111.0
 	if not _built:
 		return 254.0 if size.x < 480.0 else 185.0
-	return _unit_commands.position.y + _unit_commands.size.y + (60.0 if size.x < 480.0 else 35.0)
+	var controls_end: float = _subtitle.position.y + _subtitle.size.y
+	if _commands.visible:
+		controls_end = _commands.position.y + _commands.size.y
+	if _unit_commands.visible:
+		controls_end = _unit_commands.position.y + _unit_commands.size.y
+	return controls_end + (42.0 if size.x < 480.0 else 30.0)
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color("1b2928"))
@@ -290,12 +372,12 @@ func _draw() -> void:
 			var row: Dictionary = _row(side, id)
 			if row.is_empty():
 				continue
-			if float(row.get("hp", 0)) <= 0.0 and _animation_elapsed >= ANIMATION_SECONDS:
+			if float(row.get("hp", 0)) <= 0.0 and animation_phase() == "settled":
 				continue
 			_draw_formation(side, row, row_height)
 	_draw_gate()
 	_draw_effects()
-	if not selection.is_empty():
+	if not selection.is_empty() and _unit_commands.visible:
 		var stats: Dictionary = selection.get("stats", {})
 		var orders: Dictionary = _battle.get("orders", {})
 		var selected_order: Dictionary = orders.get(_selected, {})
@@ -310,16 +392,18 @@ func _draw_formation(side: String, row: Dictionary, row_height: float) -> void:
 	var p: Vector2 = Vector2(_battle_x(pos), _lane_y(id, side))
 	var color: Color = PLAYER if side == "player" else ENEMY
 	var active_hit: bool = false
-	if _animation_elapsed < ANIMATION_SECONDS:
+	var impact_progress: float = _impact_progress()
+	if animation_phase() == "impact":
 		for value: Variant in _events:
 			var event: Dictionary = value
 			if event.get("type", "") == "recoil" and event.get("side", "") == side and event.get("unit", "") == id:
 				active_hit = true
-				p.x += sin(_animation_elapsed * 43.0) * 3.0 * (1.0 - _animation_elapsed / ANIMATION_SECONDS)
+				p.x += sin(impact_progress * TAU * 2.0) * 3.0 * pow(1.0 - impact_progress, 2.0)
+				break
 	var scale: float = clampf(row_height / 58.0, 0.52, 1.0)
-	var hp: float = float(row.get("hp", 0))
+	var hp: float = _visual_hp(side, id, float(row.get("hp", 0)))
 	if hp <= 0.0:
-		color.a = 0.35
+		color.a = 0.35 * (1.0 - impact_progress)
 	draw_circle(p + Vector2(0.0, 6.0), 17.0 * scale, Color(0.06, 0.09, 0.07, 0.50))
 	for soldier: int in range(5):
 		var soldier_point: Vector2 = p + Vector2((float(soldier % 3) - 1.0) * 10.0 * scale, float(soldier / 3) * 9.0 * scale)
@@ -340,32 +424,37 @@ func _draw_formation(side: String, row: Dictionary, row_height: float) -> void:
 		if id == _selected:
 			draw_arc(p, 25.0 * scale, 0.0, TAU, 32, GOLD, 1.5, true)
 	if active_hit:
-		draw_arc(p, 22.0 * scale, -0.5, 1.8, 12, Color(1.0, 0.58, 0.38, 1.0 - _animation_elapsed / ANIMATION_SECONDS), 3.0, true)
+		draw_arc(p, 22.0 * scale, -0.5, 1.8, 12, Color(1.0, 0.58, 0.38, 1.0 - impact_progress), 3.0, true)
 
 func _draw_gate() -> void:
 	var gate_value: Variant = _battle.get("gate", null)
 	if not gate_value is Dictionary:
 		return
 	var gate: Dictionary = gate_value
+	var hp: float = float(gate.get("hp", 0))
+	if animation_phase() in ["move", "attack"] and _previous.get("gate", null) is Dictionary:
+		hp = float((_previous.get("gate") as Dictionary).get("hp", hp))
 	var p: Vector2 = Vector2(_field_rect().end.x, _field_rect().position.y + 9.0)
-	draw_rect(Rect2(p - Vector2(10.0, 6.0), Vector2(20.0, 30.0)), Color("747d6c") if float(gate.get("hp", 0)) > 0.0 else Color("434c3e"))
-	_text(p - Vector2(72.0, 9.0), "城防 %d" % int(gate.get("hp", 0)), 12, GOLD)
+	draw_rect(Rect2(p - Vector2(10.0, 6.0), Vector2(20.0, 30.0)), Color("747d6c") if hp > 0.0 else Color("434c3e"))
+	_text(p - Vector2(72.0, 9.0), "城防 %d" % int(hp), 12, GOLD)
 
 func _draw_effects() -> void:
-	if _animation_elapsed >= ANIMATION_SECONDS:
+	var phase: String = animation_phase()
+	if phase in ["move", "settled"]:
 		return
-	var progress: float = _animation_elapsed / ANIMATION_SECONDS
-	for index: int in range(_events.size()):
-		var event: Dictionary = _events[index]
+	var progress: float = _impact_progress() if phase == "impact" else clampf((_animation_elapsed - _movement_end) / (ATTACK_END - MOVE_SECONDS), 0.0, 1.0)
+	var recoil_counts: Dictionary = {}
+	for value: Variant in _events:
+		var event: Dictionary = value
 		var type: String = str(event.get("type", ""))
 		var side: String = str(event.get("side", "player"))
 		var unit: String = str(event.get("unit", ""))
 		var target: String = str(event.get("target", ""))
-		if type in ["strike", "tower", "gate"]:
+		if phase == "attack" and type in ["strike", "tower", "gate"]:
 			var opposite: String = "enemy" if side == "player" else "player"
 			var a: Vector2 = Vector2(_battle_x(float(event.get("from", 0))), _lane_y(unit, side))
 			var b: Vector2 = Vector2(_battle_x(float(event.get("to", 0))), _lane_y(target, opposite))
-			var local: float = clampf((progress - float(index % 5) * 0.035) / 0.75, 0.0, 1.0)
+			var local: float = 1.0 - pow(1.0 - progress, 2.0)
 			var color: Color = GOLD if side == "player" else ENEMY
 			color.a = 1.0 - local * 0.55
 			if bool(event.get("ranged", false)):
@@ -377,18 +466,41 @@ func _draw_effects() -> void:
 			else:
 				var impact: Vector2 = a.lerp(b, local)
 				draw_line(impact + Vector2(-7.0, 9.0), impact + Vector2(7.0, -9.0), color, 3.0, true)
-		elif type == "recoil" and int(event.get("killed", 0)) > 0:
+		elif phase == "impact" and type == "recoil":
 			var p: Vector2 = Vector2(_battle_x(float(event.get("to", 0))), _lane_y(unit, side))
-			_text(p + Vector2(8.0, -26.0 - progress * 18.0), "−%d" % int(event.get("killed", 0)), 16, Color(1.0, 0.64, 0.44, 1.0 - progress))
+			var killed: int = int(event.get("killed", 0))
+			var caption: String = "−%d 人" % killed if killed > 0 else "伤害 %d" % int(event.get("damage", 0))
+			var rise: float = 1.0 - pow(1.0 - progress, 3.0)
+			var recoil_key: String = side + "|" + unit
+			var offset_y: float = float(recoil_counts.get(recoil_key, 0)) * 18.0
+			recoil_counts[recoil_key] = int(recoil_counts.get(recoil_key, 0)) + 1
+			var font_size: int = 15
+			var text_width: float = CHINESE_FONT.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+			var text_x: float = clampf(p.x + 8.0, _field_rect().position.x, maxf(_field_rect().position.x, size.x - 18.0 - text_width))
+			_text(Vector2(text_x, p.y - 20.0 - rise * 16.0 - offset_y), caption, font_size, Color(1.0, 0.64, 0.44, minf(1.0, (1.0 - progress) * 2.0)))
 
 func _animated_position(side: String, id: String, final_position: float) -> float:
-	if _animation_elapsed >= ANIMATION_SECONDS or _previous.is_empty():
+	if animation_phase() != "move":
 		return final_position
-	var previous: Dictionary = _row(side, id, _previous)
-	if previous.is_empty():
+	var moves: Array[Dictionary] = []
+	for value: Variant in _events:
+		var event: Dictionary = value
+		if event.get("type", "") == "move" and event.get("side", "") == side and event.get("unit", "") == id:
+			moves.append(event)
+	if moves.is_empty():
 		return final_position
-	var progress: float = clampf(_animation_elapsed / (ANIMATION_SECONDS * 0.72), 0.0, 1.0)
-	return lerpf(float(previous.get("pos", final_position)), final_position, ease(progress, -2.0))
+	var progress: float = clampf(_animation_elapsed / MOVE_SECONDS, 0.0, 1.0) * float(moves.size())
+	var index: int = mini(int(progress), moves.size() - 1)
+	var local: float = clampf(progress - float(index), 0.0, 1.0)
+	return lerpf(float(moves[index].get("from", final_position)), float(moves[index].get("to", final_position)), 1.0 - pow(1.0 - local, 3.0))
+
+func _impact_progress() -> float:
+	return clampf((_animation_elapsed - _attack_end) / (ANIMATION_SECONDS - ATTACK_END), 0.0, 1.0)
+
+func _visual_hp(side: String, id: String, final_hp: float) -> float:
+	if animation_phase() not in ["move", "attack"] or _previous.is_empty():
+		return final_hp
+	return float(_row(side, id, _previous).get("hp", final_hp))
 
 func _battle_x(position_value: float) -> float:
 	var field: Rect2 = _field_rect()
@@ -423,7 +535,7 @@ func _event_text(event: Dictionary) -> String:
 	return "%s%s %s → %s%s · 伤害 %d%s" % [side, _unit_name(str(event.get("unit", ""))), verb, target_side, _unit_name(str(event.get("target", ""))), int(event.get("damage", 0)), " · 倒下 %d 人" % int(event.get("killed", 0)) if event.get("type", "") != "gate" else ""]
 
 func _result_text(result: Dictionary) -> String:
-	var title: String = "旌旗报捷" if bool(result.get("won", false)) else "整军再战"
+	var title: String = "战斗胜利 · 旌旗报捷" if bool(result.get("won", false)) else "战斗失利 · 整军再战"
 	var lines: Array[String] = [title, "永久损失 %d · 伤兵 %d · 将领经验 +%d" % [_army_total(result.get("lost", {})), _army_total(result.get("wounded", {})), int(result.get("xp", 0))]]
 	if result.has("cargoLoaded"):
 		lines.append("实际装载 %d / 运力 %d · 运力不足弃置 %d" % [int(result.get("cargoLoaded", 0)), int(result.get("cargoCapacity", 0)), int(result.get("lootDiscarded", 0)) + int(result.get("bonusDiscarded", 0))])

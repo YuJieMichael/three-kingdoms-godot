@@ -1,0 +1,37 @@
+[
+  {
+    "test": "world_map",
+    "code": 0,
+    "checks": 24,
+    "seconds": 3.25,
+    "errors": false
+  },
+  {
+    "test": "war_visual",
+    "code": 0,
+    "checks": 50,
+    "seconds": 2.262,
+    "errors": false
+  },
+  {
+    "test": "input",
+    "code": 0,
+    "checks": 255,
+    "seconds": 17.568,
+    "errors": false
+  },
+  {
+    "test": "client",
+    "code": 0,
+    "checks": 236,
+    "seconds": 36.037,
+    "errors": false
+  },
+  {
+    "test": "war_interface",
+    "code": 0,
+    "checks": 98,
+    "seconds": 8.067,
+    "errors": false
+  }
+]

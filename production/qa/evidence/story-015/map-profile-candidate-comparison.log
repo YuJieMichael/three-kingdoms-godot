@@ -1,0 +1,20 @@
+Matched native workload and environment; values are p50 / p95 in milliseconds.
+CPU drawing-command construction (not FPS or GPU time):
+| Scenario | Per redraw before | Per redraw after | Per sample frame before | Per sample frame after |
+|---|---:|---:|---:|---:|
+| 64_static | null / null | null / null | 0.000 / 0.000 | 0.000 / 0.000 |
+| 64_pan | 104.328 / 223.174 | 38.177 / 82.357 | 104.328 / 223.174 | 38.177 / 82.357 |
+| 256_overview_pan | 113.266 / 218.181 | 77.987 / 170.463 | 113.266 / 218.181 | 77.987 / 170.463 |
+| 256_marches_pan | 100.402 / 203.861 | 32.237 / 101.130 | 202.373 / 397.620 | 66.993 / 195.242 |
+| 256_marches_idle | 78.400 / 118.536 | 37.710 / 110.536 | 78.400 / 118.536 | 27.429 / 99.463 |
+
+Actual frame intervals and real viewport CANVAS renderer counters:
+| Scenario | Redraws before / after | Frame interval before | Frame interval after | CANVAS draw calls p95 before / after |
+|---|---:|---:|---:|---:|
+| 64_static | 0 / 0 | 107.101 / 263.676 | 16.452 / 68.053 | 3704 / 98 |
+| 64_pan | 150 / 150 | 431.320 / 732.765 | 54.296 / 139.841 | 3493 / 99 |
+| 256_overview_pan | 150 / 150 | 130.979 / 260.076 | 87.800 / 195.557 | 134 / 136 |
+| 256_marches_pan | 300 / 300 | 597.179 / 1179.651 | 83.351 / 319.643 | 4014 / 187 |
+| 256_marches_idle | 150 / 92 | 303.684 / 440.159 | 40.902 / 121.041 | 3733 / 181 |
+
+GPU frame timing unavailable. set_world snapshot excluded from speedup claims. No budget verdict.

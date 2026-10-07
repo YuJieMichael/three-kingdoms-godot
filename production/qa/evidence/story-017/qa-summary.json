@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "story": "story-017",
+  "version": "0.6.0-dev.11",
+  "status": "Complete",
+  "date": "2026-10-07",
+  "preview": "http://127.0.0.1:17359",
+  "buildDirectory": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/build/city-polish-0611-final",
+  "scopedHeadless": {
+    "checks": 5973,
+    "failures": 0,
+    "suites": {
+      "city_district_polish": 268,
+      "rts_city_grid": 1321,
+      "historic_city": 2714,
+      "commanding_city_art": 456,
+      "playable_ui": 125,
+      "ui_polish": 351,
+      "war_interface": 98,
+      "input": 255,
+      "historic_structure_client": 113,
+      "city_construction_panel": 36,
+      "client": 236
+    }
+  },
+  "node": {
+    "tests": 38,
+    "failures": 0,
+    "rawStdoutAvailable": false,
+    "provenance": "Responsible-agent completed tool execution summaries in agent-test-results.json"
+  },
+  "native": [
+    {
+      "test": "native-city-render",
+      "exit": 0,
+      "seconds": 24.42,
+      "checks": 1324,
+      "host": "native macOS Godot Compatibility OpenGL",
+      "scope": "real production Control/Window and canonical prepared fixtures; no player save loaded; phone dimensions not physical device"
+    },
+    {
+      "test": "native-panel-render",
+      "exit": 0,
+      "seconds": 18.97,
+      "checks": 37,
+      "host": "native macOS Godot Compatibility OpenGL",
+      "scope": "real production Control/Window and canonical prepared fixtures; no player save loaded; phone dimensions not physical device"
+    }
+  ],
+  "packageAudit": {
+    "checks": 205,
+    "failures": 0
+  },
+  "compiledPackages": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Windows-x64.zip",
+      "sha256": "237247d42e7ea9253a779589ea6b0a55394c21892ea19fd47e8942a51a275e15",
+      "compiledChecks": 93,
+      "exitCode": 0,
+      "seconds": 12.664,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled-windows.log",
+      "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+      "windowsExeExecuted": false,
+      "mutations": 1,
+      "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Web-preview.zip",
+      "sha256": "ea1ebd3d3b829ac9ea35f883607fd1231507c0b720cba7b008c000626896ff8c",
+      "compiledChecks": 93,
+      "exitCode": 0,
+      "seconds": 11.681,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled-web.log",
+      "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+      "windowsExeExecuted": false,
+      "mutations": 1,
+      "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+    }
+  ],
+  "http": {
+    "checks": 20,
+    "failures": 0,
+    "revision": 0
+  },
+  "browser": {
+    "schema": 1,
+    "version": "0.6.0-dev.11",
+    "result": "passed",
+    "url": "http://127.0.0.1:17359/",
+    "finalTabId": "81",
+    "browserId": "2",
+    "viewports": [
+      [
+        1280,
+        1000
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "viewportRestored": true,
+    "deliverableMarked": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "logs": [],
+    "mutations": 0,
+    "observed": [
+      "Final desktop city, main street, courtyards and hall focus",
+      "One-row phone resources and exact resource details",
+      "Expanded full objective description/reward with readable Chinese 44px controls",
+      "Empty construction queue fits entire viewport and close control is visible",
+      "Idle military folded with working military menu",
+      "Science catalog real scrolling, exact-site unavailable preview, return preserving category/filter/scroll",
+      "Current-buildable filter, house capacity comparison, and fixed quotation/confirmation after scrolling",
+      "Phone last row34-36 and south gate reachable"
+    ],
+    "provenance": "Full UI observations on tab80; only objective control alignment and empty queue wording changed afterward. Final exported-byte tab81 rechecked desktop, phone objective, queue fit, exact-site house comparison and fixed footer. Unchanged catalog/resource/military/city geometry supported by tab80 captures and final targeted GD/package checks.",
+    "boundary": "Localhost browser, mouse/synthetic scrolling and 390 viewport; not physical phone, public hosting or Windows EXE execution."
+  },
+  "originalRepository": {
+    "head": "c7674df45b9595405e57907524e737e633b0ff63",
+    "clean": true,
+    "deployed": false
+  },
+  "vendorDiff": "unchanged",
+  "save": {
+    "source": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-preview/save.json",
+    "copy": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-preview/save.json",
+    "sourceBefore": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+    "copyBefore": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+    "copyScope": "Only save.json; all authentication/private settings excluded",
+    "sourceAfter": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+    "copyAfter": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+    "unchangedAfterFinalWeb": true
+  },
+  "sourceSha256": {
+    "src/main.gd": "b5a244f301594a38879282d9a94b5046827bbf80c4c7f7f679a8143323213f7c",
+    "src/city_view.gd": "1e7fb1e342ca940da50187d715541f700793956c97d783452628346974c7150f",
+    "src/city_construction_panel.gd": "f6082f4e312e835f44618473bc6080c3073c4bb31cf0b7e18373d752f9b04626",
+    "src/city_capacity_compare.gd": "b7f0a5ba0ee298e1a6eb3d3b39cf5d961a3d84296cd491c6f3efd5d77343a087",
+    "bridge/building-comparison.mjs": "1d27010e2a0bb01b6ca23a19d38307acb15e1b72e7365e02cabaf91a4d602d40",
+    "bridge/dto.mjs": "e396c04e9af1a1c31b4d90a41e28f43492202722bbd497c48e52c070de2e610e",
+    "data/city-rts-art-atlas.json": "dfa99af4967ba0d55ce15c7ce79d25aedb9fe98ef06184c5c0a15662afe05a67",
+    "scripts/build.py": "c5842e9243abe82d54f82596971891c45f9504337347ca7f6aad09d2e3531c08"
+  },
+  "graph": {
+    "nodes": 1339,
+    "edges": 3532,
+    "communities": 78,
+    "mode": "local code-only/exclude/no-label",
+    "gdCoverage": false
+  },
+  "limits": [
+    "Windows EXE not executed on Windows",
+    "390 viewport and synthetic input do not replace a physical-phone check",
+    "Prepared city fixture captures do not represent natural player growth",
+    "Localhost service; no public hosting, cloud auth or Steamworks release"
+  ]
+}

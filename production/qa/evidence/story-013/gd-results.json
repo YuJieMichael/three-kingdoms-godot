@@ -1,0 +1,123 @@
+[
+  {
+    "test": "tests/historic_city_test.gd",
+    "checks": 2714,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Historical city: 2714 checks, 0 failures"
+    ],
+    "seconds": 0.901,
+    "log": ".local/historic-0607-qa/historic_city_test.log"
+  },
+  {
+    "test": "tests/historic_suburb_test.gd",
+    "checks": 893,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "historic_suburb_test: 893 checks, 0 failures"
+    ],
+    "seconds": 0.676,
+    "log": ".local/historic-0607-qa/historic_suburb_test.log"
+  },
+  {
+    "test": "tests/historic_structure_client_test.gd",
+    "checks": 63,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "HISTORIC_STRUCTURE_CLIENT_CHECKS=63 failures=0"
+    ],
+    "seconds": 2.549,
+    "log": ".local/historic-0607-qa/historic_structure_client_test.log"
+  },
+  {
+    "test": "tests/battle_view_test.gd",
+    "checks": 70,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "City / battle presentation: 70 checks, 0 failures"
+    ],
+    "seconds": 0.567,
+    "log": ".local/historic-0607-qa/battle_view_test.log"
+  },
+  {
+    "test": "tests/client_test.gd",
+    "checks": 236,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot client checks: 236 passed, 0 failed"
+    ],
+    "seconds": 3.264,
+    "log": ".local/historic-0607-qa/client_test.log"
+  },
+  {
+    "test": "tests/management_test.gd",
+    "checks": 85,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "MANAGEMENT_TEST_CHECKS=85 failures=0"
+    ],
+    "seconds": 1.375,
+    "log": ".local/historic-0607-qa/management_test.log"
+  },
+  {
+    "test": "tests/input_test.gd",
+    "checks": 255,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "INPUT_TEST_CHECKS=255 failures=0"
+    ],
+    "seconds": 3.489,
+    "log": ".local/historic-0607-qa/input_test.log"
+  },
+  {
+    "test": "tests/realm_management_test.gd",
+    "checks": 22,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "REALM_UI_TEST checks=22 failures=0"
+    ],
+    "seconds": 0.766,
+    "log": ".local/historic-0607-qa/realm_management_test.log"
+  },
+  {
+    "test": "tests/playable_ui_test.gd",
+    "checks": 125,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "PLAYABLE_UI_TEST checks=125 failures=0"
+    ],
+    "seconds": 3.269,
+    "log": ".local/historic-0607-qa/playable_ui_test.log"
+  },
+  {
+    "test": "tests/ui_polish_test.gd",
+    "checks": 351,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "UI_POLISH_TEST_CHECKS=351 failures=0"
+    ],
+    "seconds": 3.236,
+    "log": ".local/historic-0607-qa/ui_polish_test.log"
+  },
+  {
+    "test": "tests/war_interface_test.gd",
+    "checks": 98,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "WAR_INTERFACE_CHECKS=98 failures=0"
+    ],
+    "seconds": 1.676,
+    "log": ".local/historic-0607-qa/war_interface_test.log"
+  }
+]

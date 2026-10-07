@@ -120,17 +120,17 @@ func _test_client_layout_and_chaining() -> void:
 		await _settle_layout()
 		var margin: Control = client.get_child(1)
 		_assert(margin.get_combined_minimum_size().x <= float(width), "The %d px fixture shell must not force horizontal overflow." % width)
-		_assert(client._body.size.x <= float(width - 32), "The %d px body must fit inside its outer margins." % width)
-		_assert(client._resource_grid.columns == (3 if width == 390 else 5), "Resource columns must follow real viewport width.")
-		_assert(client._sidebar_panel.visible == (width == 1280), "The desktop sidebar must collapse on the narrow viewport.")
-		_assert(client._detail_panel.visible == (width == 1280), "Target details must collapse on the narrow viewport.")
+		_assert(client._body.size.x <= float(width - (16 if width == 390 else 24)), "The %d px body must fit inside its outer margins." % width)
+		_assert(client._resource_grid.columns == 5, "Resource columns must follow real viewport width.")
+		_assert(not client._sidebar_panel.visible, "The desktop sidebar must collapse on the narrow viewport.")
+		_assert(not client._detail_panel.visible, "Target details must collapse on the narrow viewport.")
 		_assert(client._center.get_parent() is ScrollContainer, "The main center must have an actual scroll viewport on both screen sizes.")
 		for page: String in ["city", "army", "generals", "reports", "world"]:
 			client._show_page(page)
 			await _settle_layout()
-			if client._body.size.x > float(width - 32):
+			if client._body.size.x > float(width - (16 if width == 390 else 24)):
 				print("CLIENT_LAYOUT_FAILURE page=", page, " viewport=", width, " body=", client._body.size, " center_min=", client._center.get_combined_minimum_size())
-			_assert(client._body.size.x <= float(width - 32), "The %s page must not push the %d px body outside the viewport." % [page, width])
+			_assert(client._body.size.x <= float(width - (16 if width == 390 else 24)), "The %s page must not push the %d px body outside the viewport." % [page, width])
 			if width == 390 and page == "army":
 				await _test_army_scroll(client)
 		if width == 390:
@@ -215,6 +215,8 @@ func _test_army_scroll(client: ClientProbe) -> void:
 
 func _test_desktop_short_window(client: ClientProbe, scenario: String) -> void:
 	root.size = Vector2i(1280, 720)
+	client._sidebar_expanded = true
+	client._adapt_layout()
 	await _settle_layout()
 	var margin: Control = client.get_child(1)
 	var visible_height: float = root.get_visible_rect().size.y
@@ -231,7 +233,9 @@ func _test_desktop_short_window(client: ClientProbe, scenario: String) -> void:
 	_assert(scrollbar.max_value > scrollbar.page, "The %s sidebar fixture must produce a real scroll range instead of expanding the outer shell." % scenario)
 	sidebar_scroll.scroll_vertical = ceili(scrollbar.max_value)
 	await _settle_layout()
-	_assert(sidebar_scroll.get_global_rect().has_point(client._status.get_global_rect().get_center()), "The %s connection status must become reachable by scrolling the sidebar." % scenario)
+	_assert(sidebar_scroll.get_global_rect().has_point(client._status.get_global_rect().get_center()), "The %s connection status must become reachable by scrolling the expanded sidebar." % scenario)
+	client._sidebar_expanded = false
+	client._adapt_layout()
 
 
 func _identity_health(mode: String, authority: String, actor_id: String) -> Dictionary:
@@ -314,14 +318,15 @@ func _test_identity_switch_private_ui() -> void:
 			client._show_page("reports")
 			_assert(_ui_text(client._center).contains("甲私战场"), "A's private report must render before switching identity.")
 			client._tasks_dialog()
-			_assert(_ui_text(client._dialog).contains("甲私目标说明"), "The narrow-layout task entry must render A's private goal before switching identity.")
+			_assert(_ui_text(client._dialog).contains("共享攻防演练" if scenario.mode == "shared" else "甲私目标说明"), "The task entry must match A's current private or shared objective before switching identity.")
 			client._show_management("inn")
 			if scenario.mode == "shared":
 				client._show_pvp()
 			client._report_dialog(private_payload.view.reports[0])
 			client._show_page("army")
 			await _settle_layout()
-			_assert(_ui_text(client._battle).contains("甲私战斗记录") and _ui_text(client._detail).contains("甲私行军"), "A's private battle and marching army must render before switching identity.")
+			client._marches_dialog()
+			_assert(_ui_text(client._battle).contains("甲私战斗记录") and _ui_text(client._dialog).contains("甲私行军"), "A's private battle and marching army must render before switching identity.")
 			_assert(str(client._resources.food.text).contains("9381") and client._resources.food.modulate != Color.WHITE, "A's private resource amount and over-cap styling must render before switching identity.")
 			if scenario.mode == "local":
 				_assert(client._objective_title.text == "甲私目标" and client._objective_button.text == "领取奖励", "A's private sidebar goal must render before switching authority.")
@@ -371,7 +376,7 @@ func _test_identity_switch_private_ui() -> void:
 			_complete(api, 200, payload_b)
 			client._tasks_dialog()
 			await _settle_layout()
-			_assert(client._resources.food.text.contains("3210") and not client._objective_button.disabled and _ui_text(client._dialog).contains("乙目标") and not _ui_text(client).contains("甲私"), "A successful later B refresh must replace placeholders and re-enable goals without restoring A's data.")
+			_assert(client._resources.food.text.contains("3210") and not client._objective_button.disabled and _ui_text(client._dialog).contains("共享攻防演练" if scenario.next_mode == "shared" else "乙目标") and not _ui_text(client).contains("甲私"), "A successful later B refresh must replace placeholders and re-enable goals without restoring A's data.")
 			root.remove_child(client)
 			client.queue_free()
 			await process_frame

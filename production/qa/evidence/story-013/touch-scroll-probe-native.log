@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M1
+
+TOUCH_SCROLL_PROBE checks=24 failures=0 display=macOS
+city tap scroll=0 selections=[0]
+city incremental-drag scroll=68 selections=[]
+city large-drag scroll=313 selections=[]
+city cancel scroll=0 selections=[]
+suburb tap scroll=0 selections=[24]
+suburb incremental-drag scroll=69 selections=[]
+suburb large-drag scroll=235 selections=[]
+suburb cancel scroll=0 selections=[]

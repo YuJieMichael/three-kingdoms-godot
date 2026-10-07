@@ -1,0 +1,12 @@
+{
+  "url": "http://127.0.0.1:17359/",
+  "export": "build/wall-0612/web",
+  "viewport": [
+    615,
+    696
+  ],
+  "observed": "North perimeter opens canonical wall construction quote; requirements and disabled confirmation visible; dialog fits viewport",
+  "mutationSubmitted": false,
+  "saveSha256": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+  "saveUnchanged": true
+}

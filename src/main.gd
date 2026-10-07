@@ -3,6 +3,7 @@ extends Control
 const ApiScript: Script = preload("res://src/game_api.gd")
 const MapScript: Script = preload("res://src/world_map.gd")
 const CityScript: Script = preload("res://src/city_view.gd")
+const SuburbScript: Script = preload("res://src/suburb_view.gd")
 const BattleScript: Script = preload("res://src/battle_view.gd")
 const ManagementScript: Script = preload("res://src/management_dialog.gd")
 const InputSettingsScript: Script = preload("res://src/input_settings.gd")
@@ -18,19 +19,41 @@ const ProgressionScript: Script = preload("res://src/progression_dialog.gd")
 const WarManagementScript: Script = preload("res://src/war_management_dialog.gd")
 const InventoryScript: Script = preload("res://src/inventory_dialog.gd")
 const RealmScript: Script = preload("res://src/realm_dialog.gd")
+const UiThemeScript: Script = preload("res://src/ui_theme.gd")
+const UiFeedbackScript: Script = preload("res://src/ui_feedback.gd")
+const GrowthRouteScript: Script = preload("res://src/growth_route_view.gd")
+const ReportEconomyScript: Script = preload("res://src/report_economy_view.gd")
+const IntelPanelScript: Script = preload("res://src/intel_panel.gd")
+const DispatchDialogScript: Script = preload("res://src/dispatch_dialog.gd")
+const ActivityBarScript: Script = preload("res://src/army_activity_bar.gd")
+const ConstructionPanelScript: Script = preload("res://src/city_construction_panel.gd")
+const CapacityCompareScript: Script = preload("res://src/city_capacity_compare.gd")
 const FONT: Font = preload("res://assets/fonts/UI.tres")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
+const RES_SHORT_NAMES: Dictionary = {"food": "粮", "wood": "木", "stone": "石", "iron": "铁", "gold": "金"}
+const CITY_BUILD_USES: Dictionary = {
+	"house": "扩充平民人口，可建设多座", "academy": "研究科技，同城同时研究一项", "inn": "查看和招募候选将领",
+	"market": "买卖资源，调配城池库存", "warehouse": "增加储量，保护四种资源", "drill": "出征指挥，增加队伍名额",
+	"barracks": "训练士兵，发展军队兵种", "tavern": "提供招募与收容将领的房间", "embassy": "联盟与援军接待设施",
+	"smith": "发展军事武器和装备", "workshop": "发展攻城器械制造", "stable": "发展骑兵所需设施",
+	"post": "加快己方与友城运输", "beacon": "来袭预警与情报设施", "hall": "城务管理，扩展城外名额", "wall": "庇护守军，建设城防"
+}
 
 var api: KingdomApi
 var _view: Dictionary = {}
 var _state: Dictionary = {}
 var _page: String = "world"
 var _selected: Dictionary = {}
+var _scouting_target_id: String = ""
 var _last_structure: String = ""
 var _map: KingdomWorldMap
 var _city: KingdomCityView
+var _suburb: KingdomSuburbView
+var _city_zone: String = "inner"
 var _battle: KingdomBattleView
 var _center: Control
+var _center_area: VBoxContainer
+var _city_toolbar: HFlowContainer
 var _side: VBoxContainer
 var _detail: VBoxContainer
 var _nav: HBoxContainer
@@ -54,6 +77,7 @@ var _save_text: TextEdit
 var _world: Dictionary = {}
 var _clock: Timer
 var _pending_battle: bool = false
+var _pending_recall: Dictionary = {}
 var _management: KingdomManagementDialog
 var input_settings: KingdomInputSettings
 var _input_settings_dialog: KingdomInputSettingsDialog
@@ -61,6 +85,9 @@ var _input_settings_button: Button
 var _shortcut_hint: Label
 var _nav_buttons: Dictionary = {}
 var _map_home_button: Button
+var _map_toolbar: HFlowContainer
+var _map_filter: OptionButton
+var _map_filter_kind: String = "all"
 var _input_window_active: bool = true
 var _pan_key_active: bool = false
 var _pvp: KingdomPvpDialog
@@ -75,9 +102,46 @@ var _progression: KingdomProgressionDialog
 var _war_management: KingdomWarManagementDialog
 var _inventory: KingdomInventoryDialog
 var _realm: KingdomRealmDialog
-var _dispatch_quote_id: String = ""
-var _dispatch_preview: Callable
 var _guide: KingdomPresentationDialogue
+var _ui_feedback: KingdomUiFeedback
+var _compact_objective_panel: PanelContainer
+var _compact_objective_title: Label
+var _compact_objective_text: Label
+var _compact_objective_button: Button
+var _connection_indicator: Label
+var _popup_return_focus: WeakRef
+var _growth_button: Button
+var _growth_route: KingdomGrowthRouteView
+var _report_economy: KingdomReportEconomyView
+var _report_key: String = ""
+var _economy_signature: String = ""
+var _scouting: KingdomScoutingDialog
+var _detail_intel: KingdomIntelPanel
+var _dispatch_intel: KingdomIntelPanel
+var _dispatch_intel_target: Dictionary = {}
+var _march_labels: Dictionary = {}
+var _march_action_buttons: Dictionary = {}
+var _march_content: VBoxContainer
+var _march_filter: String = "all"
+var _march_empty: Label
+var _intel_server_offset: float = 0.0
+var _shell_root: VBoxContainer
+var _shell_margin: MarginContainer
+var _sidebar_expanded: bool = false
+var _task_toggle: Button
+var _compact_growth_button: Button
+var _resource_buttons: Dictionary = {}
+var _resource_detail_labels: Dictionary = {}
+var _activity_bar: KingdomArmyActivityBar
+var _resource_status: Label
+var _city_construction_panel: KingdomCityConstructionPanel
+var _city_construction_site: int = -1
+var _city_construction_source: String = ""
+var _compact_objective_expand: Button
+var _city_objective_expanded: bool = false
+var _city_status_row: HBoxContainer
+var _city_queue_button: Button
+var _city_military_button: Button
 
 func _ready() -> void:
 	get_window().title = "山河策"
@@ -138,8 +202,12 @@ func _initialize_inputs() -> void:
 		get_window().focus_exited.connect(_input_focus_exited)
 
 func _initialize_presentation() -> void:
+	if not is_instance_valid(_ui_feedback):
+		_ui_feedback = UiFeedbackScript.new() as KingdomUiFeedback
+		add_child(_ui_feedback)
 	_menu = MenuScript.new() as KingdomPresentationMenu
 	_menu.audio = _audio
+	_menu.feedback = _ui_feedback
 	_menu.theme = theme
 	add_child(_menu)
 	_guide = DialogueScript.new() as KingdomPresentationDialogue
@@ -150,10 +218,14 @@ func _initialize_presentation() -> void:
 	_menu.guide_requested.connect(_guide.start)
 	_menu.save_requested.connect(_save_dialog)
 	_menu.connection_requested.connect(_show_lobby)
+	_menu.visibility_changed.connect(_on_popup_visibility.bind(_menu))
+	_guide.visibility_changed.connect(_on_popup_visibility.bind(_guide))
+	_watch_buttons(self)
 	if not _smoke and not Array(OS.get_cmdline_user_args()).any(func(value: String) -> bool: return value.begins_with("--lobby=")):
 		_menu.call_deferred("open_menu")
 
 func _open_menu() -> void:
+	_remember_keyboard_focus()
 	_stop_keyboard_pan()
 	_hide_feature_panels()
 	if is_instance_valid(_menu):
@@ -258,6 +330,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 func _show_input_settings() -> void:
+	_remember_keyboard_focus()
 	_stop_keyboard_pan()
 	_hide_feature_panels()
 	if input_settings == null:
@@ -278,6 +351,7 @@ func _show_input_settings() -> void:
 	_input_settings_dialog.show_settings()
 
 func _on_popup_visibility(popup: Window) -> void:
+	call_deferred("_adapt_layout")
 	if not popup.visible:
 		call_deferred("_restore_keyboard_focus")
 
@@ -287,10 +361,45 @@ func _restore_keyboard_focus() -> void:
 	var focus: Control = get_viewport().gui_get_focus_owner()
 	if is_instance_valid(focus) and not focus.is_visible_in_tree():
 		focus.release_focus()
+	if _popup_return_focus != null:
+		var previous: Variant = _popup_return_focus.get_ref()
+		_popup_return_focus = null
+		if is_instance_valid(previous) and previous is Control and previous.is_visible_in_tree() and not (previous is BaseButton and previous.disabled):
+			previous.grab_focus()
+		else:
+			_focus_current_page()
+	elif not is_instance_valid(focus) or not focus.is_visible_in_tree():
+		_focus_current_page()
 	# The web exporter uses a hidden DOM text input for IME. Return browser
 	# keyboard focus to the canvas after an editor window closes.
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("document.getElementById('canvas')?.focus();", true)
+
+func _remember_keyboard_focus() -> void:
+	if _visible_popup(self):
+		return
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	if is_instance_valid(focus) and focus.is_visible_in_tree():
+		_popup_return_focus = weakref(focus)
+
+func _focus_current_page() -> void:
+	var button: Button = _nav_buttons.get(_page)
+	if is_instance_valid(button) and button.is_visible_in_tree():
+		button.grab_focus()
+
+func _focus_dialog_close(popup_ref: WeakRef) -> void:
+	var popup: AcceptDialog = popup_ref.get_ref() as AcceptDialog
+	if not is_instance_valid(popup) or not popup.is_inside_tree() or not popup.visible or popup != _dialog:
+		return
+	popup.get_ok_button().grab_focus()
+
+func _watch_buttons(node: Node) -> void:
+	if not is_instance_valid(node) or not is_instance_valid(_ui_feedback):
+		return
+	if node is Button:
+		_ui_feedback.watch_button(node as Button)
+	for child: Node in node.get_children():
+		_watch_buttons(child)
 
 func _update_shortcut_help() -> void:
 	if input_settings == null:
@@ -308,25 +417,7 @@ func _update_shortcut_help() -> void:
 		_shortcut_hint.text = text
 
 func _make_theme() -> Theme:
-	var result: Theme = Theme.new()
-	result.default_font = FONT
-	result.default_font_size = 16
-	result.set_color("font_color", "Label", Color("e1dfcd"))
-	result.set_color("font_color", "Button", Color("e5dfc7"))
-	result.set_color("font_disabled_color", "Button", Color("6c746d"))
-	result.set_color("font_hover_color", "Button", Color("fff1bc"))
-	for node_type: String in ["PanelContainer", "Panel", "PopupPanel", "AcceptDialog"]:
-		result.set_stylebox("panel", node_type, _box(Color("202a28"), Color("445046"), 8))
-	result.set_stylebox("normal", "Button", _box(Color("2d3832"), Color("5c6650"), 5))
-	result.set_stylebox("hover", "Button", _box(Color("435042"), Color("b19b5f"), 5))
-	result.set_stylebox("pressed", "Button", _box(Color("73613c"), Color("d7bb73"), 5))
-	result.set_stylebox("disabled", "Button", _box(Color("222c29"), Color("343f36"), 5))
-	result.set_stylebox("normal", "LineEdit", _box(Color("172320"), Color("5b6451"), 4))
-	result.set_stylebox("normal", "TextEdit", _box(Color("172320"), Color("5b6451"), 4))
-	result.set_stylebox("normal", "SpinBox", _box(Color("172320"), Color("5b6451"), 4))
-	result.set_constant("separation", "VBoxContainer", 12)
-	result.set_constant("separation", "HBoxContainer", 12)
-	return result
+	return UiThemeScript.create(FONT)
 
 func _box(color: Color, border: Color, radius: int) -> StyleBoxFlat:
 	var box: StyleBoxFlat = StyleBoxFlat.new()
@@ -342,50 +433,101 @@ func _box(color: Color, border: Color, radius: int) -> StyleBoxFlat:
 
 func _build_shell() -> void:
 	var background: ColorRect = ColorRect.new()
-	background.color = Color("121d1d")
+	background.color = Color("171819")
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	var margin: MarginContainer = MarginContainer.new()
+	_shell_margin = margin
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge: String in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + edge, 16)
 	add_child(margin)
 	var root: VBoxContainer = VBoxContainer.new()
+	_shell_root = root
+	root.add_theme_constant_override("separation", 6)
 	margin.add_child(root)
 	var top: HBoxContainer = HBoxContainer.new()
 	root.add_child(top)
-	var title: Label = _label("山河策", 28)
+	var title: Label = _label("山河策", 26)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(title)
+	_task_toggle = _button("任务", _toggle_task_sidebar)
+	_task_toggle.theme_type_variation = "UtilityButton"
+	_task_toggle.toggle_mode = true
+	top.add_child(_task_toggle)
 	_pvp_button = _button("玩家战争", _show_pvp)
+	_pvp_button.theme_type_variation = "UtilityButton"
+	_pvp_button.visible = false
 	top.add_child(_pvp_button)
-	top.add_child(_button("事务", _tasks_dialog))
-	top.add_child(_button("存档", _save_dialog))
-	_lobby_button = _button("联机", _show_lobby)
-	top.add_child(_lobby_button)
-	top.add_child(_button("菜单", _open_menu))
-	_input_settings_button = _button("按键", _show_input_settings)
-	top.add_child(_input_settings_button)
+	var transactions: Button = _button("事务", _tasks_dialog)
+	transactions.theme_type_variation = "PrimaryButton"
+	top.add_child(transactions)
+	var menu_button: Button = _button("菜单", _open_menu)
+	menu_button.theme_type_variation = "UtilityButton"
+	top.add_child(menu_button)
 	_nav = HBoxContainer.new()
 	root.add_child(_nav)
 	for entry: Array in [["city", "城池"], ["world", "舆图"], ["army", "军队"], ["generals", "将领"], ["reports", "战报"]]:
 		var button: Button = _button(str(entry[1]), _show_page.bind(str(entry[0])))
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.theme_type_variation = "NavButton"
+		button.toggle_mode = true
 		_nav.add_child(button)
 		_nav_buttons[str(entry[0])] = button
 	var resources_row: GridContainer = GridContainer.new()
 	resources_row.columns = 5
-	resources_row.add_theme_constant_override("h_separation", 8)
+	resources_row.add_theme_constant_override("h_separation", 4)
 	_resource_grid = resources_row
 	root.add_child(resources_row)
 	for id: String in RES_NAMES:
-		var panel: PanelContainer = PanelContainer.new()
-		panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		resources_row.add_child(panel)
-		var label: Label = _label(str(RES_NAMES[id]) + "  —", 16)
-		panel.add_child(label)
+		var action: Button = _button("", _resource_dialog.bind(id))
+		action.theme_type_variation = "UtilityButton"
+		action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		action.custom_minimum_size = Vector2(0, 44)
+		resources_row.add_child(action)
+		var label: Label = _label(str(RES_NAMES[id]) + "  —", 13)
+		label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.clip_text = true
+		action.add_child(label)
 		_resources[id] = label
+		_resource_buttons[id] = action
+		action.disabled = true
+	_compact_objective_panel = PanelContainer.new()
+	_compact_objective_panel.theme_type_variation = "InsetPanel"
+	root.add_child(_compact_objective_panel)
+	var objective_row: HBoxContainer = HBoxContainer.new()
+	_compact_objective_panel.add_child(objective_row)
+	var objective_column: VBoxContainer = VBoxContainer.new()
+	objective_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	objective_column.add_theme_constant_override("separation", 3)
+	objective_row.add_child(objective_column)
+	_compact_objective_title = _label("当前目标 · 整备城池", 14)
+	_compact_objective_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_compact_objective_title.max_lines_visible = 1
+	objective_column.add_child(_compact_objective_title)
+	_compact_objective_text = _label("正在读取进度…", 12, Color("c3bcaa"))
+	_compact_objective_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_compact_objective_text.max_lines_visible = 1
+	objective_column.add_child(_compact_objective_text)
+	_compact_objective_button = _button("前往", _objective_action)
+	_compact_objective_button.theme_type_variation = "PrimaryButton"
+	_compact_objective_button.custom_minimum_size.x = 64.0
+	objective_row.add_child(_compact_objective_button)
+	_compact_growth_button = _button("成长", _show_growth_route)
+	_compact_growth_button.theme_type_variation = "UtilityButton"
+	objective_row.add_child(_compact_growth_button)
+	_compact_objective_expand = _button("展开", _toggle_city_objective)
+	_compact_objective_expand.custom_minimum_size.x = 44.0
+	_compact_objective_expand.theme_type_variation = "UtilityButton"
+	_compact_objective_expand.tooltip_text = "展开当前目标与奖励"
+	_compact_objective_expand.visible = false
+	objective_row.add_child(_compact_objective_expand)
+	for action: Button in [_compact_objective_button, _compact_growth_button, _compact_objective_expand]:
+		action.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_body = HBoxContainer.new()
 	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(_body)
@@ -400,15 +542,21 @@ func _build_shell() -> void:
 	sidebar_scroll.add_child(_side)
 	_side.add_child(_label("当前目标", 14, Color("baae85")))
 	_objective_title = _label("整备城池", 21)
+	_objective_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_side.add_child(_objective_title)
 	_objective_text = _label("正在读取进度…", 15)
 	_objective_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_side.add_child(_objective_text)
 	_objective_button = _button("查看目标", _objective_action)
+	_objective_button.theme_type_variation = "PrimaryButton"
 	_side.add_child(_objective_button)
+	_growth_button = _button("成长路线", _show_growth_route)
+	_growth_button.disabled = true
+	_side.add_child(_growth_button)
 	_side.add_child(HSeparator.new())
-	_side.add_child(_button("已解锁礼包领取", func() -> void: api.command("onboarding.claimAvailable")))
-	_side.add_child(_button("任务册与官爵", _tasks_dialog))
+	_side.add_child(_label("常用事务", 14, Color("baae85")))
+	_side.add_child(_button("领取已解锁礼包", func() -> void: _send_command("onboarding.claimAvailable")))
+	_side.add_child(_button("任务与官爵", _show_progression.bind("missions")))
 	_side.add_child(_button("城池与运输", _show_realm.bind("cities")))
 	_side.add_child(_button("城外资源", _plots_dialog))
 	_side.add_child(_button("研究", _research_dialog))
@@ -423,13 +571,17 @@ func _build_shell() -> void:
 	center_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	center_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_body.add_child(center_scroll)
+	_center_area = VBoxContainer.new()
+	_center_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_center_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_body.add_child(_center_area)
+	_center_area.add_child(center_scroll)
 	_center = VBoxContainer.new()
 	_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	center_scroll.add_child(_center)
 	_detail_panel = PanelContainer.new()
-	_detail_panel.custom_minimum_size.x = 275.0
+	_detail_panel.custom_minimum_size.x = 280.0
 	_body.add_child(_detail_panel)
 	var scroll: ScrollContainer = ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -437,37 +589,223 @@ func _build_shell() -> void:
 	_detail = VBoxContainer.new()
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_detail)
+	_city_status_row = HBoxContainer.new()
+	root.add_child(_city_status_row)
+	_city_queue_button = _button("施工队列", _city_build_queue_dialog)
+	_city_queue_button.theme_type_variation = "PrimaryButton"
+	_city_queue_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_city_status_row.add_child(_city_queue_button)
+	_city_military_button = _button("军情", _city_military_dialog)
+	_city_military_button.theme_type_variation = "UtilityButton"
+	_city_status_row.add_child(_city_military_button)
+	_activity_bar = ActivityBarScript.new() as KingdomArmyActivityBar
+	root.add_child(_activity_bar)
+	_activity_bar.route_requested.connect(_route_army_activity)
 	_shortcut_hint = _label("", 13, Color("a4b5a3"))
 	_shortcut_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(_shortcut_hint)
 	_toast = _label("拖动舆图 · 滚轮缩放 · 点选目标", 14, Color("b9bfab"))
 	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	root.add_child(_toast)
+	_toast.max_lines_visible = 1
+	var footer: HBoxContainer = HBoxContainer.new()
+	root.add_child(footer)
+	_toast.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(_toast)
+	_connection_indicator = _label("未连接", 12, Color("afb8ad"))
+	footer.add_child(_connection_indicator)
 	resized.connect(_adapt_layout)
 	call_deferred("_adapt_layout")
 
 func _adapt_layout() -> void:
 	_sync_web_scale()
-	_sidebar_panel.visible = size.x >= 1000.0
-	_detail_panel.visible = size.x >= 760.0
-	_resource_grid.columns = 3 if size.x < 760.0 else 5
+	_sidebar_panel.visible = size.x >= 1000.0 and _sidebar_expanded
+	_compact_objective_panel.visible = not _sidebar_panel.visible
+	_detail_panel.visible = size.x >= 1000.0 and _page == "world" and not _selected.is_empty() and not (is_instance_valid(_scouting) and _scouting.visible)
+	_resource_grid.columns = 5
+	_task_toggle.set_pressed_no_signal(_sidebar_panel.visible)
+	_task_toggle.text = "收起任务" if _sidebar_panel.visible else "任务"
+	for edge: String in ["left", "right", "top", "bottom"]:
+		_shell_margin.add_theme_constant_override("margin_" + edge, 8 if size.x < 760.0 else 12)
+	_shell_root.move_child(_nav, _shell_root.get_child_count() - 1 if size.x < 760.0 else 1)
+	if is_instance_valid(_activity_bar):
+		_activity_bar.set_compact(size.x < 760.0)
+	if is_instance_valid(_city):
+		_city.custom_minimum_size.y = _city.recommended_height(_city.size.x if _city.size.x > 240.0 else maxf(240.0, _center.size.x))
 	for label: Label in _resources.values():
-		label.add_theme_font_size_override("font_size", 12 if size.x < 760.0 else 16)
+		label.add_theme_font_size_override("font_size", 12 if size.x < 760.0 else 13)
+	_sync_resources()
+	_sync_city_context_hud()
+	var compact_city: bool = _page == "city" and size.x < 760.0
+	_compact_objective_expand.visible = compact_city
+	_compact_objective_expand.text = "收起" if _city_objective_expanded else "展开"
+	_compact_objective_text.visible = not compact_city or _city_objective_expanded
+	_compact_objective_text.max_lines_visible = -1 if compact_city and _city_objective_expanded else 1
+	if not _view.is_empty():
+		_refresh_objective()
 	if is_instance_valid(_management) and _management.visible:
 		_management._fit_window()
-	_input_settings_button.visible = size.x >= 760.0
-	_pvp_button.visible = size.x >= 760.0
-	_lobby_button.visible = size.x >= 760.0
-	_shortcut_hint.visible = size.x >= 760.0
+	_pvp_button.visible = size.x >= 1000.0 and api != null and api.mode == "shared"
+	_shortcut_hint.visible = false
 	if is_instance_valid(_input_settings_dialog) and _input_settings_dialog.visible:
 		_input_settings_dialog._fit_window()
 	if is_instance_valid(_lobby) and _lobby.visible:
 		_lobby._fit_window()
-	for panel: Window in [_progression, _heroes, _war_management, _inventory]:
+	for panel: Window in [_progression, _heroes, _war_management, _inventory, _scouting]:
 		if is_instance_valid(panel) and panel.visible:
 			panel._fit_window()
 	if is_instance_valid(_realm) and _realm.visible:
 		_realm._fit()
+
+func _toggle_task_sidebar() -> void:
+	if size.x < 1000.0:
+		_tasks_dialog()
+		_task_toggle.set_pressed_no_signal(false)
+		return
+	_sidebar_expanded = not _sidebar_expanded
+	_adapt_layout()
+
+func _dismiss_target() -> void:
+	_selected = {}
+	if is_instance_valid(_map):
+		_map.selected_tile = {}
+		_map.queue_redraw()
+	_render_detail()
+
+func _resource_amount(value: float) -> String:
+	if absf(value) >= 100000000.0:
+		return "%.1f亿" % (value / 100000000.0)
+	if absf(value) >= 10000.0:
+		return "%.1f万" % (value / 10000.0)
+	return str(int(floor(value)))
+
+func _resource_facts(id: String) -> String:
+	if _view.is_empty():
+		return str(RES_NAMES[id]) + " · 等待当前城池数据"
+	var value: float = float(_view.get("res", {}).get(id, 0))
+	var capacity: float = float(_view.get("caps", {}).get(id, 0))
+	var rate: float = float(_view.get("rates", {}).get(id, 0)) * 60.0
+	return "%s %s / 容量 %s\n每分钟 %+.1f%s" % [str(RES_NAMES[id]), str(int(floor(value))), str(int(floor(capacity))), rate, " · 超仓" if capacity > 0.0 and value > capacity else ""]
+
+func _sync_resources() -> void:
+	if _view.is_empty():
+		for id: String in _resources:
+			(_resources[id] as Label).text = str(RES_NAMES[id]) + "  —"
+			(_resources[id] as Label).tooltip_text = ""
+			(_resource_buttons[id] as Button).tooltip_text = ""
+			(_resource_buttons[id] as Button).disabled = true
+		_sync_resource_details()
+		return
+	for id: String in _resources:
+		var label: Label = _resources[id]
+		var value: float = float(_view.get("res", {}).get(id, 0))
+		var capacity: float = float(_view.get("caps", {}).get(id, 0))
+		var overflow: bool = capacity > 0.0 and value > capacity
+		var compact_city: bool = _page == "city" and size.x < 760.0
+		label.text = str(RES_SHORT_NAMES[id]) + _resource_amount(value) + ("!" if overflow else "") if compact_city else str(RES_NAMES[id]) + ("超仓" if overflow else "") + "\n" + _resource_amount(value)
+		label.modulate = Color("e0b36e") if overflow else Color.WHITE
+		label.tooltip_text = _resource_facts(id)
+		_resource_buttons[id].tooltip_text = label.tooltip_text + "\n点击查看资源详情"
+		_resource_buttons[id].disabled = _view.is_empty()
+	_sync_resource_details()
+
+func _toggle_city_objective() -> void:
+	_city_objective_expanded = not _city_objective_expanded
+	_adapt_layout()
+
+func _city_has_military_activity() -> bool:
+	if api == null or not api.connected or _view.is_empty():
+		return true
+	if not _view.get("queues", {}).get("train", []).is_empty() or not _view.get("queues", {}).get("defense", []).is_empty() or not _view.get("marches", []).is_empty() or not _view.get("reports", []).is_empty():
+		return true
+	if _view.get("battle") is Dictionary:
+		return true
+	var defense: Dictionary = _view.get("warManagement", {}).get("defense", {})
+	if defense.get("incoming") is Dictionary or defense.get("battle") is Dictionary:
+		return true
+	return not _view.get("warManagement", {}).get("wages", {}).get("status", {}).get("warnings", []).is_empty()
+
+func _sync_city_context_hud() -> void:
+	if not is_instance_valid(_city_status_row) or not is_instance_valid(_activity_bar):
+		return
+	var city_page: bool = _page == "city"
+	_city_status_row.visible = city_page
+	_activity_bar.visible = not city_page or _city_has_military_activity()
+	_city_military_button.text = "军情" if not _city_has_military_activity() else "军情提醒"
+	var queues: Array = _view.get("queues", {}).get("build", [])
+	_city_queue_button.text = "施工 %d/%d · 查看队列" % [queues.size(), int(_view.get("queueLimits", {}).get("build", 0))]
+	_city_queue_button.disabled = _view.is_empty()
+	_city_queue_button.tooltip_text = "查看本城建筑与城外地块的施工、升级和加速入口"
+
+func _city_build_queue_dialog() -> void:
+	var content: VBoxContainer = _open_dialog("本城施工队列", 600)
+	var queues: Array = _view.get("queues", {}).get("build", [])
+	content.add_child(_label("施工 %d / 建造队容量 %d" % [queues.size(), int(_view.get("queueLimits", {}).get("build", 0))], 20))
+	if queues.is_empty():
+		content.add_child(_label("建造队空闲。\n点城内空地或城外田庄，\n选择要建造的设施。", 16))
+	for job: Dictionary in queues:
+		var summary: Label = _label(_queue_name(job, "build") + " · " + _march_remaining(float(job.get("end", 0))), 16)
+		summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(summary)
+		if job.has("plot"):
+			content.add_child(_button("查看城外地块 %d" % (int(job.plot) + 1), _show_plot.bind(int(job.plot))))
+		else:
+			content.add_child(_button("查看城内地块 %d" % (int(job.get("site", -1)) + 1), _building_dialog.bind(str(job.get("id", "")), int(job.get("site", -1)))))
+	content.add_child(_button("查看加速道具", _show_inventory.bind("inventory")))
+
+func _city_military_dialog() -> void:
+	var content: VBoxContainer = _open_dialog("军情与部队", 560)
+	var defense: Dictionary = _view.get("warManagement", {}).get("defense", {})
+	if defense.get("incoming") is Dictionary:
+		var incoming: Dictionary = defense.incoming
+		var alert: Label = _label("来袭 · %s · %s" % [str(incoming.get("name", "敌军")), _march_remaining(float(incoming.get("arriveAt", 0)))], 16, Color("e1b073"))
+		alert.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(alert)
+		content.add_child(_button("准备守城", _show_war_management.bind("defense")))
+	for warning: String in _view.get("warManagement", {}).get("wages", {}).get("status", {}).get("warnings", []):
+		var alert: Label = _label(warning, 15, Color("e1b073"))
+		alert.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(alert)
+	for entry: Array in [["training", "驻军与训练"], ["marches", "行军部队"], ["stationed", "驻扎部队"], ["reports", "查看战报"]]:
+		content.add_child(_button(str(entry[1]), _route_army_activity.bind(str(entry[0]))))
+	content.add_child(_button("黄巾来袭与城防", _show_war_management.bind("defense")))
+	content.add_child(_button("民心与军饷", _show_war_management.bind("wages")))
+
+func _resource_dialog(id: String) -> void:
+	var content: VBoxContainer = _open_dialog("资源 · " + str(RES_NAMES.get(id, "详情")), 600)
+	for resource: String in RES_NAMES:
+		var label: Label = _label("", 18 if resource == id else 15, Color("d9bd7d") if resource == id else Color("f1ead9"))
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		content.add_child(label)
+		_resource_detail_labels[resource] = label
+	var note: Label = _label("容量限制自然生产；战斗、采集、占领等按现有规则入库。超仓物资会保留，具体交易以确认前预览为准。", 14, Color("c3bcaa"))
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(note)
+	_resource_status = _label("", 14, Color("e0b36e"))
+	content.add_child(_resource_status)
+	_sync_resource_details()
+
+func _sync_resource_details() -> void:
+	for id: String in _resource_detail_labels:
+		var label: Label = _resource_detail_labels[id]
+		if is_instance_valid(label):
+			label.text = _resource_facts(id)
+	if is_instance_valid(_resource_status):
+		_resource_status.text = "正在读取当前城池数据" if _view.is_empty() else "" if api != null and api.connected else "连接中断 · 当前显示最后收到的数据"
+
+func _route_army_activity(section: String) -> void:
+	match section:
+		"training":
+			_training_dialog()
+		"marches":
+			_marches_dialog()
+		"stationed":
+			_marches_dialog("stationed")
+		"reports":
+			_hide_feature_panels()
+			if is_instance_valid(_dialog):
+				_dialog.hide()
+			_show_page("reports")
 
 func _sync_web_scale() -> void:
 	if OS.has_feature("web"):
@@ -485,12 +823,14 @@ func _label(text: String, font_size: int = 16, color: Color = Color("e1dfcd")) -
 func _button(text: String, callback: Callable, disabled: bool = false) -> Button:
 	var button: Button = Button.new()
 	button.text = text
-	button.custom_minimum_size.y = 38.0
+	button.custom_minimum_size.y = 44.0
 	button.disabled = disabled
 	button.pressed.connect(callback)
 	button.pressed.connect(func() -> void:
 		if is_instance_valid(_audio):
 			_audio.click())
+	if is_instance_valid(_ui_feedback):
+		_ui_feedback.watch_button(button)
 	return button
 
 func _clear(container: Node) -> void:
@@ -501,48 +841,71 @@ func _clear(container: Node) -> void:
 func _show_page(page: String) -> void:
 	_stop_keyboard_pan()
 	_page = page
+	for id: String in _nav_buttons:
+		var nav_button: Button = _nav_buttons[id]
+		nav_button.set_pressed_no_signal(id == page)
+		nav_button.text = ("· " if id == page else "") + {"city": "城池", "world": "舆图", "army": "军队", "generals": "将领", "reports": "战报"}[id]
 	_last_structure = ""
+	if is_instance_valid(_city_toolbar):
+		_center_area.remove_child(_city_toolbar)
+		_city_toolbar.queue_free()
+		_city_toolbar = null
 	_clear(_center)
 	_map = null
 	_city = null
+	_suburb = null
 	_battle = null
 	_map_home_button = null
+	_map_toolbar = null
+	_map_filter = null
 	match page:
 		"world":
-			var toolbar: HBoxContainer = HBoxContainer.new()
-			_center.add_child(toolbar)
-			toolbar.add_child(_label("天下舆图", 22))
-			_map_home_button = _button("回城定位", func() -> void: _map.focus_home())
-			toolbar.add_child(_map_home_button)
-			toolbar.add_child(_button("行军", _marches_dialog))
+			_build_map_toolbar()
 			var map_panel: PanelContainer = PanelContainer.new()
 			map_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			_center.add_child(map_panel)
 			_map = MapScript.new() as KingdomWorldMap
-			_map.custom_minimum_size = Vector2(240.0, 300.0)
+			_map.custom_minimum_size = Vector2(240.0, 260.0)
 			map_panel.add_child(_map)
 			_map.tile_selected.connect(_select_tile)
 			if not _world.is_empty():
 				_map.set_world(_world)
+			_map.set_filter(_map_filter_kind)
 		"city":
-			_center.add_child(_label("城池 · 建设与经营", 22))
-			var city_actions: GridContainer = GridContainer.new()
-			city_actions.columns = 3
-			_center.add_child(city_actions)
-			for entry: Array in [["market", "市场交易"], ["governance", "城守税率"], ["inn", "客栈招募"]]:
-				var action: Button = _button(str(entry[1]), _show_management.bind(str(entry[0])))
-				action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				city_actions.add_child(action)
-			for entry: Array in [["cities", "城池任职"], ["logistics", "运输调遣"]]:
-				city_actions.add_child(_button(str(entry[1]), _show_realm.bind(str(entry[0]))))
-			city_actions.add_child(_button("安民与征收", _show_war_management.bind("civic")))
-			_city = CityScript.new() as KingdomCityView
-			_city.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			_center.add_child(_city)
-			_city.custom_minimum_size = Vector2(240.0, 280.0)
-			_city.building_selected.connect(_building_dialog)
-			_city.set_city(_view)
-			_center.add_child(_button("建筑总览与空地建设", _buildings_dialog))
+			_city_toolbar = HFlowContainer.new()
+			_city_toolbar.add_theme_constant_override("h_separation", 6)
+			_center_area.add_child(_city_toolbar)
+			_center_area.move_child(_city_toolbar, 0)
+			for zone: Array in [["inner", "城内"], ["outer", "城外田庄"]]:
+				var tab: Button = _button(str(zone[1]), _show_city_zone.bind(str(zone[0])))
+				tab.toggle_mode = true
+				tab.set_pressed_no_signal(_city_zone == str(zone[0]))
+				_city_toolbar.add_child(tab)
+			_city_toolbar.add_child(_button("城务", _city_affairs_dialog))
+			if _city_zone == "inner":
+				var locate_hall: Button = _button("定位官府", _focus_city_hall)
+				locate_hall.theme_type_variation = "UtilityButton"
+				locate_hall.tooltip_text = "滚动到本城官府，保留当前地块顺序"
+				_city_toolbar.add_child(locate_hall)
+			if _city_zone == "outer":
+				_suburb = SuburbScript.new() as KingdomSuburbView
+				_suburb.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				_center.add_child(_suburb)
+				_suburb.custom_minimum_size.x = 240.0
+				_suburb.plot_selected.connect(_show_plot)
+				_suburb.set_view(_view)
+				_center.add_child(_button("城外建设与样板", _show_realm.bind("plots")))
+			else:
+				_city = CityScript.new() as KingdomCityView
+				_city.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				_center.add_child(_city)
+				_city.custom_minimum_size = Vector2(240.0, _city.recommended_height(maxf(240.0, _center.size.x)))
+				_city.building_selected.connect(func(id: String) -> void: _building_dialog(id, _city.selected_site()))
+				_city.empty_site_selected.connect(_empty_site_dialog)
+				_city.defense_selected.connect(_perimeter_defense_dialog)
+				_city.set_city(_view, _intel_now())
+				_center.add_child(_button("建筑总览与空地建设", _buildings_dialog))
+				call_deferred("_adapt_layout")
 		"army":
 			_center.add_child(_label("军队 · 城防与出征", 22))
 			_battle = BattleScript.new() as KingdomBattleView
@@ -581,48 +944,114 @@ func _show_page(page: String) -> void:
 	_render_detail()
 	_update_page_content()
 	_update_shortcut_help()
+	_adapt_layout()
+	call_deferred("_watch_buttons", _center)
+	if is_instance_valid(_city_toolbar):
+		call_deferred("_watch_buttons", _city_toolbar)
+
+func _focus_city_hall() -> void:
+	if not is_instance_valid(_city) or _city_zone != "inner":
+		return
+	var scroller: ScrollContainer = _center.get_parent() as ScrollContainer
+	if not is_instance_valid(scroller):
+		return
+	for parcel: Dictionary in _city.parcel_draw_records():
+		if str(parcel.get("id", "")) != "hall" or bool(parcel.get("reserved", false)):
+			continue
+		var rect: Rect2 = parcel.get("rect", Rect2())
+		var center_y: float = _city.position.y + rect.get_center().y
+		scroller.scroll_vertical = maxi(0, roundi(center_y - scroller.size.y * 0.5))
+		_city.select_building("hall", int(parcel.get("site", -1)))
+		_show_toast("已定位官府 · 地块 %d" % (int(parcel.get("site", -1)) + 1))
+		return
+	_show_toast("正在读取本城官府位置，请稍后再试")
+
+func _build_map_toolbar() -> void:
+	_map_toolbar = HFlowContainer.new()
+	_map_toolbar.add_theme_constant_override("h_separation", 8)
+	_map_toolbar.add_theme_constant_override("v_separation", 4)
+	_center.add_child(_map_toolbar)
+	# The two compact groups wrap from their actual available width, including
+	# when the task rail or selected-target panel reduces the desktop map space.
+	var heading: HBoxContainer = HBoxContainer.new()
+	heading.add_theme_constant_override("separation", 8)
+	_map_toolbar.add_child(heading)
+	var title: Label = _label("天下舆图", 18)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	heading.add_child(title)
+	_map_filter = OptionButton.new()
+	_map_filter.custom_minimum_size = Vector2(88.0, 44.0)
+	_map_filter.theme_type_variation = "UtilityButton"
+	_map_filter.tooltip_text = "筛选地图上的城池、资源、行军或任务目标"
+	for entry: Array in [["all", "全部"], ["cities", "城池"], ["resources", "资源"], ["marches", "行军"], ["tasks", "任务"]]:
+		_map_filter.add_item(str(entry[1]))
+		var index: int = _map_filter.item_count - 1
+		_map_filter.set_item_metadata(index, str(entry[0]))
+		if str(entry[0]) == _map_filter_kind:
+			_map_filter.select(index)
+	_map_filter.item_selected.connect(func(index: int) -> void:
+		_map_filter_kind = str(_map_filter.get_item_metadata(index))
+		if is_instance_valid(_map):
+			_map.set_filter(_map_filter_kind))
+	heading.add_child(_map_filter)
+	var navigation: HBoxContainer = HBoxContainer.new()
+	navigation.add_theme_constant_override("separation", 4)
+	_map_toolbar.add_child(navigation)
+	for entry: Array in [["−", 1.0 / 1.2, "缩小地图"], ["+", 1.2, "放大地图"]]:
+		var factor: float = float(entry[1])
+		var zoom_button: Button = _button(str(entry[0]), func() -> void:
+			if is_instance_valid(_map):
+				_map.keyboard_zoom(factor))
+		zoom_button.custom_minimum_size.x = 44.0
+		zoom_button.theme_type_variation = "UtilityButton"
+		zoom_button.tooltip_text = str(entry[2])
+		navigation.add_child(zoom_button)
+	_map_home_button = _button("回城定位", func() -> void:
+		if is_instance_valid(_map):
+			_map.focus_home())
+	_map_home_button.theme_type_variation = "UtilityButton"
+	navigation.add_child(_map_home_button)
+	var marches: Button = _button("行军", _marches_dialog)
+	marches.theme_type_variation = "UtilityButton"
+	navigation.add_child(marches)
 
 func _receive_snapshot(payload: Dictionary) -> void:
+	_intel_server_offset = float(payload.get("serverTime", Time.get_unix_time_from_system() * 1000.0)) - Time.get_unix_time_from_system() * 1000.0
 	_view = payload.get("view", {})
 	_state = payload.get("state", {})
 	if _toast.text == "正在读取当前进度…":
 		_show_toast("当前进度已加载")
 	if api.mode == "shared":
 		_update_pvp()
-	for id: String in _resources:
-		var amount: float = float(_view.get("res", {}).get(id, 0))
-		var cap: float = float(_view.get("caps", {}).get(id, 0))
-		var text: String = str(RES_NAMES[id]) + " " + _number(amount)
-		if cap > 0:
-			text += "\n上限 " + _number(cap)
-		var label: Label = _resources[id]
-		label.text = text
-		label.modulate = Color("f2c578") if cap > 0 and amount > cap else Color.WHITE
-	var objective: Dictionary = _view.get("objective", {})
-	_objective_title.text = str(objective.get("title", "整备城池"))
-	_objective_text.text = str(objective.get("description", "")) + "\n奖励 " + _reward_text(objective)
-	_objective_button.text = "领取奖励" if objective.get("ready", false) else "查看目标"
-	_objective_button.disabled = false
+	_sync_resources()
+	if is_instance_valid(_activity_bar):
+		_activity_bar.update_view(_view, _intel_now())
+		_activity_bar.set_connected(api.connected)
+	_refresh_objective()
 	_sync_tasks_hub()
-	if api.mode == "shared":
-		_objective_title.text = "共享攻防演练" if api.room.is_empty() else str(api.room.get("name", "房间")) + " · 攻防演练"
-		_objective_text.text = "向盟友派遣援军，或选择敌方城池掠夺。\n抵达自动交战；返程后入库。"
-		_objective_button.text = "查看玩家战争"
+	_sync_growth_route()
+	_sync_report_economy()
+	_refresh_city_construction_panel()
 	if _city != null:
-		_city.set_city(_view)
+		_city.set_city(_view, _intel_now())
+	if _suburb != null:
+		_suburb.set_view(_view)
 	if _battle != null:
 		_battle.set_battle(_present_battle(), _unit_dictionary())
 	if is_instance_valid(_management):
 		_management.update_view(_view)
-	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory]:
+	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory, _scouting]:
 		if is_instance_valid(popup):
-			popup.update_view(_view)
+			popup.update_view(_scouting_view() if popup == _scouting else _view)
 			popup.set_command_state(api.connected, api._has_mutation())
 	var signature: String = JSON.stringify([_view.get("buildings", []), _view.get("queues", {}), _view.get("marches", []), _view.get("reports", []), _view.get("generals", [])])
 	if signature != _last_structure:
 		_last_structure = signature
 		_update_page_content()
 		_render_detail()
+	_sync_scouting_intel()
+	_refresh_scout_marches()
+	_adapt_layout()
 	_smoke_snapshot = true
 	_check_smoke()
 
@@ -634,9 +1063,12 @@ func _receive_world(world: Dictionary) -> void:
 		if not _selected.is_empty():
 			for tile: Dictionary in world.get("tiles", []):
 				if str(tile.get("id", "")) == str(_selected.get("id", "")):
-					_selected = tile
+					_selected = tile.duplicate(true)
 					break
 		_render_detail()
+	if is_instance_valid(_scouting):
+		_scouting.update_view(_scouting_view())
+	_sync_scouting_intel()
 	if _map != null:
 		_map.set_world(world)
 		if first_world:
@@ -650,13 +1082,22 @@ func _check_smoke() -> void:
 		get_tree().quit(0)
 
 func _connection_changed(message: String, _connected: bool) -> void:
+	if is_instance_valid(_activity_bar):
+		_activity_bar.set_connected(_connected)
+	_sync_resource_details()
+	_refresh_scout_marches()
 	_status.text = message
+	_connection_indicator.text = "已连接" if _connected else "连接中断"
+	_connection_indicator.tooltip_text = message
+	_connection_indicator.add_theme_color_override("font_color", Color("9bbfa6") if _connected else Color("e0b36e"))
+	_sync_objective_actions()
+	_refresh_city_construction_panel()
 	_sync_tasks_hub()
 	_status.modulate = Color("aed1a9") if _connected else Color("e0b36e")
 	if is_instance_valid(_management):
 		_management.set_command_state(_connected, api._has_mutation())
 	_update_pvp()
-	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory]:
+	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory, _scouting]:
 		if is_instance_valid(popup):
 			popup.set_command_state(_connected, api._has_mutation())
 	if is_instance_valid(_lobby):
@@ -664,23 +1105,61 @@ func _connection_changed(message: String, _connected: bool) -> void:
 
 func _request_failed(message: String) -> void:
 	_pending_battle = false
+	_pending_recall.clear()
+	_sync_objective_actions()
+	_refresh_city_construction_panel()
 	_sync_tasks_hub()
-	_show_toast(message)
+	_show_toast(message, true)
 	_update_pvp()
 	if is_instance_valid(_pvp):
 		_pvp.show_request_error(message)
 	if is_instance_valid(_management):
 		_management.set_command_state(api.connected, api._has_mutation())
 		_management.show_error(message)
-	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory]:
+	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory, _scouting]:
 		if is_instance_valid(popup):
 			popup.set_command_state(api.connected, api._has_mutation())
 			popup.show_error(message)
-	if _dispatch_preview.is_valid():
-		_dispatch_preview.call({"error": message})
 
-func _show_toast(message: String) -> void:
+func _show_toast(message: String, error: bool = false) -> void:
 	_toast.text = message
+	_toast.tooltip_text = message
+	_toast.add_theme_color_override("font_color", Color("edb68f") if error else Color("c9d2be"))
+	if is_instance_valid(_ui_feedback):
+		_ui_feedback.notice(_toast)
+
+func _current_objective() -> Dictionary:
+	if api != null and api.mode == "shared":
+		return {"title": "共享攻防演练" if api.room.is_empty() else str(api.room.get("name", "房间")) + " · 攻防演练", "description": "向盟友派遣援军，或选择敌方城池掠夺。抵达自动交战，返程后入库。", "ready": false}
+	return _view.get("objective", {})
+
+func _refresh_objective() -> void:
+	var objective: Dictionary = _current_objective()
+	var title: String = str(objective.get("title", "整备城池"))
+	var description: String = str(objective.get("description", "正在读取城池与目标…"))
+	_objective_title.text = title
+	_objective_text.text = description + ("\n奖励 " + _reward_text(objective) if api == null or api.mode != "shared" else "")
+	_objective_button.text = "查看玩家战争" if api != null and api.mode == "shared" else "领取奖励" if objective.get("ready", false) else "查看目标"
+	var compact_city: bool = _page == "city" and size.x < 760.0
+	_compact_objective_title.text = title if compact_city else "当前目标 · " + title
+	_compact_objective_title.tooltip_text = "当前目标 · " + title + "\n" + _objective_text.text
+	_compact_objective_text.text = _objective_text.text if compact_city and _city_objective_expanded else description
+	_compact_objective_text.tooltip_text = _objective_text.text
+	_compact_objective_button.text = "领取" if objective.get("ready", false) else "前往"
+	_sync_objective_actions()
+
+func _sync_objective_actions() -> void:
+	var blocked: bool = api == null or not api.connected or api._has_mutation()
+	_objective_button.disabled = blocked
+	_compact_objective_button.disabled = blocked
+	if is_instance_valid(_growth_button):
+		_growth_button.visible = api == null or api.mode != "shared"
+		_growth_button.disabled = blocked or _view.get("growth", {}).is_empty()
+	if is_instance_valid(_compact_growth_button):
+		_compact_growth_button.visible = api == null or api.mode != "shared"
+		_compact_growth_button.disabled = blocked or _view.get("growth", {}).is_empty()
+	if is_instance_valid(_growth_route):
+		_growth_route.set_navigation_state(api != null and api.connected, api != null and api._has_mutation())
 
 func _number(value: float) -> String:
 	if value >= 1000000.0:
@@ -708,8 +1187,12 @@ func _unit_dictionary() -> Dictionary:
 	return units
 
 func _render_detail() -> void:
+	if is_instance_valid(_shell_root):
+		_adapt_layout()
+	_detail_intel = null
 	_clear(_detail)
 	if _page == "world" and not _selected.is_empty():
+		_detail.add_child(_button("关闭目标", _dismiss_target))
 		_detail.add_child(_label(str(_selected.get("name", "目标")), 22))
 		_detail.add_child(_label("坐标 %d,%d · 等级 %d" % [int(_selected.get("x", 0)), int(_selected.get("y", 0)), int(_selected.get("level", 0))], 14))
 		if api.mode == "shared" and _selected.has("playerId"):
@@ -720,33 +1203,12 @@ func _render_detail() -> void:
 			if api.mode == "shared":
 				_detail.add_child(_label("本轮演练先开放玩家城池攻防。", 15))
 			else:
+				if not _selected.get("owned", false):
+					_detail_intel = IntelPanelScript.new() as KingdomIntelPanel
+					_detail.add_child(_detail_intel)
+					_detail_intel.set_intel(_intel_node(_selected), _view.get("units", []), _intel_now())
+					_detail.add_child(_button("侦察目标", _show_scouting.bind(_selected)))
 				_detail.add_child(_button("配兵出征", _dispatch_dialog.bind(_selected), bool(_selected.get("owned", false))))
-		_detail.add_child(HSeparator.new())
-	else:
-		_detail.add_child(_label(str(_view.get("city", {}).get("name", "主城")), 22))
-		_detail.add_child(_label("人口 %s / %s" % [_number(float(_view.get("population", 0))), _number(float(_view.get("maxPopulation", 0)))], 14))
-		_detail.add_child(_label("民心 %s · 空闲 %s" % [_number(float(_view.get("morale", 0))), _number(float(_view.get("freePopulation", 0)))], 14))
-	_detail.add_child(_label("建设与训练", 17, Color("c5b37b")))
-	for kind: String in ["build", "train", "research"]:
-		for queue: Dictionary in _view.get("queues", {}).get(kind, []):
-			var label: Label = _label(_queue_name(queue, kind) + "\n" + _remaining(float(queue.get("end", 0))), 14)
-			label.set_meta("queue_end", queue.get("end", 0))
-			label.set_meta("queue_name", _queue_name(queue, kind))
-			_detail.add_child(label)
-	if _view.get("queues", {}).get("build", []).is_empty() and _view.get("queues", {}).get("train", []).is_empty():
-		_detail.add_child(_label("暂无队列 · 城池待命", 14, Color("98aa9a")))
-	_detail.add_child(HSeparator.new())
-	_detail.add_child(_label("外出部队", 17, Color("c5b37b")))
-	for march: Dictionary in _view.get("marches", []):
-		var label: Label = _label(str(march.get("label", "部队")) + "\n" + _march_status(march), 14)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.set_meta("march", march)
-		label.set_meta("march_name", str(march.get("label", "部队")))
-		_detail.add_child(label)
-		if march.get("canStartBattle", false):
-			_detail.add_child(_button("进入战斗", _start_march_battle.bind(march)))
-		elif march.has("recallCommand"):
-			_detail.add_child(_button("召回驻军", _send_record_command.bind(march.recallCommand)))
 
 func _queue_name(queue: Dictionary, kind: String) -> String:
 	var id: String = str(queue.get("id", ""))
@@ -765,10 +1227,18 @@ func _march_status(march: Dictionary) -> String:
 		return "驻扎 · 兵力未侦察" if march.get("count") == null else "驻扎 · " + str(march.get("count", 0)) + "人"
 	if march.get("canStartBattle", false):
 		return "已抵达 · 等待交战"
-	var end: float = float(march.get("returnAt", march.get("arrive", 0))) if status == "return" else float(march.get("arrive", 0))
-	return ("返城中 · " if status == "return" else "行进中 · ") + _remaining(end)
+	var end: float = float(march.get("returnAt", march.get("arrive", 0))) if status == "return" else float(march.get("nextArrival", march.get("arrive", 0)))
+	return ("返城中 · " if status == "return" else "行进中 · ") + _march_remaining(end)
+
+func _march_remaining(end: float) -> String:
+	var seconds: int = maxi(0, int(ceil((end - _intel_now()) / 1000.0)))
+	return "待服务器结算" if seconds == 0 else "%d分%02d秒" % [seconds / 60, seconds % 60]
 
 func _refresh_clock() -> void:
+	if is_instance_valid(_activity_bar):
+		_activity_bar.refresh_clock(_intel_now())
+	_sync_scouting_intel()
+	_refresh_scout_marches()
 	for child: Node in _detail.get_children():
 		if child is Label and child.has_meta("queue_end"):
 			(child as Label).text = str(child.get_meta("queue_name")) + "\n" + _remaining(float(child.get_meta("queue_end")))
@@ -776,10 +1246,10 @@ func _refresh_clock() -> void:
 			(child as Label).text = str(child.get_meta("march_name")) + "\n" + _march_status(child.get_meta("march"))
 
 func _select_tile(tile: Dictionary) -> void:
-	_selected = tile
+	_selected = tile.duplicate(true)
 	_render_detail()
 	_show_toast(str(tile.get("name", "目标")) + " · 坐标 " + str(tile.get("x", 0)) + "," + str(tile.get("y", 0)))
-	if size.x < 760.0:
+	if size.x < 1000.0:
 		_dispatch_dialog(tile)
 
 func _update_page_content() -> void:
@@ -814,11 +1284,25 @@ func _update_page_content() -> void:
 			content.add_child(text)
 			content.add_child(_button("查看战报", _report_dialog.bind(report)))
 
-func _open_dialog(title: String, width: int = 600) -> VBoxContainer:
+func _open_dialog(title: String, width: int = 600, managed_scroll: bool = true) -> VBoxContainer:
+	_city_construction_panel = null
+	_city_construction_site = -1
+	_city_construction_source = ""
+	_resource_detail_labels.clear()
+	_resource_status = null
+	_dispatch_intel = null
+	_dispatch_intel_target = {}
+	_march_labels.clear()
+	_march_action_buttons.clear()
+	_march_content = null
+	_march_empty = null
+	_growth_route = null
+	_report_economy = null
+	_report_key = ""
+	_economy_signature = ""
+	_remember_keyboard_focus()
 	_stop_keyboard_pan()
 	_hide_feature_panels()
-	_dispatch_quote_id = ""
-	_dispatch_preview = Callable()
 	if is_instance_valid(_lobby):
 		_lobby.hide()
 	if is_instance_valid(_pvp):
@@ -829,6 +1313,10 @@ func _open_dialog(title: String, width: int = 600) -> VBoxContainer:
 		_management.hide()
 	if is_instance_valid(_dialog):
 		_dialog.hide()
+		if _dialog == _scouting:
+			_scouting = null
+		# A button in this Window may still be dispatching its current input.
+		# Keep its Viewport in the tree until queue_free flushes after the frame.
 		_dialog.queue_free()
 	_dialog = AcceptDialog.new()
 	_dialog.title = title
@@ -837,32 +1325,242 @@ func _open_dialog(title: String, width: int = 600) -> VBoxContainer:
 	_dialog.min_size = Vector2i(mini(width, maxi(300, int(size.x) - 40)), mini(550, maxi(240, int(size.y) - 60)))
 	add_child(_dialog)
 	_dialog.visibility_changed.connect(_on_popup_visibility.bind(_dialog))
-	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(float(_dialog.min_size.x - 40), 260.0)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_dialog.add_child(scroll)
 	var content: VBoxContainer = VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(content)
+	if managed_scroll:
+		var scroll: ScrollContainer = ScrollContainer.new()
+		scroll.custom_minimum_size = Vector2(float(_dialog.min_size.x - 40), 260.0)
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		_dialog.add_child(scroll)
+		scroll.add_child(content)
+	else:
+		content.custom_minimum_size = Vector2(float(_dialog.min_size.x - 40), float(_dialog.min_size.y - 70))
+		content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_dialog.add_child(content)
 	_dialog.popup_centered()
+	call_deferred("_focus_dialog_close", weakref(_dialog))
+	call_deferred("_watch_buttons", _dialog)
 	return content
 
-func _building_dialog(id: String) -> void:
+func _show_city_zone(zone: String) -> void:
+	_city_zone = "outer" if zone == "outer" else "inner"
+	_show_page("city")
+
+func _perimeter_defense_dialog() -> void:
+	for building: Dictionary in _view.get("buildings", []):
+		if str(building.get("id", "")) == "wall":
+			_building_dialog("wall", int(building.site))
+			return
+	for slot: Dictionary in _view.get("buildingSlots", []):
+		if _slot_is_empty(int(slot.get("site", -1))):
+			_city_construction_dialog(int(slot.site), "wall", str(_view.get("city", {}).get("id", "")))
+			return
+	var content: VBoxContainer = _open_dialog("修筑城防")
+	content.add_child(_label("城内用地已满。请先腾出一处地块，再修筑城防。", 16))
+
+func _city_affairs_dialog() -> void:
+	var content: VBoxContainer = _open_dialog("城务", 560)
+	for entry: Array in [["market", "市场交易"], ["governance", "城守税率"], ["inn", "客栈招募"]]:
+		content.add_child(_button(str(entry[1]), _show_management.bind(str(entry[0]))))
+	for entry: Array in [["cities", "城池任职"], ["logistics", "运输调遣"]]:
+		content.add_child(_button(str(entry[1]), _show_realm.bind(str(entry[0]))))
+	content.add_child(_button("城墙与城防", _perimeter_defense_dialog))
+	content.add_child(_button("安民与征收", _show_war_management.bind("civic")))
+
+func _show_plot(index: int) -> void:
+	_show_realm("plots")
+	_realm.select_plot(index)
+
+func _city_slot(site: int) -> Dictionary:
+	for slot: Dictionary in _view.get("buildingSlots", []):
+		if int(slot.get("site", -1)) == site:
+			return slot
+	return {}
+
+func _slot_is_empty(site: int) -> bool:
+	var slot: Dictionary = _city_slot(site)
+	return not slot.is_empty() and not bool(slot.get("reserved", false)) and (slot.get("id") == null or str(slot.get("id", "")) == "")
+
+func _queue_city_building(site: int, id: String, empty: bool, source: String, expected_level: int = -1) -> void:
+	var slot: Dictionary = _city_slot(site)
+	if str(_view.get("city", {}).get("id", "")) != source or slot.is_empty() or bool(slot.get("reserved", false)) or (not _slot_is_empty(site) if empty else str(slot.get("id", "")) != id) or (expected_level >= 0 and int(slot.get("level", 0)) != expected_level):
+		_show_toast("这处建筑或城池已变化，请重新选择")
+		return
+	_command_close("queueBuilding", [site, id])
+
+func _empty_site_dialog(site: int) -> void:
+	if not _slot_is_empty(site):
+		_show_toast("这处空地已变化，请重新选择")
+		return
+	var source: String = str(_view.get("city", {}).get("id", ""))
+	_ensure_city_construction_panel(site, source)
+	_city_construction_panel.show_catalog(true)
+	call_deferred("_watch_buttons", _city_construction_panel)
+
+func _city_texture(id: String, level: int = 1) -> Texture2D:
+	return _city.art_sprite_texture(id, level) if is_instance_valid(_city) else null
+
+func _ensure_city_construction_panel(site: int, source: String) -> void:
+	if is_instance_valid(_city_construction_panel) and is_instance_valid(_dialog) and _dialog.visible and _city_construction_site == site and _city_construction_source == source:
+		_city_construction_panel.update_view(_view, api != null and api.connected and not api._has_mutation())
+		return
+	var content: VBoxContainer = _open_dialog("空地 %d · 规划建设" % (site + 1), 780, false)
+	_city_construction_site = site
+	_city_construction_source = source
+	_city_construction_panel = ConstructionPanelScript.new() as KingdomCityConstructionPanel
+	content.add_child(_city_construction_panel)
+	var panel: KingdomCityConstructionPanel = _city_construction_panel
+	# Perimeter can open a quote before the first container layout pass.
+	panel.size.x = maxf(1.0, content.custom_minimum_size.x)
+	var window: AcceptDialog = _dialog
+	panel.choose_requested.connect(func(id: String) -> void: _city_construction_dialog(site, id, source))
+	panel.confirm_requested.connect(func(id: String, quote: Dictionary) -> void: _confirm_city_construction(site, id, source, quote))
+	panel.upgrade_requested.connect(func(id: String, selected: int) -> void: _open_comparison_upgrade(id, selected, source))
+	panel.mode_changed.connect(func(details: bool) -> void:
+		if is_instance_valid(window) and _dialog == window:
+			window.title = "地块 %d · 建设%s" % [site + 1, str(panel.shown_quote.get("name", "建筑"))] if details else "空地 %d · 规划建设" % (site + 1)
+			call_deferred("_watch_buttons", panel))
+	panel.configure(site, source, _view, CITY_BUILD_USES, _city_texture, _cost, _city_build_duration, _city_build_reason, api != null and api.connected and not api._has_mutation())
+
+func _refresh_city_construction_panel() -> void:
+	if is_instance_valid(_city_construction_panel) and is_instance_valid(_dialog) and _dialog.visible:
+		var context_valid: bool = _city_construction_source == str(_view.get("city", {}).get("id", "")) and _slot_is_empty(_city_construction_site)
+		_city_construction_panel.update_view(_view, context_valid and api != null and api.connected and not api._has_mutation())
+
+func _add_city_capacity_comparison(content: VBoxContainer, id: String, selected_upgrade_site: int = -1) -> void:
+	var comparisons: Dictionary = _view.get("buildingComparisons", {})
+	var comparison: Variant = comparisons.get(id)
+	if not id in ["house", "barracks"] or not comparison is Dictionary:
+		return
+	var source: String = str(_view.get("city", {}).get("id", ""))
+	if str(comparison.get("cityId", source)) != source:
+		return
+	var compare: KingdomCityCapacityCompare = CapacityCompareScript.new() as KingdomCityCapacityCompare
+	content.add_child(compare)
+	compare.configure(comparison, -1, _cost, _city_build_duration, selected_upgrade_site)
+	compare.upgrade_requested.connect(func(chosen_id: String, site: int) -> void: _open_comparison_upgrade(chosen_id, site, source))
+
+func _open_comparison_upgrade(id: String, site: int, source: String) -> void:
+	if str(_view.get("city", {}).get("id", "")) != source:
+		_show_toast("城池已变化，请重新查看收益对照", true)
+		return
+	for building: Dictionary in _view.get("buildings", []):
+		if str(building.get("id", "")) == id and int(building.get("site", -1)) == site and int(building.get("level", 0)) > 0:
+			_building_dialog(id, site)
+			return
+	_show_toast("这处建筑已变化，请重新查看收益对照", true)
+
+func _city_build_option(id: String) -> Dictionary:
+	for option: Dictionary in _view.get("buildOptions", []):
+		if str(option.get("id", "")) == id:
+			return option.duplicate(true)
+	return {}
+
+func _city_build_reason(option: Dictionary) -> String:
+	var reason: String = "" if option.get("requirement") == null else str(option.get("requirement", ""))
+	if not reason.is_empty():
+		return reason
+	if not bool(option.get("affordable", true)):
+		return "建设资源不足"
+	var limit: int = int(_view.get("queueLimits", {}).get("build", 0))
+	if limit > 0 and _view.get("queues", {}).get("build", []).size() >= limit:
+		return "建造队正在忙碌"
+	return ""
+
+func _city_build_duration(seconds: float) -> String:
+	var duration: int = maxi(0, int(ceil(seconds)))
+	if duration >= 3600:
+		return "%d时%02d分" % [duration / 3600, (duration % 3600) / 60]
+	return "%d分%02d秒" % [duration / 60, duration % 60]
+
+func _city_construction_dialog(site: int, id: String, source: String) -> void:
+	if str(_view.get("city", {}).get("id", "")) != source or not _slot_is_empty(site):
+		_show_toast("这处空地或城池已变化，请重新选择", true)
+		return
+	var option: Dictionary = _city_build_option(id)
+	if option.is_empty():
+		_show_toast("本城可建设的建筑已变化，请重新选择", true)
+		_empty_site_dialog(site)
+		return
+	_ensure_city_construction_panel(site, source)
+	_city_construction_panel.show_detail(option)
+	call_deferred("_watch_buttons", _city_construction_panel)
+
+func _confirm_city_construction(site: int, id: String, source: String, shown_quote: Dictionary) -> void:
+	if str(_view.get("city", {}).get("id", "")) != source or not _slot_is_empty(site):
+		_show_toast("这处空地或城池已变化，请重新选择", true)
+		return
+	var current: Dictionary = _city_build_option(id)
+	if current.is_empty():
+		_show_toast("本城可建设的建筑已变化，请重新选择", true)
+		_empty_site_dialog(site)
+		return
+	if current.get("cost", {}) != shown_quote.get("cost", {}) or float(current.get("seconds", 0)) != float(shown_quote.get("seconds", 0)) or current.get("requirement") != shown_quote.get("requirement"):
+		_city_construction_dialog(site, id, source)
+		_show_toast("建造费用或条件已变化，请核对后再确认", true)
+		return
+	var reason: String = _city_build_reason(current)
+	if not reason.is_empty():
+		_city_construction_dialog(site, id, source)
+		_show_toast(reason, true)
+		return
+	if api == null or not api.connected or api._has_mutation():
+		_show_toast("请连接服务并等待上一项操作完成", true)
+		return
+	_queue_city_building(site, id, true, source)
+
+func _building_dialog(id: String, chosen_site: int = -1) -> void:
 	var content: VBoxContainer = _open_dialog("建筑详情")
-	var chosen_site: int = _city.selected_site() if _city != null else -1
+	var source: String = str(_view.get("city", {}).get("id", ""))
 	var found: bool = false
 	for building: Dictionary in _view.get("buildings", []):
 		if str(building.id) != id or chosen_site >= 0 and int(building.site) != chosen_site:
 			continue
 		found = true
-		content.add_child(_label(str(building.name) + " · " + str(building.level) + "级", 23))
-		content.add_child(_label("升级消耗\n" + _cost(building.get("cost", {}))))
+		content.add_child(_label("%s · %d级" % [str(building.name), int(building.level)], 23))
+		content.add_child(_label("地块 %d" % (int(building.site) + 1), 14))
+		if id == "wall":
+			content.add_child(_label("1级为木栅栏，2级起为石墙。\n升级完成后，围墙随等级加高。", 14))
+		if id != "wall" and int(building.level) > 0 and _city_texture(id, int(building.level)) != null:
+			var preview: HBoxContainer = HBoxContainer.new()
+			content.add_child(preview)
+			for level: int in [int(building.level), mini(10, int(building.level) + 1)]:
+				var column: VBoxContainer = VBoxContainer.new()
+				column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				preview.add_child(column)
+				var art: TextureRect = TextureRect.new()
+				art.texture = _city_texture(id, level)
+				art.custom_minimum_size = Vector2(96.0, 88.0)
+				art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+				column.add_child(art)
+				column.add_child(_label(("当前" if level == int(building.level) else "升级后") + " %d级" % level, 14))
+				if int(building.level) >= 10:
+					break
+		match id:
+			"hall": content.add_child(_button("城守税率", _show_management.bind("governance")))
+			"market": content.add_child(_button("市场交易", _show_management.bind("market")))
+			"inn", "tavern": content.add_child(_button("客栈招募", _show_management.bind("inn")))
+			"barracks", "drill": content.add_child(_button("训练兵士", _training_dialog))
+			"academy": content.add_child(_button("研究技术", _research_dialog))
+			"wall": content.add_child(_button("城防建设", _show_war_management.bind("defenses")))
+			"post": content.add_child(_button("运输调遣", _show_realm.bind("logistics")))
+		var cost_label: Label = _label("升级消耗\n" + _cost(building.get("cost", {})))
+		cost_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(cost_label)
 		content.add_child(_label("时间 " + _remaining(Time.get_unix_time_from_system() * 1000.0 + float(building.get("seconds", 0)) * 1000.0)))
 		var blocked: String = str(building.get("requirement", "")) if building.get("requirement") != null else ""
 		if not blocked.is_empty():
-			content.add_child(_label(blocked, 15, Color("e1b073")))
-		content.add_child(_button("升级建筑", _command_close.bind("queueBuilding", [int(building.site), id]), not blocked.is_empty()))
+			var requirement_label: Label = _label(blocked, 15, Color("e1b073"))
+			requirement_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			content.add_child(requirement_label)
+		content.add_child(_button("升级建筑", _queue_city_building.bind(int(building.site), id, false, source, int(building.level)), not blocked.is_empty()))
+		_add_city_capacity_comparison(content, id, int(building.site))
+		break
 	if found:
+		return
+	if chosen_site >= 0:
+		content.add_child(_label("这处建筑已变化，请关闭后重新选择。"))
 		return
 	var empty_site: int = -1
 	for slot: Dictionary in _view.get("buildingSlots", []):
@@ -877,20 +1575,17 @@ func _building_dialog(id: String) -> void:
 		var blocked: String = "" if option.get("requirement") == null else str(option.get("requirement", ""))
 		if not blocked.is_empty():
 			content.add_child(_label(blocked, 15, Color("e1b073")))
-		content.add_child(_button("开始建造", _command_close.bind("queueBuilding", [empty_site, id]), empty_site < 0 or not blocked.is_empty()))
+		content.add_child(_button("开始建造", _queue_city_building.bind(empty_site, id, true, source), empty_site < 0 or not blocked.is_empty()))
 
 func _buildings_dialog() -> void:
 	var content: VBoxContainer = _open_dialog("城内建筑", 680)
 	for building: Dictionary in _view.get("buildings", []):
-		content.add_child(_button(str(building.name) + "  " + str(building.level) + "级", _building_dialog.bind(str(building.id))))
+		content.add_child(_button(str(building.name) + "  " + str(building.level) + "级 · 地块" + str(int(building.site) + 1), _building_dialog.bind(str(building.id), int(building.site))))
 	for slot: Dictionary in _view.get("buildingSlots", []):
 		if slot.get("id") != null and str(slot.get("id")) != "":
 			continue
-		content.add_child(_label("空地 " + str(int(slot.site) + 1), 17, Color("c5b37b")))
-		for option: Dictionary in _view.get("buildOptions", []):
-			var blocked: bool = option.get("requirement") != null and not str(option.get("requirement", "")).is_empty()
-			content.add_child(_button(str(option.name) + " · " + _cost(option.get("cost", {})), _command_close.bind("queueBuilding", [int(slot.site), str(option.id)]), blocked))
-		break
+		if not bool(slot.get("reserved", false)):
+			content.add_child(_button("空地 " + str(int(slot.site) + 1) + " · 规划建设", _empty_site_dialog.bind(int(slot.site))))
 
 func _training_dialog() -> void:
 	var content: VBoxContainer = _open_dialog("驻军与训练", 680)
@@ -928,106 +1623,35 @@ func _dispatch_dialog(tile: Dictionary) -> void:
 	if api.mode == "shared":
 		_show_toast("本轮共享演练请先选择玩家城池")
 		return
-	var content: VBoxContainer = _open_dialog("出征 · " + str(tile.get("name", "目标")), 680)
-	content.add_child(_label("选择将领与兵力，抵达后进入战斗。", 15))
-	var general_picker: OptionButton = OptionButton.new()
-	for general: Dictionary in _view.get("generals", []):
-		if general.get("busy", false) or general.get("governor", false):
-			continue
-		general_picker.add_item(str(general.name))
-		general_picker.set_item_metadata(general_picker.item_count - 1, str(general.id))
-	content.add_child(general_picker)
-	var choices: Dictionary = {}
-	for unit: Dictionary in _view.get("units", []):
-		if int(unit.available) <= 0:
-			continue
-		var row: HBoxContainer = HBoxContainer.new()
-		content.add_child(row)
-		var label: Label = _label(str(unit.name) + " · 可用 " + str(unit.available), 15)
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(label)
-		var count: SpinBox = SpinBox.new()
-		count.min_value = 0.0
-		count.max_value = float(unit.available)
-		count.value = float(unit.available)
-		count.custom_minimum_size.x = 115.0
-		row.add_child(count)
-		choices[str(unit.id)] = count
-	var mode: OptionButton = OptionButton.new()
-	mode.add_item("掠夺")
-	mode.add_item("占领")
-	content.add_child(mode)
-	var return_option: CheckBox = CheckBox.new()
-	return_option.text = "占领后返回（不选则驻扎）"
-	content.add_child(return_option)
-	var quote_label: Label = _label("先预览费用、耗时与可派兵条件", 15)
-	content.add_child(quote_label)
-	var confirmed: Dictionary = {"command": {}, "fingerprint": ""}
-	var collect: Callable = func() -> Array:
-		var army: Dictionary = {}
-		for id: String in choices:
-			var spin: SpinBox = choices[id]
-			var raw: String = spin.get_line_edit().text.strip_edges()
-			army[id] = clampi(int(raw), 0, int(spin.max_value)) if raw.is_valid_int() else -1
-		return [str(tile.id), str(general_picker.get_item_metadata(general_picker.selected)) if general_picker.item_count > 0 else "", army, "raid" if mode.selected == 0 else "occupy", return_option.button_pressed]
-	var confirm_button: Button = _button("确认派遣部队", func() -> void:
-		if confirmed.command.is_empty() or confirmed.fingerprint != JSON.stringify(collect.call()):
-			return
-		var record: Dictionary = confirmed.command
-		_command_close(str(record.type), record.get("args", [])))
-	confirm_button.disabled = true
-	var invalidate: Callable = func() -> void:
-		confirmed.command = {}
-		_dispatch_quote_id = ""
-		confirm_button.disabled = true
-		quote_label.text = "选项已变化，请重新预览"
-	for spin: SpinBox in choices.values():
-		spin.value_changed.connect(func(_value: float) -> void: invalidate.call())
-		spin.get_line_edit().text_changed.connect(func(_text: String) -> void: invalidate.call())
-	general_picker.item_selected.connect(func(_index: int) -> void: invalidate.call())
-	mode.item_selected.connect(func(_index: int) -> void: invalidate.call())
-	return_option.toggled.connect(func(_on: bool) -> void: invalidate.call())
-	content.add_child(_button("预览出征", func() -> void:
-		if not api.connected or api._has_mutation():
-			_show_toast("请等待当前操作完成")
-			return
-		confirmed.command = {}
-		confirm_button.disabled = true
-		confirmed.fingerprint = JSON.stringify(collect.call())
-		_dispatch_quote_id = "march_" + Crypto.new().generate_random_bytes(8).hex_encode()
-		quote_label.text = "正在预览…"
-		api.request_quote("march", collect.call(), _dispatch_quote_id)))
-	content.add_child(confirm_button)
-	_dispatch_preview = func(payload: Dictionary) -> void:
-		if not is_instance_valid(quote_label) or not is_instance_valid(_dialog) or not _dialog.visible:
-			return
-		if payload.has("error"):
-			quote_label.text = str(payload.error)
-			confirm_button.disabled = true
-			return
-		if confirmed.fingerprint != JSON.stringify(collect.call()):
-			invalidate.call()
-			return
-		var q: Dictionary = payload.get("quote", {})
-		var reason: String = str(q.get("reason", ""))
-		quote_label.text = reason if not reason.is_empty() else "行军 %d秒 · 返城 %d秒\n粮草费用 %s · 运载能力 %s" % [int(ceil(float(q.get("seconds", 0)))), int(ceil(float(q.get("returnSeconds", 0)))), str(q.get("foodCost", 0)), str(q.get("carry", 0))]
-		confirmed.command = q.get("command", {}) if reason.is_empty() else {}
-		confirm_button.disabled = not reason.is_empty() or not api.connected or api._has_mutation()
+	_open_dispatch_flow(tile, "march")
 
-func _marches_dialog() -> void:
-	var content: VBoxContainer = _open_dialog("行军与驻扎部队", 680)
-	for march: Dictionary in _view.get("marches", []):
-		content.add_child(_label(str(march.get("label", "部队")) + "\n" + _march_status(march), 17))
-		if march.get("canStartBattle", false):
-			content.add_child(_button("进入战斗", _start_march_battle.bind(march)))
-		elif march.has("recallCommand"):
-			content.add_child(_button("召回", _send_record_command.bind(march.recallCommand)))
-		elif march.get("status") == "march" and not march.get("shared", false):
-			content.add_child(_button("召回", _command_close.bind("recall", [str(march.get("node", ""))])))
-	if _view.get("marches", []).is_empty():
-		content.add_child(_label("暂无外出军队。城内训练后，在舆图选择目标出征。", 16))
+func _marches_dialog(filter: String = "all") -> void:
+	_march_content = _open_dialog("驻扎部队" if filter == "stationed" else "行军与驻扎部队", 680)
+	_march_filter = filter
+	_march_empty = _label("暂无驻扎部队。" if filter == "stationed" else "暂无外出军队。城内训练后，在舆图选择目标出征。", 16)
+	_march_content.add_child(_march_empty)
+	_refresh_scout_marches()
+
+func _add_march_row(march: Dictionary) -> void:
+	var id: String = str(march.get("id", ""))
+	var label: Label = _label("", 17)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.set_meta("march", march.duplicate(true))
+	_march_content.add_child(label)
+	_march_labels[id] = label
+	var action: Button = Button.new()
+	action.custom_minimum_size.y = 44
+	action.set_meta("march_id", id)
+	action.pressed.connect(func() -> void: _activate_march_action(str(action.get_meta("march_id", ""))))
+	_march_content.add_child(action)
+	_march_action_buttons[id] = action
+
+func _march_row_identity(march: Dictionary) -> String:
+	var id: String = str(march.get("id", ""))
+	return JSON.stringify(["expedition", march.get("sourceCity", ""), march.get("node", "")]) if id.begins_with("expedition:") else id
 
 func _start_march_battle(march: Dictionary) -> void:
+	_pending_recall.clear()
 	_pending_battle = true
 	_send_record_command(march.get("selectCommand", {}))
 	if is_instance_valid(_dialog):
@@ -1042,26 +1666,43 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 		_audio.confirmed(type)
 	if is_instance_valid(_management):
 		_management.acknowledge_command(api.connected, api._has_mutation())
-	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory]:
+	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory, _scouting]:
 		if is_instance_valid(popup):
 			popup.acknowledge_command(api.connected, api._has_mutation())
-	if type == "selectExpedition" and _pending_battle:
+	if type == "selectExpedition" and not _pending_recall.is_empty():
+		var record: Dictionary = _pending_recall.duplicate(true)
+		_pending_recall.clear()
+		var selected: Dictionary = _state.get("expedition", {}) if _state.get("expedition") is Dictionary else {}
+		if str(_view.get("city", {}).get("id", "")) == str(record.sourceCity) and str(selected.get("node", "")) == str(record.args[0]) and str(selected.get("phase", "")) == "march":
+			_send_command("recall", [], str(record.sourceCity))
+		else:
+			_show_toast("目标部队或出发城已变化，请重新选择召回")
+	elif type == "selectExpedition" and _pending_battle:
 		_pending_battle = false
-		api.command("startBattle")
+		_send_command("startBattle")
 		_show_page("army")
 	else:
-		_show_toast("操作已完成 · 进度已保存")
+		var messages: Dictionary = {"queueBuilding": "已加入建设队列", "queueResearch": "已加入研究队列", "queueTraining": "已加入训练队列", "onboarding.claimAvailable": "已领取全部可领取礼包", "setBattleOrders": "全军军令已更新", "setBattleOrder": "兵队军令已更新", "battleRound": "本回合已结算", "recall": "部队已开始返程"}
+		_show_toast(str(messages.get(type, "操作已完成")) + " · 进度已保存")
+	_sync_objective_actions()
+
+func _send_command(type: String, args: Array = [], source_city: String = "") -> void:
+	api.command(type, args, source_city)
+	_sync_objective_actions()
+	_refresh_city_construction_panel()
+	_sync_tasks_hub()
+	_refresh_scout_marches()
 
 func _send_record_command(record: Dictionary) -> void:
 	if record.is_empty():
 		return
-	api.command(str(record.type), record.get("args", []), str(record.get("sourceCity", "")))
+	_send_command(str(record.type), record.get("args", []), str(record.get("sourceCity", "")))
 
 func _battle_action(type: String, args: Array) -> void:
-	api.command(type, args)
+	_send_command(type, args)
 
 func _command_close(type: String, args: Array) -> void:
-	api.command(type, args)
+	_send_command(type, args)
 	if is_instance_valid(_dialog):
 		_dialog.hide()
 
@@ -1071,13 +1712,13 @@ func _objective_action() -> void:
 		return
 	var objective: Dictionary = _view.get("objective", {})
 	if objective.get("ready", false) and not str(objective.get("action", "")).is_empty():
-		api.command(str(objective.action), objective.get("args", []))
+		_send_command(str(objective.action), objective.get("args", []))
 	else:
 		_route_objective(str(objective.get("route", "inner")), str(objective.get("target", "")))
 
 func _tasks_dialog() -> void:
 	var content: VBoxContainer = _open_dialog("城池事务", 680)
-	var objective: Dictionary = _view.get("objective", {})
+	var objective: Dictionary = _current_objective()
 	_tasks_labels.clear()
 	for entry: Array in [[str(objective.get("title", "当前目标")), 21], [str(objective.get("description", "连接后显示当前任务")), 15], ["奖励 " + _reward_text(objective), 14]]:
 		var label: Label = _label(str(entry[0]), int(entry[1]))
@@ -1086,23 +1727,40 @@ func _tasks_dialog() -> void:
 		content.add_child(label)
 		_tasks_labels.append(label)
 	_tasks_action = _button("领取奖励" if objective.get("ready", false) else "前往当前目标", _objective_action)
+	_tasks_action.theme_type_variation = "PrimaryButton"
 	content.add_child(_tasks_action)
-	var actions: GridContainer = GridContainer.new()
-	actions.columns = 2
-	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(actions)
-	for entry: Array in [["主线任务", _show_progression.bind("missions")], ["每日任务", _show_progression.bind("daily")], ["黄巾史诗", _show_progression.bind("epic")], ["官职与爵位", _show_progression.bind("honors")], ["征战章节", _show_progression.bind("chapters")], ["十阶礼包", _show_progression.bind("gifts")], ["市场交易", _show_management.bind("market")], ["城守与税率", _show_management.bind("governance")], ["客栈招募", _show_management.bind("inn")], ["野地抓将", _show_heroes.bind("wild")], ["城池与运输", _show_realm.bind("cities")], ["城外资源", _plots_dialog], ["研究", _research_dialog], ["挂机设置", _show_realm.bind("automation")], ["宝物与物资", _inventory_dialog], ["商城", _show_inventory.bind("shop")], ["领地采集", _show_realm.bind("holdings")], ["伤兵与俘虏", _show_war_management.bind("hospital")], ["黄巾来袭", _show_war_management.bind("defense")], ["联机大厅", _show_lobby]]:
-		var action: Button = _button(str(entry[0]), entry[1])
-		action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		actions.add_child(action)
-	content.add_child(_button("领取已解锁礼包", _command_close.bind("onboarding.claimAvailable", [])))
-	content.add_child(_button("按键设置", _show_input_settings))
+	var tabs: TabContainer = TabContainer.new()
+	tabs.name = "TransactionsTabs"
+	tabs.tab_focus_mode = Control.FOCUS_ALL
+	tabs.custom_minimum_size.y = 220.0
+	content.add_child(tabs)
+	var groups: Array = [
+		["成长", [["成长路线", _show_growth_route], ["主线任务", _show_progression.bind("missions")], ["每日任务", _show_progression.bind("daily")], ["黄巾史诗", _show_progression.bind("epic")], ["官职与爵位", _show_progression.bind("honors")], ["征战章节", _show_progression.bind("chapters")], ["十阶礼包", _show_progression.bind("gifts")], ["领取已解锁礼包", _command_close.bind("onboarding.claimAvailable", [])]]],
+		["经营", [["市场交易", _show_management.bind("market")], ["城守与税率", _show_management.bind("governance")], ["城池与运输", _show_realm.bind("cities")], ["城外资源", _plots_dialog], ["研究", _research_dialog], ["挂机设置", _show_realm.bind("automation")]]],
+		["军务", [["客栈招募", _show_management.bind("inn")], ["野地抓将", _show_heroes.bind("wild")], ["伤兵与俘虏", _show_war_management.bind("hospital")], ["黄巾来袭", _show_war_management.bind("defense")], ["玩家战争", _show_pvp]]],
+		["物资", [["宝物与物资", _inventory_dialog], ["商城", _show_inventory.bind("shop")], ["领地采集", _show_realm.bind("holdings")], ["存档与备份", _save_dialog], ["联机大厅", _show_lobby], ["按键设置", _show_input_settings]]]
+	]
+	for group: Array in groups:
+		var scroll: ScrollContainer = ScrollContainer.new()
+		scroll.name = str(group[0])
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		tabs.add_child(scroll)
+		var actions: GridContainer = GridContainer.new()
+		actions.columns = 2
+		actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.add_child(actions)
+		for entry: Array in group[1]:
+			if str(entry[0]) == "成长路线" and api != null and api.mode == "shared":
+				continue
+			var action: Button = _button(str(entry[0]), entry[1])
+			action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			actions.add_child(action)
 	_sync_tasks_hub()
 
 func _sync_tasks_hub() -> void:
 	if not is_instance_valid(_dialog) or not _dialog.visible or _dialog.title != "城池事务" or _tasks_labels.size() != 3 or not is_instance_valid(_tasks_action):
 		return
-	var objective: Dictionary = _view.get("objective", {})
+	var objective: Dictionary = _current_objective()
 	_tasks_labels[0].text = str(objective.get("title", "当前目标"))
 	_tasks_labels[1].text = str(objective.get("description", "连接后显示当前任务"))
 	_tasks_labels[2].text = "奖励 " + _reward_text(objective)
@@ -1110,6 +1768,7 @@ func _sync_tasks_hub() -> void:
 	_tasks_action.disabled = not api.connected or api._has_mutation()
 
 func _show_management(section: String) -> void:
+	_remember_keyboard_focus()
 	_stop_keyboard_pan()
 	_hide_feature_panels()
 	if is_instance_valid(_lobby):
@@ -1121,10 +1780,11 @@ func _show_management(section: String) -> void:
 	if not is_instance_valid(_management):
 		_management = ManagementScript.new() as KingdomManagementDialog
 		add_child(_management)
-		_management.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_management.command_requested.connect(func(type: String, args: Array) -> void: _send_command(type, args))
 		_management.visibility_changed.connect(_on_popup_visibility.bind(_management))
 	_management.set_command_state(api.connected, api._has_mutation())
 	_management.show_section(section, _view)
+	call_deferred("_watch_buttons", _management)
 
 func _plots_dialog() -> void:
 	_show_realm("plots")
@@ -1143,35 +1803,77 @@ func _research_dialog() -> void:
 func _inventory_dialog() -> void:
 	_show_inventory("inventory")
 
+func _show_growth_route() -> void:
+	if api == null or api.mode == "shared" or _view.get("growth", {}).is_empty():
+		_show_toast("本机进度连接后可查看成长路线")
+		return
+	var content: VBoxContainer = _open_dialog("成长路线", 680)
+	_growth_route = GrowthRouteScript.new() as KingdomGrowthRouteView
+	content.add_child(_growth_route)
+	_growth_route.navigate_requested.connect(_route_objective)
+	_sync_growth_route()
+	call_deferred("_watch_buttons", _growth_route)
+
+func _sync_growth_route() -> void:
+	if is_instance_valid(_growth_route) and is_instance_valid(_dialog) and _dialog.visible:
+		_growth_route.update_view(_view)
+		_growth_route.set_navigation_state(api != null and api.connected, api != null and api._has_mutation())
+
+func _report_identity(report: Dictionary) -> String:
+	return JSON.stringify([report.get("shared", false), report.get("id"), report.get("node"), report.get("source"), report.get("target"), report.get("sourceCity")])
+
+func _sync_report_economy() -> void:
+	if not is_instance_valid(_report_economy) or not is_instance_valid(_dialog) or not _dialog.visible:
+		return
+	for report: Dictionary in _view.get("reports", []):
+		if _report_identity(report) == _report_key:
+			var economy: Dictionary = report.get("economy", {})
+			var signature: String = JSON.stringify(economy)
+			if signature != _economy_signature:
+				_economy_signature = signature
+				_report_economy.set_economy(economy)
+			return
+
 func _report_dialog(report: Dictionary) -> void:
+	# A list/PvP button may hold an older report while its march is returning.
+	# Resolve the latest actor-scoped projection before showing delivery proof.
+	for latest: Dictionary in _view.get("reports", []):
+		if _report_identity(latest) == _report_identity(report):
+			report = latest
+			break
 	var content: VBoxContainer = _open_dialog("战报", 740)
-	content.add_child(_label(_report_title(report), 22))
+	content.add_child(_report_label(_report_title(report), 22))
+	_report_key = _report_identity(report)
+	_report_economy = ReportEconomyScript.new() as KingdomReportEconomyView
+	_economy_signature = JSON.stringify(report.get("economy", {}))
+	_report_economy.set_economy(report.get("economy", {}))
+	content.add_child(_report_economy)
 	if report.get("shared", false):
 		_render_shared_report(content, report)
 		return
-	content.add_child(_label("交战 " + str(int(report.get("round", 0))) + " 回合 · 将领经验 +" + str(int(report.get("xp", 0)))))
-	var received: Dictionary = {}
-	var receipts: Dictionary = report.get("resourceReceipt", {})
-	for kind: String in ["base", "bonus"]:
-		var part: Dictionary = receipts.get(kind, {}).get("received", {})
-		for id: String in part:
-			received[id] = float(received.get(id, 0)) + float(part[id])
-	for line: String in ["实际已入库：" + _cost(received), "永久损失：" + _army_text(report.get("lost", {})), "伤兵入营：" + _army_text(report.get("wounded", {})), "幸存部队：" + _army_text(report.get("back", {})), "俘虏士兵：" + _army_text(report.get("captures", {}))]:
-		var label: Label = _label(line, 16)
+	content.add_child(_report_label("交战 " + str(int(report.get("round", 0))) + " 回合 · 将领经验 +" + str(int(report.get("xp", 0)))))
+	for line: String in ["永久损失：" + _army_text(report.get("lost", {})), "伤兵入营：" + _army_text(report.get("wounded", {})), "幸存部队：" + _army_text(report.get("back", {})), "俘虏士兵：" + _army_text(report.get("captures", {}))]:
+		var label: Label = _report_label(line, 16)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		content.add_child(label)
 	if bool(report.get("claimed", false)):
-		content.add_child(_label("已占领目标，" + ("幸存部队驻扎当地。" if report.get("stationed", false) else "部队返回出发城。"), 16, Color("bdcc9e")))
+		content.add_child(_report_label("已占领目标，" + ("幸存部队驻扎当地。" if report.get("stationed", false) else "部队返回出发城。"), 16, Color("bdcc9e")))
 	elif report.get("stationed", false):
-		content.add_child(_label("部队驻扎当地；民心尚未归附。"))
+		content.add_child(_report_label("部队驻扎当地；民心尚未归附。"))
 	else:
-		content.add_child(_label("幸存部队返回出发城。"))
+		content.add_child(_report_label("幸存部队返回出发城。"))
 	var failure: Variant = report.get("failure")
 	if failure is Dictionary:
 		var reasons: Dictionary = {"retreat": "主动撤退", "army": "我军损失殆尽", "gate": "未攻破城门", "enemy": "未击败全部守军", "gate_and_enemy": "城门与守军均未突破"}
-		content.add_child(_label("败因：" + str(reasons.get(failure.get("reason", ""), "战线未能突破")), 16, Color("dfa481")))
+		content.add_child(_report_label("败因：" + str(reasons.get(failure.get("reason", ""), "战线未能突破")), 16, Color("dfa481")))
 		if bool(failure.get("outOfRange", false)):
-			content.add_child(_label("仍有部队未进入射程；可调整兵种或前进命令。", 15))
+			content.add_child(_report_label("仍有部队未进入射程；可调整兵种或前进命令。", 15))
+
+func _report_label(text: String, font_size: int = 16, color: Color = Color("e1dfcd")) -> Label:
+	var label: Label = _label(text, font_size, color)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return label
 
 func _report_title(report: Dictionary) -> String:
 	if report.get("shared", false):
@@ -1233,8 +1935,9 @@ func _new_lobby_service() -> KingdomLobbyApi:
 	return LobbyApiScript.new() as KingdomLobbyApi
 
 func _show_lobby(invite_code: String = "", service_url: String = "") -> void:
+	_remember_keyboard_focus()
 	_stop_keyboard_pan()
-	for window: Window in [_dialog, _pvp, _management, _input_settings_dialog, _heroes, _progression, _war_management, _realm, _inventory]:
+	for window: Window in [_dialog, _pvp, _management, _input_settings_dialog, _heroes, _progression, _war_management, _realm, _inventory, _scouting]:
 		if is_instance_valid(window):
 			window.hide()
 	if not is_instance_valid(_lobby_api):
@@ -1258,27 +1961,96 @@ func _show_lobby(invite_code: String = "", service_url: String = "") -> void:
 		_lobby.visibility_changed.connect(_on_popup_visibility.bind(_lobby))
 	_lobby.show_lobby(api.actor, api.room, api.connected, invite_code)
 
+func _scrub_retiring_window(node: Node) -> void:
+	# Retirement is deferred so a Window can finish dispatching its input.
+	# Clear its display data synchronously without emitting editor/selection
+	# signals that could rebuild old actor controls or request an old quotation.
+	var signals_were_blocked: bool = node.is_blocking_signals()
+	node.set_block_signals(true)
+	if node is Control:
+		(node as Control).tooltip_text = ""
+	if node is Window:
+		(node as Window).title = ""
+	if node is AcceptDialog:
+		(node as AcceptDialog).dialog_text = ""
+	if node is Label or node is Button or node is RichTextLabel or node is TextEdit or node is LineEdit:
+		node.set("text", "")
+	if node is LineEdit:
+		(node as LineEdit).placeholder_text = ""
+	if node is TextEdit:
+		(node as TextEdit).placeholder_text = ""
+	if node is OptionButton:
+		(node as OptionButton).clear()
+	if node is PopupMenu:
+		(node as PopupMenu).clear()
+	for child: Node in node.get_children():
+		_scrub_retiring_window(child)
+	node.set_block_signals(signals_were_blocked)
+
 func _mode_changed(_mode: String) -> void:
+	_city_construction_panel = null
+	_city_construction_site = -1
+	_city_construction_source = ""
+	_city_objective_expanded = false
+	_pending_recall.clear()
+	if is_instance_valid(_activity_bar):
+		_activity_bar.clear_context()
+	_resource_detail_labels.clear()
+	_resource_status = null
 	# This signal also covers actor/authority changes within the same mode.
 	# Clear derived Controls now: the replacement snapshot may never arrive.
 	_view.clear()
 	_state.clear()
 	_world.clear()
 	_selected.clear()
+	_scouting_target_id = ""
+	_city_zone = "inner"
 	_last_structure = ""
 	_pending_battle = false
 	for id: String in _resources:
 		var label: Label = _resources[id]
 		label.text = str(RES_NAMES[id]) + "  —"
+		label.tooltip_text = ""
 		label.modulate = Color.WHITE
+		if _resource_buttons.has(id):
+			_resource_buttons[id].tooltip_text = ""
+			_resource_buttons[id].disabled = true
 	_objective_title.text = "等待当前进度"
+	_objective_title.tooltip_text = ""
 	_objective_text.text = "正在读取城池与目标…"
+	_objective_text.tooltip_text = ""
 	_objective_button.text = "查看目标"
 	_objective_button.disabled = true
-	for window: Window in [_pvp, _dialog, _management, _heroes, _progression, _war_management, _realm, _inventory]:
+	_compact_objective_title.text = "当前目标 · 等待当前进度"
+	_compact_objective_title.tooltip_text = ""
+	_compact_objective_text.text = "正在读取城池与目标…"
+	_compact_objective_text.tooltip_text = ""
+	_compact_objective_button.text = "前往"
+	_compact_objective_button.disabled = true
+	_popup_return_focus = null
+	_growth_route = null
+	_report_economy = null
+	_report_key = ""
+	_economy_signature = ""
+	_detail_intel = null
+	_dispatch_intel = null
+	_dispatch_intel_target.clear()
+	_march_labels.clear()
+	_march_action_buttons.clear()
+	_march_content = null
+	_march_empty = null
+	_intel_server_offset = 0.0
+	if is_instance_valid(_scouting):
+		_scouting.clear_context()
+	var retiring_windows: Array[Window] = [_pvp, _dialog, _management, _heroes, _progression, _war_management, _realm, _inventory, _scouting]
+	# Earlier dialog transitions may already have queued a Window for deletion
+	# during this same frame; those no longer have a cached field reference.
+	for child: Node in get_children():
+		if child is Window and (child.is_queued_for_deletion() or retiring_windows.has(child)):
+			_scrub_retiring_window(child)
+	for window: Window in retiring_windows:
 		if is_instance_valid(window):
 			window.hide()
-			remove_child(window)
 			window.queue_free()
 	_pvp = null
 	_dialog = null
@@ -1288,11 +2060,12 @@ func _mode_changed(_mode: String) -> void:
 	_war_management = null
 	_realm = null
 	_inventory = null
-	_dispatch_preview = Callable()
-	_dispatch_quote_id = ""
+	_scouting = null
 	_save_text = null
 	_show_toast("正在读取当前进度…")
 	_show_page(_page)
+	_adapt_layout()
+	_sync_objective_actions()
 	if is_instance_valid(_pvp_button):
 		_pvp_button.text = "共享战争" if api.mode == "shared" else "玩家战争"
 	if is_instance_valid(_lobby):
@@ -1308,18 +2081,19 @@ func _update_pvp() -> void:
 	_pvp.update_data(_view, api.shared_world, api.actor, float(api.last_snapshot.get("serverTime", Time.get_unix_time_from_system() * 1000.0)), api.connected and not api._has_mutation(), api.room)
 
 func _show_pvp() -> void:
+	_remember_keyboard_focus()
 	if api == null or api.mode != "shared":
 		_show_lobby()
 		_show_toast("请在联机大厅创建、加入或恢复自己的房间城主")
 		return
 	_stop_keyboard_pan()
-	for window: Window in [_dialog, _management, _input_settings_dialog, _lobby, _heroes, _progression, _war_management, _realm, _inventory]:
+	for window: Window in [_dialog, _management, _input_settings_dialog, _lobby, _heroes, _progression, _war_management, _realm, _inventory, _scouting]:
 		if is_instance_valid(window):
 			window.hide()
 	if not is_instance_valid(_pvp):
 		_pvp = PvpDialogScript.new() as KingdomPvpDialog
 		add_child(_pvp)
-		_pvp.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_pvp.command_requested.connect(func(type: String, args: Array) -> void: _send_command(type, args))
 		_pvp.focus_requested.connect(func(x: int, y: int) -> void:
 			_pvp.hide()
 			_show_page("world")
@@ -1336,15 +2110,17 @@ func _shared_player_name(id: String) -> String:
 	return "城主"
 
 func _hide_feature_panels(except: Window = null) -> void:
-	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory]:
+	for popup: Window in [_heroes, _progression, _war_management, _realm, _inventory, _scouting]:
 		if is_instance_valid(popup) and popup != except:
 			popup.hide()
 
 func _prepare_feature_panel(popup: Window) -> void:
+	_remember_keyboard_focus()
+	call_deferred("_watch_buttons", popup)
 	_stop_keyboard_pan()
 	_hide_feature_panels(popup)
 	for window: Window in [_dialog, _management, _lobby, _pvp, _input_settings_dialog, _menu]:
-		if is_instance_valid(window):
+		if is_instance_valid(window) and window != popup:
 			window.hide()
 	popup.set_command_state(api.connected, api._has_mutation())
 
@@ -1352,7 +2128,7 @@ func _show_heroes(section: String = "generals") -> void:
 	if not is_instance_valid(_heroes):
 		_heroes = HeroScript.new() as KingdomHeroDialog
 		add_child(_heroes)
-		_heroes.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_heroes.command_requested.connect(func(type: String, args: Array) -> void: _send_command(type, args))
 		_heroes.focus_requested.connect(_focus_world)
 		_heroes.dispatch_requested.connect(_dispatch_node)
 		_heroes.visibility_changed.connect(_on_popup_visibility.bind(_heroes))
@@ -1363,7 +2139,7 @@ func _show_progression(section: String = "missions") -> void:
 	if not is_instance_valid(_progression):
 		_progression = ProgressionScript.new() as KingdomProgressionDialog
 		add_child(_progression)
-		_progression.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_progression.command_requested.connect(func(type: String, args: Array) -> void: _send_command(type, args))
 		_progression.route_requested.connect(_route_objective)
 		_progression.visibility_changed.connect(_on_popup_visibility.bind(_progression))
 	_prepare_feature_panel(_progression)
@@ -1373,7 +2149,7 @@ func _show_war_management(section: String = "hospital") -> void:
 	if not is_instance_valid(_war_management):
 		_war_management = WarManagementScript.new() as KingdomWarManagementDialog
 		add_child(_war_management)
-		_war_management.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_war_management.command_requested.connect(func(type: String, args: Array) -> void: _send_command(type, args))
 		_war_management.visibility_changed.connect(_on_popup_visibility.bind(_war_management))
 	_prepare_feature_panel(_war_management)
 	_war_management.show_section(section, _view)
@@ -1382,7 +2158,7 @@ func _show_realm(section: String = "cities") -> void:
 	if not is_instance_valid(_realm):
 		_realm = RealmScript.new() as KingdomRealmDialog
 		add_child(_realm)
-		_realm.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_realm.command_requested.connect(func(type: String, args: Array) -> void: _send_command(type, args))
 		_realm.quote_requested.connect(func(kind: String, args: Array, request_id: String) -> void: api.request_quote(kind, args, request_id))
 		_realm.focus_requested.connect(_focus_world)
 		_realm.visibility_changed.connect(_on_popup_visibility.bind(_realm))
@@ -1390,10 +2166,10 @@ func _show_realm(section: String = "cities") -> void:
 	_realm.show_section(section, _view)
 
 func _receive_quote(payload: Dictionary) -> void:
+	if is_instance_valid(_scouting):
+		_scouting.receive_quote(payload)
 	if is_instance_valid(_realm):
 		_realm.receive_quote(payload)
-	if str(payload.get("requestId", "")) == _dispatch_quote_id and _dispatch_preview.is_valid():
-		_dispatch_preview.call(payload)
 
 func _focus_world(x: int, y: int) -> void:
 	_hide_feature_panels()
@@ -1418,6 +2194,7 @@ func _route_objective(route: String, target: String = "") -> void:
 		_dialog.hide()
 	match route:
 		"inner", "city":
+			_city_zone = "inner"
 			_show_page("city")
 			if target == "blueprint":
 				_buildings_dialog()
@@ -1446,8 +2223,16 @@ func _route_objective(route: String, target: String = "") -> void:
 		"wildGenerals": _show_heroes("wild")
 		"heroes": _show_heroes("equipment" if target == "equipment" else "generals")
 		"gift": _show_progression("gifts")
-		"epic", "honors": _show_progression(route)
-		"inventory": _inventory_dialog()
+		"epic", "honors", "chapters", "missions":
+			_show_progression(route)
+			if route == "epic" and target == "exchange":
+				_progression.select_filter(3)
+		"holdings", "gather": _show_realm("holdings")
+		"inventory":
+			_inventory_dialog()
+			if not target.is_empty():
+				var suggestion: Dictionary = _view.get("growth", {}).get("speedup", {}).get("suggestion", {}) if _view.get("growth", {}).get("speedup", {}).get("suggestion") is Dictionary else {}
+				_inventory.select_item(target, str(suggestion.get("targetKey", "")) if str(suggestion.get("itemId", "")) == target else "")
 		"civic", "defense", "captives": _show_war_management(route)
 		"market": _show_management("market")
 		_: _show_progression("missions")
@@ -1464,24 +2249,16 @@ func _reward_text(objective: Dictionary) -> String:
 	return " · ".join(parts) if not parts.is_empty() else "—"
 
 func _render_shared_report(content: VBoxContainer, report: Dictionary) -> void:
-	content.add_child(_label("双方依据出征与守城军令自动交战。守方统计包含实际抵达的盟友援军。", 15))
+	content.add_child(_report_label("双方依据出征与守城军令自动交战。守方统计包含实际抵达的盟友援军。", 15))
 	for side: String in ["attacker", "defender"]:
-		content.add_child(_label("攻方" if side == "attacker" else "守方合计", 19, Color("c5b37b")))
-		content.add_child(_label("幸存：" + _army_text(report.get(side, {})), 16))
-		content.add_child(_label("永久损失：" + _army_text(report.get("lost" if side == "attacker" else "defenderLost", {})), 16))
-		content.add_child(_label("伤兵：" + _army_text(report.get("wounded" if side == "attacker" else "defenderWounded", {})), 16))
-	content.add_child(_label("缴获：" + _cost(report.get("loot", {})), 16))
-	if str(report.get("source", "")) == str(api.actor.get("id", "")):
-		if bool(report.get("lootDelivered", false)):
-			content.add_child(_label("本次返程已交付：" + _cost(report.get("receivedResources", report.get("loot", {}))), 16, Color("bdcc9e")))
-		else:
-			content.add_child(_label("部队正在返城，缴获尚未入库。", 16, Color("e0b36e")))
-	else:
-		content.add_child(_label("城池物资损失：" + _cost(report.get("loot", {})), 16))
+		content.add_child(_report_label("攻方" if side == "attacker" else "守方合计", 19, Color("c5b37b")))
+		content.add_child(_report_label("幸存：" + _army_text(report.get(side, {})), 16))
+		content.add_child(_report_label("永久损失：" + _army_text(report.get("lost" if side == "attacker" else "defenderLost", {})), 16))
+		content.add_child(_report_label("伤兵：" + _army_text(report.get("wounded" if side == "attacker" else "defenderWounded", {})), 16))
 	if not str(report.get("reason", "")).is_empty():
-		content.add_child(_label("结果说明：" + str(report.reason), 16))
+		content.add_child(_report_label("结果说明：" + str(report.reason), 16))
 	content.add_child(HSeparator.new())
-	content.add_child(_label("逐回合记录", 18))
+	content.add_child(_report_label("逐回合记录", 18))
 	var units: Dictionary = _unit_dictionary()
 	for event: Dictionary in report.get("log", []):
 		var unit: String = str(units.get(str(event.get("unit", "")), {}).get("name", event.get("unit", "部队")))
@@ -1492,7 +2269,7 @@ func _render_shared_report(content: VBoxContainer, report: Dictionary) -> void:
 			text += " 移动至 " + str(event.get("to", event.get("position", "—")))
 		else:
 			text += " 攻击" + target + " · 对方减员 " + str(event.get("killed", 0)) + "兵"
-		content.add_child(_label(text, 14))
+		content.add_child(_report_label(text, 14))
 
 func _save_dialog() -> void:
 	if api.mode == "shared":
@@ -1561,8 +2338,173 @@ func _show_inventory(section: String = "inventory") -> void:
 	if not is_instance_valid(_inventory):
 		_inventory = InventoryScript.new() as KingdomInventoryDialog
 		add_child(_inventory)
-		_inventory.command_requested.connect(func(type: String, args: Array) -> void: api.command(type, args))
+		_inventory.command_requested.connect(func(type: String, args: Array) -> void: _send_command(type, args))
 		_inventory.route_requested.connect(_route_objective)
 		_inventory.visibility_changed.connect(_on_popup_visibility.bind(_inventory))
 	_prepare_feature_panel(_inventory)
 	_inventory.show_section(section, _view)
+
+
+func _intel_now() -> float:
+	return Time.get_unix_time_from_system() * 1000.0 + _intel_server_offset
+
+func _scouting_view() -> Dictionary:
+	var view: Dictionary = _view.duplicate(true)
+	view["serverTime"] = _intel_now()
+	# The state DTO contains landmarks; ordinary wilds live in the safe world DTO.
+	# Add only the current target, with military data rebuilt from current intel.
+	if not _scouting_target_id.is_empty():
+		for tile: Dictionary in _world.get("tiles", []):
+			if str(tile.get("id", "")) == _scouting_target_id:
+				var present: bool = false
+				for node: Dictionary in view.get("nodes", []):
+					if str(node.get("id", "")) == _scouting_target_id:
+						present = true
+						break
+				if not present:
+					view["nodes"].append(_intel_node(tile))
+				break
+	return view
+
+func _intel_node(tile: Dictionary) -> Dictionary:
+	var node: Dictionary = tile.duplicate(true)
+	# A tile may be the previous selection; revoke its derived military data.
+	node.erase("intel")
+	node["army"] = {}
+	for current: Dictionary in _view.get("nodes", []):
+		if str(current.get("id", "")) == str(tile.get("id", "")):
+			node.merge(current, true)
+			break
+	var reports: Dictionary = _view.get("scouting", {}).get("intelByNode", {})
+	if reports.has(str(tile.get("id", ""))):
+		node["intel"] = reports[str(tile.id)].duplicate(true)
+		# Only the normalized server intel decides which numbers may be read.
+		node["army"] = node.intel.get("army", {}).duplicate(true) if node.intel.get("army", {}) is Dictionary else {}
+	return node
+
+func _sync_scouting_intel() -> void:
+	if api == null or api.mode == "shared":
+		return
+	if is_instance_valid(_detail_intel) and not _selected.is_empty():
+		_detail_intel.set_intel(_intel_node(_selected), _view.get("units", []), _intel_now())
+	if is_instance_valid(_dispatch_intel) and not _dispatch_intel_target.is_empty():
+		_dispatch_intel.set_intel(_intel_node(_dispatch_intel_target), _view.get("units", []), _intel_now())
+
+func _show_scouting(tile: Dictionary) -> void:
+	_open_dispatch_flow(tile, "scout")
+
+func _open_dispatch_flow(tile: Dictionary, tab: String) -> void:
+	if api == null or api.mode == "shared":
+		_show_toast("玩家城池侦察尚未开放")
+		return
+	if tile.get("owned", false) or tile.get("hidden", false) or not tile.get("selectable", true):
+		_show_toast("请选择已开放的城外目标")
+		return
+	if not is_instance_valid(_scouting):
+		_scouting = DispatchDialogScript.new() as KingdomScoutingDialog
+		add_child(_scouting)
+		_scouting.quote_requested.connect(func(kind: String, args: Array, request_id: String) -> void: api.request_quote(kind, args, request_id))
+		_scouting.command_requested.connect(func(type: String, args: Array, source: String) -> void: _send_command(type, args, source))
+		_scouting.visibility_changed.connect(_on_popup_visibility.bind(_scouting))
+	_prepare_feature_panel(_scouting)
+	_scouting_target_id = str(tile.get("id", ""))
+	_scouting.update_view(_scouting_view())
+	_scouting.configure_target(_intel_node(tile))
+	_scouting.set_command_state(api.connected, api._has_mutation())
+	_scouting.call("show_tab", tab)
+	_dispatch_intel_target = tile.duplicate(true)
+	_dispatch_intel = _scouting.get("_march_intel") as KingdomIntelPanel
+	_scouting.popup()
+	_scouting._fit_window()
+	_adapt_layout()
+	call_deferred("_watch_buttons", _scouting)
+
+func _refresh_scout_marches() -> void:
+	var current: Dictionary = {}
+	for march: Dictionary in _view.get("marches", []):
+		current[str(march.get("id", ""))] = march
+	if is_instance_valid(_march_content):
+		for id: String in current:
+			var march: Dictionary = current[id]
+			if _march_labels.has(id) or _march_filter == "stationed" and str(march.get("status", "")) != "stationed":
+				continue
+			var reused: bool = false
+			for prior_id: String in _march_labels.keys():
+				var existing: Label = _march_labels[prior_id]
+				if not current.has(prior_id) and _march_row_identity(existing.get_meta("march", {})) == _march_row_identity(march):
+					_march_labels[id] = existing
+					_march_labels.erase(prior_id)
+					var existing_action: Button = _march_action_buttons[prior_id]
+					existing_action.set_meta("march_id", id)
+					_march_action_buttons[id] = existing_action
+					_march_action_buttons.erase(prior_id)
+					reused = true
+					break
+			if not reused:
+				_add_march_row(march)
+	var visible_rows: int = 0
+	for id: String in _march_labels:
+		var label: Label = _march_labels[id]
+		if not is_instance_valid(label):
+			continue
+		var prior: Dictionary = label.get_meta("march", {})
+		var action: Button = _march_action_buttons.get(id)
+		if current.has(id):
+			var march: Dictionary = current[id]
+			label.set_meta("march", march.duplicate(true))
+			label.visible = _march_filter != "stationed" or str(march.get("status", "")) == "stationed"
+			if label.visible:
+				visible_rows += 1
+			if str(march.get("type", "")) == "scout":
+				var returning: bool = str(march.get("status", "")) == "return"
+				var end: float = float(march.get("returnAt", march.get("arrive", 0))) if returning else float(march.get("nextArrival", march.get("arrive", 0)))
+				label.text = str(march.get("label", "斥候")) + "\n出发城 " + _scout_city_name(str(march.get("sourceCity", "capital"))) + "\n" + ("斥候返程 · " if returning else "侦察途中 · ") + _march_remaining(end) + " · %d人" % int(march.get("count", 0))
+				var loss: Variant = march.get("lost")
+				if returning and (loss is int or loss is float) and is_finite(float(loss)) and float(loss) >= 0:
+					label.text += " · 损失 %d人" % int(loss)
+			else:
+				label.text = str(march.get("label", "部队")) + "\n" + _march_status(march)
+			if is_instance_valid(action):
+				action.text = "进入战斗" if march.get("canStartBattle", false) else "召回" if _march_can_recall(march) else ""
+				action.visible = label.visible and not action.text.is_empty()
+				action.disabled = not api.connected or api._has_mutation()
+		else:
+			label.visible = _march_filter != "stationed"
+			label.text = str(prior.get("label", "部队")) + ("\n斥候已返城，人数以出发城驻军为准。" if str(prior.get("type", "")) == "scout" else "\n本次行军已结束，兵力与资源以服务器回执为准。")
+			if is_instance_valid(action):
+				action.hide()
+
+	if is_instance_valid(_march_empty):
+		_march_empty.visible = visible_rows == 0
+
+func _march_can_recall(march: Dictionary) -> bool:
+	var status: String = str(march.get("status", ""))
+	if status in ["return", "battle"] or str(march.get("type", "")) == "scout":
+		return false
+	if march.has("recallCommand"):
+		return status in ["stationed", "march"]
+	var select: Dictionary = march.get("selectCommand", {})
+	return status == "march" and not march.get("shared", false) and str(select.get("type", "")) == "selectExpedition" and not str(select.get("sourceCity", "")).is_empty()
+
+func _activate_march_action(id: String) -> void:
+	if api == null or not api.connected or api._has_mutation():
+		return
+	for march: Dictionary in _view.get("marches", []):
+		if str(march.get("id", "")) != id:
+			continue
+		if march.get("canStartBattle", false):
+			_start_march_battle(march)
+		elif _march_can_recall(march):
+			if march.has("recallCommand"):
+				_send_record_command(march.recallCommand)
+			else:
+				_pending_battle = false
+				_pending_recall = march.selectCommand.duplicate(true)
+				_send_record_command(_pending_recall)
+		return
+
+func _scout_city_name(id: String) -> String:
+	for city: Dictionary in _view.get("cityList", []):
+		if str(city.get("id", "")) == id:
+			return str(city.get("name", id))
+	return str(_view.get("city", {}).get("name", id)) if str(_view.get("city", {}).get("id", "")) == id else id

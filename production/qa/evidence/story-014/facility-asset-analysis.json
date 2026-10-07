@@ -1,0 +1,128 @@
+{
+  "path": "assets/environment/city/city_facilities_commanding_v1.png",
+  "size": [
+    1536,
+    1024
+  ],
+  "mode": "RGBA",
+  "bytes": 3131067,
+  "sha256": "068a3d669d571de96f3ad89946d7a796fda78614e1d6676a9e4631c934e1d458",
+  "alphaExtrema": [
+    0,
+    254
+  ],
+  "transparentPixels": 538713,
+  "alphaBelow16Pixels": 616410,
+  "alphaAtLeast240Pixels": 906324,
+  "components": [
+    {
+      "bbox": [
+        23,
+        27,
+        371,
+        329
+      ],
+      "pixels": 86086
+    },
+    {
+      "bbox": [
+        403,
+        27,
+        755,
+        330
+      ],
+      "pixels": 87650
+    },
+    {
+      "bbox": [
+        787,
+        25,
+        1137,
+        329
+      ],
+      "pixels": 91352
+    },
+    {
+      "bbox": [
+        1173,
+        23,
+        1516,
+        327
+      ],
+      "pixels": 84779
+    },
+    {
+      "bbox": [
+        25,
+        392,
+        371,
+        641
+      ],
+      "pixels": 76884
+    },
+    {
+      "bbox": [
+        409,
+        395,
+        760,
+        641
+      ],
+      "pixels": 73391
+    },
+    {
+      "bbox": [
+        790,
+        388,
+        1143,
+        642
+      ],
+      "pixels": 78403
+    },
+    {
+      "bbox": [
+        1194,
+        350,
+        1496,
+        650
+      ],
+      "pixels": 55235
+    },
+    {
+      "bbox": [
+        21,
+        693,
+        376,
+        976
+      ],
+      "pixels": 68196
+    },
+    {
+      "bbox": [
+        403,
+        684,
+        758,
+        970
+      ],
+      "pixels": 80573
+    },
+    {
+      "bbox": [
+        786,
+        697,
+        1139,
+        975
+      ],
+      "pixels": 83718
+    },
+    {
+      "bbox": [
+        1166,
+        709,
+        1519,
+        977
+      ],
+      "pixels": 78778
+    }
+  ],
+  "pixelEdits": false
+}

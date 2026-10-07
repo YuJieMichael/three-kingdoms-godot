@@ -5,7 +5,8 @@ signal command_requested(type: String, args: Array)
 signal quote_requested(kind: String, args: Array, request_id: String)
 signal focus_requested(x: int, y: int)
 
-const SECTIONS: Dictionary = {"cities": "城池任职", "logistics": "运输调遣", "plots": "城外样板", "holdings": "领地采集", "automation": "挂机设置"}
+const SECTIONS: Dictionary = {"cities": "城池任职", "logistics": "运输调遣", "plots": "城外建设", "holdings": "领地采集", "automation": "挂机设置"}
+const SuburbScript: GDScript = preload("res://src/suburb_view.gd")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 const FIELD_NAMES: Dictionary = {"farm": "粮田", "lumber": "木场", "quarry": "石场", "mine": "铁矿"}
 var _view: Dictionary = {}
@@ -29,6 +30,9 @@ var _quote_label: Label
 var _quote_args: Callable
 var _quote_kind: String = ""
 var _quote_busy: bool = false
+var _selected_plot: int = -1
+var _templates_open: bool = false
+var _plot_map_open: bool = false
 
 func _ready() -> void:
 	get_ok_button().text = "关闭"
@@ -48,7 +52,12 @@ func show_section(section: String, view: Dictionary) -> void:
 		_scrolls[_section] = _scroll.scroll_vertical
 	_section = next
 	_error = ""
-	_source = str(_realm().get("currentCity", ""))
+	var source: String = str(_realm().get("currentCity", ""))
+	if source != _source:
+		_selected_plot = -1
+		_templates_open = false
+		_plot_map_open = false
+	_source = source
 	_structure = _structure_signature()
 	_build()
 	_fit()
@@ -63,6 +72,9 @@ func update_view(view: Dictionary) -> void:
 	if source != _source:
 		_source = source
 		_drafts.clear()
+		_selected_plot = -1
+		_templates_open = false
+		_plot_map_open = false
 		_error = "已切换城池，请核对新的驻军和资源"
 	if structure != _structure:
 		_scrolls[_section] = _scroll.scroll_vertical
@@ -115,7 +127,7 @@ func _realm() -> Dictionary:
 	return _view.get("realmManagement", {})
 
 func _structure_signature() -> String:
-	return JSON.stringify([_realm().get("currentCity", ""), _realm().get("cities", []).map(func(c: Dictionary) -> String: return str(c.id)), _realm().get("generals", []).map(func(g: Dictionary) -> Array: return [g.id, g.get("busy", false)]), _view.get("plots", []).map(func(p: Dictionary) -> Array: return [p.get("id"), p.get("level"), p.get("unlocked")]), _realm().get("holdings", []).map(func(h: Dictionary) -> Array: return [h.id, h.get("gathering") != null, h.get("garrison") != null]), _realm().get("logistics", []).map(func(j: Dictionary) -> String: return str(j.id))])
+	return JSON.stringify([_realm().get("currentCity", ""), _realm().get("cities", []).map(func(c: Dictionary) -> String: return str(c.id)), _realm().get("generals", []).map(func(g: Dictionary) -> Array: return [g.id, g.get("busy", false)]), _view.get("plots", []).map(func(p: Dictionary) -> Array: return [p.get("index"), p.get("id"), p.get("level"), p.get("unlocked")]), _view.get("plotOptions", []).map(func(p: Dictionary) -> Array: return [p.get("id"), p.get("name")]), _realm().get("holdings", []).map(func(h: Dictionary) -> Array: return [h.id, h.get("gathering") != null, h.get("garrison") != null]), _realm().get("logistics", []).map(func(j: Dictionary) -> String: return str(j.id))])
 
 func _fit() -> void:
 	var available: Vector2 = (get_parent() as Control).size if get_parent() is Control else Vector2(get_tree().root.size)
@@ -382,7 +394,136 @@ func _build_quote_controls(confirm_text: String) -> void:
 		if not _quote_command.is_empty() and _quote_fingerprint == JSON.stringify([_source, _quote_args.call()]):
 			_send(str(_quote_command.type), _quote_command.get("args", [])), func() -> String: return "请先预览并满足条件" if _quote_command.is_empty() or _quote_fingerprint != JSON.stringify([_source, _quote_args.call()]) else "")
 
+func _plot(index: int) -> Dictionary:
+	for row: Dictionary in _view.get("plots", []):
+		if int(row.get("index", -1)) == index:
+			return row
+	return {}
+
+func select_plot(index: int) -> void:
+	if not bool(_plot(index).get("unlocked", false)):
+		return
+	_selected_plot = index
+	if _section == "plots":
+		_scrolls[_section] = _scroll.scroll_vertical
+		_build()
+
+func _plot_reason(index: int, expected_id: Variant) -> String:
+	var current: Dictionary = _plot(index)
+	if not bool(current.get("unlocked", false)):
+		return "这处地块尚未开放"
+	if current.get("id") != expected_id:
+		return "地块已变化，请重新选择"
+	if current.get("queue") != null:
+		return "施工中"
+	var limit: int = int(_view.get("queueLimits", {}).get("build", 0))
+	if limit > 0:
+		var queues: Variant = _view.get("queues", {})
+		var build_jobs: Array = queues.get("build", []) if queues is Dictionary else []
+		if build_jobs.size() >= limit:
+			return "建造队正在忙碌"
+	return str(current.get("requirement", "")) if current.get("requirement") != null and expected_id != null else ""
+
+func _plot_option(id: String) -> Dictionary:
+	for option: Dictionary in _view.get("plotOptions", []):
+		if str(option.get("id", "")) == id:
+			return option
+	return {}
+
+func _plot_option_reason(index: int, id: String) -> String:
+	var parcel_reason: String = _plot_reason(index, null)
+	if not parcel_reason.is_empty():
+		return parcel_reason
+	var option: Dictionary = _plot_option(id)
+	if not option.has("cost") or not option.has("seconds") or not option.has("requirement") or not option.has("affordable"):
+		return "首级建设报价尚未同步"
+	if option.get("requirement") != null and not str(option.requirement).is_empty():
+		return str(option.requirement)
+	if not bool(option.affordable):
+		return "资源不足，等待物资积累"
+	return ""
+
+func _plot_option_text(index: int, id: String) -> String:
+	var option: Dictionary = _plot_option(id)
+	if not option.has("cost") or not option.has("seconds"):
+		return str(option.get("name", id)) + " · 正在读取首级建设报价"
+	var reason: String = _plot_option_reason(index, id)
+	return "%s · 1级 · 工期 %s\n费用 %s · %s" % [str(option.get("name", id)), _duration(float(option.seconds)), _cost(option.get("cost", {})), reason if not reason.is_empty() else "条件满足"]
+
+func _develop_selected_plot(index: int, id: String, expected_id: Variant, source: String) -> void:
+	if source != _source:
+		show_error("城池或地块已变化，请重新选择")
+		return
+	var reason: String = _plot_option_reason(index, id) if expected_id == null else _plot_reason(index, expected_id)
+	if not reason.is_empty():
+		show_error(reason)
+		return
+	_send("developPlot", [index, id])
+
+func _toggle_plot_templates() -> void:
+	_templates_open = not _templates_open
+	_scrolls[_section] = _scroll.scroll_vertical
+	_build()
+
+func _toggle_plot_map() -> void:
+	_plot_map_open = not _plot_map_open
+	_scrolls[_section] = _scroll.scroll_vertical
+	_build()
+
 func _build_plots() -> void:
+	if not bool(_plot(_selected_plot).get("unlocked", false)):
+		_selected_plot = -1
+		for row: Dictionary in _view.get("plots", []):
+			if bool(row.get("unlocked", false)):
+				_selected_plot = int(row.index)
+				break
+	var selector: OptionButton = OptionButton.new()
+	for row: Dictionary in _view.get("plots", []):
+		if not bool(row.get("unlocked", false)):
+			continue
+		selector.add_item("%d号 %s%s" % [int(row.index) + 1, str(row.get("name", "空地")), " · %d级" % int(row.get("level", 0)) if row.get("id") != null else ""], int(row.index))
+		if int(row.index) == _selected_plot:
+			selector.select(selector.item_count - 1)
+	selector.item_selected.connect(func(position: int) -> void: select_plot(selector.get_item_id(position)))
+	_content.add_child(selector)
+	var plot: Dictionary = _plot(_selected_plot)
+	if not plot.is_empty():
+		var index: int = _selected_plot
+		var expected_id: Variant = plot.get("id")
+		var source: String = _source
+		_heading("%d号 %s%s" % [index + 1, str(plot.get("name", "空地")), " · %d级" % int(plot.get("level", 0)) if expected_id != null else ""])
+		if expected_id != null:
+			_live_label(func() -> String:
+				var current: Dictionary = _plot(index)
+				return "升级费用 " + _cost(current.get("cost", {})) + " · 工期 " + _duration(float(current.get("seconds", 0))) + ("\n施工中" if current.get("queue") != null else ""))
+			_action("升级当前地块", _develop_selected_plot.bind(index, str(expected_id), expected_id, source), _plot_reason.bind(index, expected_id))
+		else:
+			_content.add_child(_label("选择这处空地的用途。农田供给军粮，木场、石场与铁矿供给建设和造兵。"))
+			for option: Dictionary in _view.get("plotOptions", []):
+				var id: String = str(option.id)
+				var quote_label: Label = _live_label(_plot_option_text.bind(index, id))
+				quote_label.set_meta("plot_quote_id", id)
+				_action("建设" + str(option.name), _develop_selected_plot.bind(index, id, null, source), _plot_option_reason.bind(index, id))
+	else:
+		_content.add_child(_label("提升官府等级后开放更多城外地块。"))
+	var map_toggle: Button = Button.new()
+	map_toggle.text = "收起地块图" if _plot_map_open else "展开地块图"
+	map_toggle.pressed.connect(_toggle_plot_map)
+	_content.add_child(map_toggle)
+	if _plot_map_open:
+		var scene: KingdomSuburbView = SuburbScript.new() as KingdomSuburbView
+		_content.add_child(scene)
+		scene.custom_minimum_size.x = 240.0
+		scene.set_view(_view)
+		scene.select_plot(_selected_plot)
+		scene.plot_selected.connect(select_plot)
+		_live.append(func() -> void: scene.set_view(_view))
+	var toggle: Button = Button.new()
+	toggle.text = "收起城外样板" if _templates_open else "展开城外样板"
+	toggle.pressed.connect(_toggle_plot_templates)
+	_content.add_child(toggle)
+	if not _templates_open:
+		return
 	_live_label(func() -> String: return str(_realm().get("plotStatus", "")))
 	_content.add_child(_label("补齐空地保留已有建筑。替换布局会将改建的田地重建为 1 级；匹配样板的高等级田地保留。资源不足时等待积累。"))
 	for template: Dictionary in _realm().get("templates", []):
@@ -401,19 +542,6 @@ func _build_plots() -> void:
 				return ("补齐空地" if mode == "fill" else "替换布局") + " · " + _cost(q.get("projectedCounts", q.get("counts", {}))) + "\n待安排 %s 块 · 总费用 %s\n%s" % [str(q.get("tasks", []).size()), _cost(q.get("cost", {})), str(q.get("reason", ""))])
 			_action("按样板补齐空地" if mode == "fill" else "确认替换布局", func() -> void: _send("applyPlotTemplate", [id, mode]), func() -> String: return "请先确认等级重置" if mode == "replace" and not confirmed.button_pressed else str(_template_quote(id, mode).get("error", "")))
 	_action("暂停样板建设", func() -> void: _send("pausePlotTemplate", []))
-	_heading("单块建设")
-	for plot: Dictionary in _view.get("plots", []):
-		if not plot.get("unlocked", false):
-			continue
-		var index: int = int(plot.index)
-		if plot.get("id") != null:
-			_action("%d号 %s · %d级 · 升级" % [index + 1, str(plot.name), int(plot.level)], func() -> void: _send("developPlot", [index, str(plot.id)]), func() -> String:
-				var current: Dictionary = _view.get("plots", [])[index]
-				return "施工中" if current.get("queue") != null else str(current.get("requirement", "")) if current.get("requirement") != null else "")
-		else:
-			_content.add_child(_label(str(index + 1) + "号空地"))
-			for option: Dictionary in _view.get("plotOptions", []):
-				_action("建设" + str(option.name), func() -> void: _send("developPlot", [index, str(option.id)]))
 
 func _template_quote(id: String, mode: String) -> Dictionary:
 	for quote: Dictionary in _find("templates", id).get("quotes", []):

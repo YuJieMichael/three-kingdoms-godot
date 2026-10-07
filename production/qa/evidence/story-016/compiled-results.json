@@ -1,0 +1,26 @@
+[
+  {
+    "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Windows-x64.zip",
+    "sha256": "455dc3e190226ae621f77858d01a20e5224f11b030080da9bb2d6d3e62c57285",
+    "compiledChecks": 76,
+    "exitCode": 0,
+    "seconds": 17.327,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled-windows.log",
+    "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+    "windowsExeExecuted": false,
+    "mutations": 1,
+    "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+  },
+  {
+    "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Web-preview.zip",
+    "sha256": "58fe3d3398a80fd0115bfe258c932e600c9012a89964049bb116d271d01cbe3d",
+    "compiledChecks": 76,
+    "exitCode": 0,
+    "seconds": 10.328,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled-web.log",
+    "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+    "windowsExeExecuted": false,
+    "mutations": 1,
+    "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+  }
+]

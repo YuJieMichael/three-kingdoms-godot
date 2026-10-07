@@ -1,0 +1,32 @@
+[
+  {
+    "test": "city_perimeter",
+    "exit": 0,
+    "ok": true
+  },
+  {
+    "test": "city_district_polish",
+    "exit": 0,
+    "ok": true
+  },
+  {
+    "test": "client",
+    "exit": 0,
+    "ok": true
+  },
+  {
+    "test": "city_construction_panel",
+    "exit": 0,
+    "ok": true
+  },
+  {
+    "test": "rts_city_grid",
+    "exit": 0,
+    "ok": true
+  },
+  {
+    "test": "commanding_city_art",
+    "exit": 0,
+    "ok": true
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "version": "0.6.0-dev.11",
+  "result": "passed",
+  "url": "http://127.0.0.1:17359/",
+  "finalTabId": "81",
+  "browserId": "2",
+  "viewports": [
+    [
+      1280,
+      1000
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "viewportRestored": true,
+  "deliverableMarked": true,
+  "errorCount": 0,
+  "warningCount": 0,
+  "logs": [],
+  "mutations": 0,
+  "observed": [
+    "Final desktop city, main street, courtyards and hall focus",
+    "One-row phone resources and exact resource details",
+    "Expanded full objective description/reward with readable Chinese 44px controls",
+    "Empty construction queue fits entire viewport and close control is visible",
+    "Idle military folded with working military menu",
+    "Science catalog real scrolling, exact-site unavailable preview, return preserving category/filter/scroll",
+    "Current-buildable filter, house capacity comparison, and fixed quotation/confirmation after scrolling",
+    "Phone last row34-36 and south gate reachable"
+  ],
+  "provenance": "Full UI observations on tab80; only objective control alignment and empty queue wording changed afterward. Final exported-byte tab81 rechecked desktop, phone objective, queue fit, exact-site house comparison and fixed footer. Unchanged catalog/resource/military/city geometry supported by tab80 captures and final targeted GD/package checks.",
+  "boundary": "Localhost browser, mouse/synthetic scrolling and 390 viewport; not physical phone, public hosting or Windows EXE execution."
+}

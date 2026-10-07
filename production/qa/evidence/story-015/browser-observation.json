@@ -1,0 +1,27 @@
+{
+  "tabId": "77",
+  "url": "http://127.0.0.1:17357/",
+  "observedSizes": [
+    {
+      "width": 1280,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "observedActions": [
+    "city roof selects Qingxi city at 32,32",
+    "zoom buttons desktop and narrow",
+    "resources filter mountain iron",
+    "drag changes camera 32,32 to 35,33 without selecting",
+    "wheel zoom",
+    "overview district labels",
+    "return home"
+  ],
+  "warningErrorLogs": [],
+  "viewportRestored": true,
+  "mutationsSent": 0,
+  "scope": "Actual final exported Web viewed through CUA; narrow viewport is not a physical phone."
+}

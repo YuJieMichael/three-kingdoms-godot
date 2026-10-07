@@ -1,0 +1,51 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+ERROR: Accepted replacement health must clear A's private Controls and toast immediately, without relying on a state response.
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/client_test.gd:66)
+       [1] _test_identity_switch_private_ui (res://tests/client_test.gd:343)
+       [2] _settle_layout (res://tests/client_test.gd:72)
+Godot client checks: 228 passed, 8 failed

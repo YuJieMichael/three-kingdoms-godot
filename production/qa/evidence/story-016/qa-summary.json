@@ -1,0 +1,147 @@
+{
+  "story": "016",
+  "status": "Complete",
+  "version": "0.6.0-dev.10",
+  "scope": "36 canonical city sites; desktop six columns and narrow-screen three columns; categorized building picker, explicit current-quote confirmation, realistic original RTS art, construction state and fixed city toolbar",
+  "headless": {
+    "suites": 9,
+    "checks": 5659,
+    "failures": 0,
+    "results": "scoped-gd-results.json",
+    "afterFinalDialogFix": {
+      "suite": "historic_structure_client",
+      "checks": 111,
+      "failures": 0,
+      "log": "historic-structure-client-final.log"
+    }
+  },
+  "nodeBridge": {
+    "checks": 23,
+    "failures": 0,
+    "log": "node-bridge.log"
+  },
+  "native": {
+    "host": "macOS Apple M1 Godot compatibility/OpenGL",
+    "checks": 1316,
+    "failures": 0,
+    "log": "rts-city-native.log",
+    "fixtures": "Rule-generated prepared scene; not a naturally played save. Developed desktop and mixed phone captures cover complete grid. Fresh phone native capture is partial, final Web capture covers last plots."
+  },
+  "web": {
+    "url": "http://127.0.0.1:17358/",
+    "exportFolder": "build/city-grid-0610-final/web",
+    "viewportSizes": [
+      [
+        1280,
+        1000
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "browserObservations": "web-browser-final.json",
+    "finalWarningsOrErrors": 0,
+    "httpChecks": 18,
+    "httpFailures": 0,
+    "revision": 0,
+    "mutations": 0,
+    "persistedSaveUnchanged": true,
+    "viewportOverrideReset": true
+  },
+  "packages": {
+    "version": "0.6.0-dev.10",
+    "checks": 196,
+    "failures": 0,
+    "packages": [
+      {
+        "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Windows-x64.zip",
+        "sha256": "455dc3e190226ae621f77858d01a20e5224f11b030080da9bb2d6d3e62c57285",
+        "bytes": 101238199,
+        "kind": "windows",
+        "extractedTo": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-ssnqi4do",
+        "pck": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-ssnqi4do/ThreeKingdoms.pck",
+        "windowsExeExecuted": false
+      },
+      {
+        "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Web-preview.zip",
+        "sha256": "58fe3d3398a80fd0115bfe258c932e600c9012a89964049bb116d271d01cbe3d",
+        "bytes": 73395725,
+        "kind": "web",
+        "extractedTo": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-i4xjp82v",
+        "pck": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/package-i4xjp82v/web/index.pck",
+        "windowsExeExecuted": false
+      }
+    ],
+    "boundary": "Archive/PE/WASM checks only; Windows EXE has not run on Windows."
+  },
+  "compiledPck": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Windows-x64.zip",
+      "sha256": "455dc3e190226ae621f77858d01a20e5224f11b030080da9bb2d6d3e62c57285",
+      "compiledChecks": 76,
+      "exitCode": 0,
+      "seconds": 17.327,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled-windows.log",
+      "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+      "windowsExeExecuted": false,
+      "mutations": 1,
+      "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.10-Web-preview.zip",
+      "sha256": "58fe3d3398a80fd0115bfe258c932e600c9012a89964049bb116d271d01cbe3d",
+      "compiledChecks": 76,
+      "exitCode": 0,
+      "seconds": 10.328,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled-web.log",
+      "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+      "windowsExeExecuted": false,
+      "mutations": 1,
+      "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+    }
+  ],
+  "art": {
+    "spriteRegions": 17,
+    "spriteSourcePngs": 7,
+    "separateGroundPngs": 1,
+    "actualBuildingTypes": 16,
+    "generation": "Built-in image_gen; original Chinese RTS assets; no third-party game textures copied",
+    "sourceAudit": "asset-source-audit.json",
+    "prompts": "assets/environment/city/RTS_GENERATION_PROMPTS.json",
+    "metadata": "data/city-rts-art-atlas.json"
+  },
+  "resolvedDiagnostics": [
+    {
+      "issue": "Immediate remove_child of an old dialog while its Viewport handled an input event emitted is_inside_tree errors in actual Web clicks",
+      "fix": "Hide then queue_free; final desktop/mobile catalog-preview-return-close loops have no warnings/errors",
+      "evidence": "diagnostics/web-before-dialog-fix.json"
+    },
+    {
+      "issue": "Custom user:// folder in disposable compiled harness did not exist, so pending journal correctly prevented command submission",
+      "fix": "Create isolated harness directory before loading client; both final packages submit exactly one house command in disposable QA data",
+      "evidence": "diagnostics/compiled-harness-missing-user-dir.log"
+    }
+  ],
+  "graphify": {
+    "flags": "extract . --code-only --exclude .claude/** --exclude docs/engine-reference/**; cluster-only . --no-label",
+    "nodes": 1327,
+    "edges": 3508,
+    "communities": 77,
+    "reextracted": 61,
+    "cached": 170,
+    "limits": "No .gd support; SQL parser unavailable; incomplete nested IIFE coverage. No watcher/hook/backend/upload."
+  },
+  "boundaries": {
+    "originalWebRepositoryChanged": false,
+    "originalPagesDeployed": false,
+    "windowsExeExecuted": false,
+    "physicalPhoneTested": false,
+    "publicReleasePublished": false,
+    "steamIntegrated": false,
+    "sourceCommittedOrPushed": false,
+    "economyOrBattleRulesChangedInThisStory": false
+  },
+  "saveIntegrity": "save-integrity.json",
+  "sourceDigests": "source-sha256.json"
+}

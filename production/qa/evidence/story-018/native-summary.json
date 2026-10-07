@@ -1,0 +1,8 @@
+{
+  "checks": 868,
+  "failures": 0,
+  "renderer": "macOS OpenGL Compatibility / Apple M1",
+  "fixtures": "Prepared read-only city DTOs, wall levels 1 and 10, widths 390 and 900",
+  "windowsExeTested": false,
+  "physicalPhoneTested": false
+}

@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "version": "0.6.0-dev.7",
+  "recordedAtUtc": "2026-10-07T06:34:47.071570+00:00",
+  "scope": "11 selected GDScript suites; canonical bridge/realm Node suites; native scene integration; independent touch propagation. Not a full repository regression or hardware-phone/Windows-EXE run.",
+  "headlessGDScript": {
+    "tests": 11,
+    "checks": 4912,
+    "failures": 0,
+    "testsDetail": [
+      {
+        "test": "tests/historic_city_test.gd",
+        "checks": 2714,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "Historical city: 2714 checks, 0 failures"
+        ],
+        "seconds": 0.901,
+        "log": ".local/historic-0607-qa/historic_city_test.log"
+      },
+      {
+        "test": "tests/historic_suburb_test.gd",
+        "checks": 893,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "historic_suburb_test: 893 checks, 0 failures"
+        ],
+        "seconds": 0.676,
+        "log": ".local/historic-0607-qa/historic_suburb_test.log"
+      },
+      {
+        "test": "tests/historic_structure_client_test.gd",
+        "checks": 63,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "HISTORIC_STRUCTURE_CLIENT_CHECKS=63 failures=0"
+        ],
+        "seconds": 2.549,
+        "log": ".local/historic-0607-qa/historic_structure_client_test.log"
+      },
+      {
+        "test": "tests/battle_view_test.gd",
+        "checks": 70,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "City / battle presentation: 70 checks, 0 failures"
+        ],
+        "seconds": 0.567,
+        "log": ".local/historic-0607-qa/battle_view_test.log"
+      },
+      {
+        "test": "tests/client_test.gd",
+        "checks": 236,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "Godot client checks: 236 passed, 0 failed"
+        ],
+        "seconds": 3.264,
+        "log": ".local/historic-0607-qa/client_test.log"
+      },
+      {
+        "test": "tests/management_test.gd",
+        "checks": 85,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "MANAGEMENT_TEST_CHECKS=85 failures=0"
+        ],
+        "seconds": 1.375,
+        "log": ".local/historic-0607-qa/management_test.log"
+      },
+      {
+        "test": "tests/input_test.gd",
+        "checks": 255,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "INPUT_TEST_CHECKS=255 failures=0"
+        ],
+        "seconds": 3.489,
+        "log": ".local/historic-0607-qa/input_test.log"
+      },
+      {
+        "test": "tests/realm_management_test.gd",
+        "checks": 22,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "REALM_UI_TEST checks=22 failures=0"
+        ],
+        "seconds": 0.766,
+        "log": ".local/historic-0607-qa/realm_management_test.log"
+      },
+      {
+        "test": "tests/playable_ui_test.gd",
+        "checks": 125,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "PLAYABLE_UI_TEST checks=125 failures=0"
+        ],
+        "seconds": 3.269,
+        "log": ".local/historic-0607-qa/playable_ui_test.log"
+      },
+      {
+        "test": "tests/ui_polish_test.gd",
+        "checks": 351,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "UI_POLISH_TEST_CHECKS=351 failures=0"
+        ],
+        "seconds": 3.236,
+        "log": ".local/historic-0607-qa/ui_polish_test.log"
+      },
+      {
+        "test": "tests/war_interface_test.gd",
+        "checks": 98,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "WAR_INTERFACE_CHECKS=98 failures=0"
+        ],
+        "seconds": 1.676,
+        "log": ".local/historic-0607-qa/war_interface_test.log"
+      }
+    ]
+  },
+  "node": {
+    "tests": 31,
+    "pass": 31,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "durationMs": 39027.939417
+  },
+  "nativeIntegration": {
+    "checks": 69,
+    "failures": 0,
+    "developedPreparedFixture": true
+  },
+  "touchPropagation": {
+    "checks": 48,
+    "failures": 0,
+    "method": "Actual Input.parse_input_event Viewport/ScrollContainer routing in isolated headless/native processes",
+    "physicalPhoneTested": false
+  },
+  "web": {
+    "url": "http://127.0.0.1:17355",
+    "revision": 0,
+    "mutations": 0,
+    "observations": {
+      "version": "0.6.0-dev.7",
+      "url": "http://127.0.0.1:17355/",
+      "tabId": "73",
+      "viewportsObserved": [
+        {
+          "width": 1280,
+          "height": 1000
+        },
+        {
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "viewportReset": true,
+      "finalReloadAt": "2026-10-07T06:34:02.580Z",
+      "warningsErrors": [],
+      "earlierTransientMessages": [
+        {
+          "timestamp": "2026-10-07T06:29:01.565Z",
+          "message": "TypeError: Failed to fetch",
+          "context": "Owned local preview Node service stopped/restarted to load updated DTO while previous client kept polling; final reload recovers and has no new error."
+        }
+      ],
+      "observed": [
+        "Inner city hall14 and 32 genuine empty sites",
+        "Clicked empty site35 opened 空地36 planning with real costs/times",
+        "Outer scene12 unlocked empty plots, selected plotindex2 opened3号空地",
+        "Four independent resource-type fees/times visible through modal scrolling",
+        "390 plot detail and lower action buttons reachable without submitting construction",
+        "390 city scrolling reaches south gate without opening a parcel dialog",
+        "Final reload connected; city page left visible"
+      ],
+      "revision": 0,
+      "mutations": 0,
+      "physicalPhoneTested": false,
+      "screenshotDirectory": "production/qa/evidence/story-013",
+      "scope": "Actual final exported Web, computer browser responsive layout and mouse/wheel; raw native touch propagation is separate evidence."
+    }
+  },
+  "originalWebsiteChanged": false,
+  "windowsExeExecuted": false,
+  "sourceCommitted": false,
+  "publicRelease": false
+}

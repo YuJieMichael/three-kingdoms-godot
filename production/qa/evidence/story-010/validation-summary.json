@@ -1,0 +1,45 @@
+{
+  "version": "0.6.0-dev.4",
+  "node": 169,
+  "sceneTree": 2414,
+  "htmlFixture": 19,
+  "regressionTotal": 2602,
+  "packageArchive": 158,
+  "compiledUI": 42,
+  "packagedRuleService": 18,
+  "packageTotal": 218,
+  "nativeClientChecks": 109,
+  "nativeScreenshots": 7,
+  "webObserved": {
+    "url": "http://127.0.0.1:17349/",
+    "sizes": [
+      "1280x720",
+      "390x844"
+    ],
+    "flows": [
+      "load final export",
+      "fresh save connected",
+      "growth actual prerequisites",
+      "transaction growth entry",
+      "expand prerequisites",
+      "scroll region",
+      "viewport reset"
+    ],
+    "gameplayCommands": 0,
+    "errorsAfterFinalReload": 0,
+    "earlierIntentionalRestartFetchError": "2026-10-07T00:03:28.692Z"
+  },
+  "windowsEXERun": false,
+  "packages": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.4-Windows-x64.zip",
+      "sha256": "12fc0a8a5f1a4534b48d931a6e2f6e6bfc94816b8628fd47e96c7a987d584d3f",
+      "bytes": 87398829
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.4-Web-preview.zip",
+      "sha256": "342175a9cb316dfb8a7d0c6a69bc7679aa76a09b085329c0adf814e6293accdb",
+      "bytes": 59556356
+    }
+  ]
+}

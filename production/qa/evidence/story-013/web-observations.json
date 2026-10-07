@@ -1,0 +1,39 @@
+{
+  "version": "0.6.0-dev.7",
+  "url": "http://127.0.0.1:17355/",
+  "tabId": "73",
+  "viewportsObserved": [
+    {
+      "width": 1280,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "viewportReset": true,
+  "finalReloadAt": "2026-10-07T06:34:02.580Z",
+  "warningsErrors": [],
+  "earlierTransientMessages": [
+    {
+      "timestamp": "2026-10-07T06:29:01.565Z",
+      "message": "TypeError: Failed to fetch",
+      "context": "Owned local preview Node service stopped/restarted to load updated DTO while previous client kept polling; final reload recovers and has no new error."
+    }
+  ],
+  "observed": [
+    "Inner city hall14 and 32 genuine empty sites",
+    "Clicked empty site35 opened 空地36 planning with real costs/times",
+    "Outer scene12 unlocked empty plots, selected plotindex2 opened3号空地",
+    "Four independent resource-type fees/times visible through modal scrolling",
+    "390 plot detail and lower action buttons reachable without submitting construction",
+    "390 city scrolling reaches south gate without opening a parcel dialog",
+    "Final reload connected; city page left visible"
+  ],
+  "revision": 0,
+  "mutations": 0,
+  "physicalPhoneTested": false,
+  "screenshotDirectory": "production/qa/evidence/story-013",
+  "scope": "Actual final exported Web, computer browser responsive layout and mouse/wheel; raw native touch propagation is separate evidence."
+}

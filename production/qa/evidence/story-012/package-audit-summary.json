@@ -1,0 +1,121 @@
+{
+  "version": "0.6.0-dev.6",
+  "result": "PASS within the documented war UI/private local API boundary",
+  "checks": 480,
+  "failures": 0,
+  "archiveChecks": 172,
+  "compiledChecks": 142,
+  "packagedHttpChecks": 166,
+  "packages": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Windows-x64.zip",
+      "sha256": "43b0d8e77c466557488f7e0a924386e0b0ebd282d3f2336fdd8a67e0bd5ce5c7",
+      "bytes": 87457121
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Web-preview.zip",
+      "sha256": "70600202767795add2aceb756c046907d094f895151c887335535eb40c1c32b9",
+      "bytes": 59614646
+    }
+  ],
+  "compiled": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Windows-x64.zip",
+      "sha256": "43b0d8e77c466557488f7e0a924386e0b0ebd282d3f2336fdd8a67e0bd5ce5c7",
+      "compiledChecks": 71,
+      "smoke": "canonical revision 0 + 4096 tiles from isolated extracted-package API",
+      "exitCode": 0,
+      "seconds": 18.202,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/compiled-final-windows.log",
+      "host": "macOS Godot editor headless loading exported PCK",
+      "windowsExeExecuted": false,
+      "webBrowserExecuted": false
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Web-preview.zip",
+      "sha256": "70600202767795add2aceb756c046907d094f895151c887335535eb40c1c32b9",
+      "compiledChecks": 71,
+      "smoke": "canonical revision 0 + 4096 tiles from isolated extracted-package API",
+      "exitCode": 0,
+      "seconds": 11.041,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/compiled-final-web.log",
+      "host": "macOS Godot editor headless loading exported PCK",
+      "windowsExeExecuted": false,
+      "webBrowserExecuted": false
+    }
+  ],
+  "packagedRuntime": [
+    {
+      "checks": 82,
+      "failures": 0,
+      "kind": "windows",
+      "fileScope": "prepared training and army conditions; actual packaged HTTP scout train/dispatch/arrival/return/TTL and legal march quote/fee/replay",
+      "runtimeExecuted": "packaged JavaScript on host darwin, Node v24.19.0",
+      "windowsExeExecuted": false,
+      "intelSafetyScope": [
+        "view.nodes",
+        "view.scouting",
+        "view.marches"
+      ],
+      "rawCityExpeditionSnapshotPaths": [
+        "view.cityList[0].expeditions[0].enemySnapshot",
+        "view.realmManagement.cities[0].expeditions[0].enemySnapshot"
+      ],
+      "wholeViewIntelligenceIsolationClaimed": false,
+      "boundary": "Existing private local API provides raw save/city expedition data; this audit does not claim whole-view or formal PvP intel isolation.",
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Windows-x64.zip",
+      "sha256": "43b0d8e77c466557488f7e0a924386e0b0ebd282d3f2336fdd8a67e0bd5ce5c7",
+      "exitCode": 0,
+      "seconds": 4.33,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/packaged-runtime-windows.log",
+      "dataDir": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/packaged-service-windows-ocqs6ajw"
+    },
+    {
+      "checks": 84,
+      "failures": 0,
+      "kind": "web",
+      "fileScope": "prepared training and army conditions; actual packaged HTTP scout train/dispatch/arrival/return/TTL and legal march quote/fee/replay",
+      "runtimeExecuted": "packaged JavaScript on host darwin, Node v24.19.0",
+      "windowsExeExecuted": false,
+      "intelSafetyScope": [
+        "view.nodes",
+        "view.scouting",
+        "view.marches"
+      ],
+      "rawCityExpeditionSnapshotPaths": [
+        "view.cityList[0].expeditions[0].enemySnapshot",
+        "view.realmManagement.cities[0].expeditions[0].enemySnapshot"
+      ],
+      "wholeViewIntelligenceIsolationClaimed": false,
+      "boundary": "Existing private local API provides raw save/city expedition data; this audit does not claim whole-view or formal PvP intel isolation.",
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Web-preview.zip",
+      "sha256": "70600202767795add2aceb756c046907d094f895151c887335535eb40c1c32b9",
+      "exitCode": 0,
+      "seconds": 4.394,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/packaged-runtime-web.log",
+      "dataDir": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/packaged-service-web-v9x4lnqw"
+    }
+  ],
+  "initialBroadDtoAssertion": {
+    "result": "failed and retained, then scope corrected by parent decision",
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/packaged-runtime-windows-pre-repair.log",
+    "report": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/war-ui-0606-qa/packaged-runtime-failure.json",
+    "decision": "Preserve this UI story's existing private API/save contract. Assert only actual new UI read fields view.nodes/view.scouting/view.marches, and record raw own-city expedition snapshots explicitly."
+  },
+  "boundary": {
+    "windowsExeExecuted": false,
+    "webBrowserExecutedByThisAudit": false,
+    "compiledHost": "macOS Godot editor headless loading both exact exported PCKs",
+    "javascriptHost": "macOS Node v24.19.0 executing extracted packaged service modules",
+    "intelSafetyScope": [
+      "view.nodes",
+      "view.scouting",
+      "view.marches"
+    ],
+    "wholeViewOrFormalPvpIntelIsolationClaimed": false,
+    "rawOwnCityExpeditionSnapshotsRemain": true,
+    "preparedConditionsNotNaturalEconomicPacing": true
+  },
+  "productionSourceModified": false,
+  "importsOrExportsPerformed": false
+}

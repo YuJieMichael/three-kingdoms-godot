@@ -1,0 +1,32 @@
+[
+  {
+    "level": "error",
+    "message": "ERROR: Condition \"!is_inside_tree()\" is true.",
+    "timestamp": "2026-10-07T08:18:01.040Z",
+    "url": "http://127.0.0.1:17358/index.js"
+  },
+  {
+    "level": "error",
+    "message": "   at: _push_unhandled_input_internal (scene/main/viewport.cpp:3632)",
+    "timestamp": "2026-10-07T08:18:01.041Z",
+    "url": "http://127.0.0.1:17358/index.js"
+  },
+  {
+    "level": "error",
+    "message": "ERROR: Condition \"!is_inside_tree()\" is true.",
+    "timestamp": "2026-10-07T08:19:09.879Z",
+    "url": "http://127.0.0.1:17358/index.js"
+  },
+  {
+    "level": "error",
+    "message": "   at: _push_unhandled_input_internal (scene/main/viewport.cpp:3632)",
+    "timestamp": "2026-10-07T08:19:09.879Z",
+    "url": "http://127.0.0.1:17358/index.js"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Failed to fetch\n    at Object.create (http://127.0.0.1:17358/index.js:1:187617)\n    at _godot_js_fetch_create (http://127.0.0.1:17358/index.js:1:188630)\n    at wasm://wasm/096bca0a:wasm-function[58612]:0x1e291b7\n    at wasm://wasm/096bca0a:wasm-function[24047]:0xf5fe7e\n    at wasm://wasm/096bca0a:wasm-function[65608]:0x1f172e7\n    at wasm://wasm/096bca0a:wasm-function[631]:0x70032\n    at wasm://wasm/096bca0a:wasm-function[23919]:0xf37ef3\n    at wasm://wasm/096bca0a:wasm-function[23922]:0xf38833\n    at wasm://wasm/096bca0a:wasm-function[65206]:0x1efa750\n    at wasm://wasm/096bca0a:wasm-function[18792]:0xb062cf",
+    "timestamp": "2026-10-07T08:30:48.317Z",
+    "url": "http://127.0.0.1:17358/index.js"
+  }
+]

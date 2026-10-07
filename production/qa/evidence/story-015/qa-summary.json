@@ -1,0 +1,126 @@
+{
+  "version": "0.6.0-dev.9",
+  "headlessScoped": {
+    "entries": [
+      {
+        "test": "world_map",
+        "code": 0,
+        "checks": 24,
+        "seconds": 3.25,
+        "errors": false
+      },
+      {
+        "test": "war_visual",
+        "code": 0,
+        "checks": 50,
+        "seconds": 2.262,
+        "errors": false
+      },
+      {
+        "test": "input",
+        "code": 0,
+        "checks": 255,
+        "seconds": 17.568,
+        "errors": false
+      },
+      {
+        "test": "client",
+        "code": 0,
+        "checks": 236,
+        "seconds": 36.037,
+        "errors": false
+      },
+      {
+        "test": "war_interface",
+        "code": 0,
+        "checks": 98,
+        "seconds": 8.067,
+        "errors": false
+      },
+      {
+        "test": "map_render",
+        "checks": 215,
+        "code": 0,
+        "errors": false
+      },
+      {
+        "test": "world_map_art",
+        "checks": 314,
+        "code": 0,
+        "errors": false
+      }
+    ],
+    "totalChecks": 1192
+  },
+  "native": {
+    "worldMapArt": 317,
+    "warVisual": 58,
+    "note": "Includes repeated contracts; three canonical map captures and eight seam pixel checks are additional."
+  },
+  "node": {
+    "canonicalPresentation": 5,
+    "unchangedBridgeReportedByDelegate": 23,
+    "note": "Separate final runs, not one 28/28 combined run."
+  },
+  "toolbarProbeChecks": 59,
+  "packages": {
+    "archiveChecks": 186,
+    "compiledChecks": 118,
+    "httpChecks": 18,
+    "totalChecks": 322
+  },
+  "browser": {
+    "tabId": "77",
+    "url": "http://127.0.0.1:17357/",
+    "observedSizes": [
+      {
+        "width": 1280,
+        "height": 1000
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "observedActions": [
+      "city roof selects Qingxi city at 32,32",
+      "zoom buttons desktop and narrow",
+      "resources filter mountain iron",
+      "drag changes camera 32,32 to 35,33 without selecting",
+      "wheel zoom",
+      "overview district labels",
+      "return home"
+    ],
+    "warningErrorLogs": [],
+    "viewportRestored": true,
+    "mutationsSent": 0,
+    "scope": "Actual final exported Web viewed through CUA; narrow viewport is not a physical phone."
+  },
+  "saveIntegrity": {
+    "source": ".local/commanding-art-0608-preview/save.json",
+    "copy": ".local/map-art-0609-preview/save.json",
+    "sha256": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+    "equal": true,
+    "copiedFiles": [
+      "save.json"
+    ],
+    "afterSha256": {
+      "source": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+      "copy": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725"
+    },
+    "unchanged": true,
+    "revision": 0
+  },
+  "graph": {
+    "nodes": 1327,
+    "edges": 3508,
+    "communities": 77,
+    "localCodeOnly": true
+  },
+  "limitations": [
+    "Windows EXE and physical phone not executed",
+    "Native candidate performance comparison diagnostic only: before had parallel load, and final decoration jitter differs; no FPS/budget claim",
+    "Native canonical capture uses an isolated prepared-city helper; final Web uses existing save copy",
+    "No public release, original Pages deployment, cloud credentials or gameplay-rule changes"
+  ]
+}

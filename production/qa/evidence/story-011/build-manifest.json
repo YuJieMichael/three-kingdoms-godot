@@ -1,0 +1,27 @@
+{
+  "version": "0.6.0-dev.5",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "nodeWindows": "24.21.0",
+  "legacyCommit": "c7674df45b9595405e57907524e737e633b0ff63",
+  "editionRules": {
+    "countyPreparation": {
+      "costCopper": 80,
+      "limitPerSave": 5,
+      "unlock": "camp",
+      "shared": false
+    }
+  },
+  "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+  "artifacts": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.5-Windows-x64.zip",
+      "bytes": 87423840,
+      "sha256": "a8dd07132c0620df34f50d11af7f84842266a39505c8cead15fc2f2682056032"
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.5-Web-preview.zip",
+      "bytes": 59581366,
+      "sha256": "64e19b9d9d2ad0528240ff34cf5a17e162a37dd78801fad3eec6ab119f12e3ae"
+    }
+  ]
+}

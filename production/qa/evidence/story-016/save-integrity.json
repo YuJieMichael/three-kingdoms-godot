@@ -1,0 +1,15 @@
+{
+  "source": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/map-art-0609-preview/save.json",
+  "destination": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-preview/save.json",
+  "sourceBeforeSha256": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+  "copyBeforeSha256": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+  "copiedFiles": [
+    "save.json"
+  ],
+  "sourceAfterSha256": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+  "copyAfterSha256": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+  "persistedSourceUnchanged": true,
+  "persistedPreviewUnchanged": true,
+  "previewMutations": 0,
+  "previewRevision": 0
+}

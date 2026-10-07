@@ -1,0 +1,26 @@
+{
+  "version": "0.6.0-dev.11",
+  "checks": 205,
+  "failures": 0,
+  "packages": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Windows-x64.zip",
+      "sha256": "08eed38db4d6a46d1dcfd69abd8838654b3f4054a695a0cbf7b97fcf39d44f38",
+      "bytes": 104317654,
+      "kind": "windows",
+      "extractedTo": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/package-nv1r23nv",
+      "pck": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/package-nv1r23nv/ThreeKingdoms.pck",
+      "windowsExeExecuted": false
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Web-preview.zip",
+      "sha256": "17e34e41d1aecb63bd0e54637758533a08b0315819666a229f2cba5db97fef47",
+      "bytes": 76475209,
+      "kind": "web",
+      "extractedTo": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/package-_n805iqv",
+      "pck": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/package-_n805iqv/web/index.pck",
+      "windowsExeExecuted": false
+    }
+  ],
+  "boundary": "Archive/PE/WASM checks only; Windows EXE has not run on Windows."
+}

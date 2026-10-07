@@ -7,8 +7,11 @@ signal connection_requested
 
 const TabsScript: Script = preload("res://addons/maaacks_menu/paginated_tab_container.gd")
 var audio: KingdomPresentationAudio
+var feedback: KingdomUiFeedback
 var _tabs: TabContainer
 var _feedback: Label
+var _reduced_motion: CheckBox
+var _display_feedback: Label
 
 func _ready() -> void:
 	title = "山河策 · 菜单"
@@ -27,8 +30,10 @@ func _ready() -> void:
 		var button: Button = Button.new()
 		button.text = str(entry[0])
 		button.custom_minimum_size.y = 40
+		button.theme_type_variation = "PrimaryButton" if str(entry[0]) == "新手引导" else "UtilityButton"
 		button.pressed.connect(func() -> void: audio.click(); hide(); action.emit())
 		general.add_child(button)
+		_watch_button(button)
 	var sound: VBoxContainer = _tab("声音")
 	for bus: String in ["Music", "Sounds", "UI"]:
 		var caption: Label = Label.new()
@@ -45,21 +50,52 @@ func _ready() -> void:
 			var error: Error = audio.set_level(bus, value)
 			_feedback.text = "声音设置已保存" if error == OK else "声音设置保存失败，保留原设置"
 			if error != OK:
-				slider.set_value_no_signal(float(audio.levels[bus])))
+				slider.set_value_no_signal(float(audio.levels[bus]))
+			_notice(_feedback))
 	var test: Button = Button.new()
 	test.text = "试听"
 	test.custom_minimum_size.y = 40
+	test.theme_type_variation = "UtilityButton"
 	test.pressed.connect(audio.click)
 	sound.add_child(test)
+	_watch_button(test)
 	_feedback = Label.new()
 	_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sound.add_child(_feedback)
+	var display: VBoxContainer = _tab("显示")
+	var display_title: Label = Label.new()
+	display_title.text = "界面动态效果"
+	display_title.theme_type_variation = "SectionLabel"
+	display.add_child(display_title)
+	_reduced_motion = CheckBox.new()
+	_reduced_motion.name = "ReducedMotion"
+	_reduced_motion.text = "减少动态效果"
+	_reduced_motion.custom_minimum_size.y = 44
+	_reduced_motion.focus_mode = Control.FOCUS_ALL
+	_reduced_motion.toggled.connect(_set_display_preference)
+	display.add_child(_reduced_motion)
+	var display_help: Label = Label.new()
+	display_help.text = "开启后，界面提示立即显示，按钮与战斗反馈使用静态呈现。设置自动保存在本机。"
+	display_help.theme_type_variation = "MutedLabel"
+	display_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	display.add_child(display_help)
+	_display_feedback = Label.new()
+	_display_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	display.add_child(_display_feedback)
+	_refresh_display_settings()
+	if feedback != null:
+		feedback.preferences_changed.connect(_refresh_display_settings)
+		_display_feedback.text = feedback.load_warning
+	else:
+		_display_feedback.text = "显示设置暂不可用。"
 	var credits: VBoxContainer = _tab("鸣谢")
 	var text: Label = Label.new()
 	text.text = "声音：Nathan Hoad · Sound Manager\n剧情：Nathan Hoad · Dialogue Manager\n菜单分页：Maaack · Game Template\n以上代码采用 MIT 许可证。\n当前合成音乐与提示音为项目自制，可替换为正式素材。"
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	credits.add_child(text)
 	confirmed.connect(audio.click)
+	get_ok_button().theme_type_variation = "UtilityButton"
+	_watch_button(get_ok_button())
 	get_tree().root.size_changed.connect(_fit_window)
 
 func _tab(caption: String) -> VBoxContainer:
@@ -69,11 +105,12 @@ func _tab(caption: String) -> VBoxContainer:
 	_tabs.add_child(scroll)
 	var column: VBoxContainer = VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	column.add_theme_constant_override("separation", 10)
+	column.add_theme_constant_override("separation", 8)
 	scroll.add_child(column)
 	return column
 
 func open_menu() -> void:
+	_refresh_display_settings()
 	_fit_window()
 	popup_centered(size)
 	get_ok_button().grab_focus()
@@ -83,3 +120,27 @@ func _fit_window() -> void:
 	size = Vector2i(int(minf(560.0, viewport_size.x - 24.0)), int(minf(430.0, viewport_size.y - 48.0)))
 	if visible:
 		position = Vector2i((viewport_size - Vector2(size)) / 2.0)
+
+func _set_display_preference(value: bool) -> void:
+	if feedback == null:
+		return
+	audio.click()
+	var error: Error = feedback.set_reduced_motion(value)
+	_refresh_display_settings()
+	_display_feedback.text = "显示设置已保存" if error == OK else "显示设置保存失败，保留原设置"
+	_notice(_display_feedback)
+
+func _refresh_display_settings() -> void:
+	if not is_instance_valid(_reduced_motion):
+		return
+	_reduced_motion.disabled = feedback == null
+	if feedback != null:
+		_reduced_motion.set_pressed_no_signal(feedback.reduced_motion)
+
+func _watch_button(button: Button) -> void:
+	if feedback != null:
+		feedback.watch_button(button)
+
+func _notice(label: Label) -> void:
+	if feedback != null:
+		feedback.notice(label)

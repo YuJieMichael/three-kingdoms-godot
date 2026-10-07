@@ -1,7 +1,7 @@
 schema_version: 1
 project:
   name: 山河策
-  version: 0.6.0-dev.2
+  version: 0.6.0-dev.12
   genre: 2D strategy
   stage: Pre-Production
   description: Independent Godot client with account-bound rooms and a deployable authoritative service; cloud configuration pending.

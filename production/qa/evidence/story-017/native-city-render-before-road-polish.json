@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "seconds": 26.55,
+  "checks": 1324,
+  "renderer": "native macOS production Control in full-size SubViewport",
+  "prepared": "canonical developed-city fixture plus isolated construction presentation projection; no player save loaded",
+  "screenshots": [
+    "rts-city-grid-fresh-phone.png",
+    "rts-city-grid-mixed-phone.png",
+    "rts-city-grid-developed-desktop.png"
+  ]
+}

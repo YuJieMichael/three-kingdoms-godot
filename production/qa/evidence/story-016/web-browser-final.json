@@ -1,0 +1,15 @@
+{
+  "version": "0.6.0-dev.10",
+  "url": "http://127.0.0.1:17358/",
+  "since": "2026-10-07T08:30:54.015Z",
+  "actions": [
+    "desktop 6-column grid and hall locator",
+    "desktop catalog -> preview -> catalog -> close",
+    "390x844 3-column hall grid",
+    "mobile catalog -> preview -> catalog -> close",
+    "mobile scroll to sites34-36 and south gate"
+  ],
+  "mutations": 0,
+  "logs": [],
+  "physicalPhoneTested": false
+}

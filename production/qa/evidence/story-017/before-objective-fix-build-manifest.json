@@ -1,0 +1,96 @@
+{
+  "version": "0.6.0-dev.11",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "nodeWindows": "24.21.0",
+  "legacyCommit": "c7674df45b9595405e57907524e737e633b0ff63",
+  "editionRules": {
+    "countyPreparation": {
+      "costCopper": 80,
+      "limitPerSave": 5,
+      "unlock": "camp",
+      "shared": false
+    }
+  },
+  "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+  "artifacts": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Windows-x64.zip",
+      "bytes": 104317654,
+      "sha256": "08eed38db4d6a46d1dcfd69abd8838654b3f4054a695a0cbf7b97fcf39d44f38"
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Web-preview.zip",
+      "bytes": 76475209,
+      "sha256": "17e34e41d1aecb63bd0e54637758533a08b0315819666a229f2cba5db97fef47"
+    }
+  ],
+  "cityArt": {
+    "metadataSha256": "dfa99af4967ba0d55ce15c7ce79d25aedb9fe98ef06184c5c0a15662afe05a67",
+    "spriteCount": 17,
+    "sources": [
+      {
+        "path": "res://assets/environment/city/city_rts_core_v1.png",
+        "bytes": 2692462,
+        "sha256": "a31978895c9e09d2cf3a6f69c27d360141354a83e7fc83d4d84f83f650ee1249"
+      },
+      {
+        "path": "res://assets/environment/city/city_rts_civic_v1.png",
+        "bytes": 2837694,
+        "sha256": "b8993f60daf08d71ea381d1373d6a29dfbce3e9c7add4249d89cfc59e607a800"
+      },
+      {
+        "path": "res://assets/environment/city/city_rts_smith_v1.png",
+        "bytes": 1733442,
+        "sha256": "3b06bf24480b0eb1e6b133fadd2b724f2540b32288b5390efc9fe2bd000fc645"
+      },
+      {
+        "path": "res://assets/environment/city/city_rts_workshop_v1.png",
+        "bytes": 1737581,
+        "sha256": "b5e483bcf99d5e6ec20400566975a47551a81df12df96742dfdb5d9e81d05a79"
+      },
+      {
+        "path": "res://assets/environment/city/city_rts_beacon_v1.png",
+        "bytes": 1311415,
+        "sha256": "4c3482a1268584804af829e9f9ad805a93954137951e0e6009ec1891c19870f2"
+      },
+      {
+        "path": "res://assets/environment/city/city_rts_wall_v1.png",
+        "bytes": 1613944,
+        "sha256": "97d84f1001efbb9aa4dd2457c91b6084ee707ca76aac29b3a46597d25906774e"
+      },
+      {
+        "path": "res://assets/environment/city/city_rts_post_v1.png",
+        "bytes": 1664775,
+        "sha256": "bc9582d9a4667af4eeb3e7701ecac3bec828b855ac70ca596cd7392d1ef82e80"
+      }
+    ],
+    "ground": {
+      "path": "res://assets/environment/city/city_ground_rts_v2.png",
+      "bytes": 3622015,
+      "sha256": "5a6ce36819b8e7060c544c5ee3b2d3e97b01fa506d40eeb7b9fca3c6c088db2e"
+    },
+    "tierCount": 6,
+    "tierSources": [
+      {
+        "path": "res://assets/environment/city/city_rts_progression_v1.png",
+        "bytes": 2331805,
+        "sha256": "ac8879ea67642847429bdc958b729a44acd7b4a63965e0904f317a3ce96046b2"
+      }
+    ],
+    "environment": {
+      "path": "res://assets/environment/city/city_rts_environment_v1.png",
+      "spriteCount": 4,
+      "bytes": 2372423,
+      "sha256": "6e1c1b542685e6d44cbc131bece451e881ddf0061913a17ac933566eb47e6a8e"
+    }
+  },
+  "worldMapArt": {
+    "metadataSha256": "c5bf74ed87802c02c5fcd55f9158c66ef081f3eec44f5100ad7898e5d87e53d7",
+    "spriteCount": 6,
+    "source": {
+      "path": "res://assets/environment/world-map/world_map_relief_v1.png",
+      "bytes": 2694355,
+      "sha256": "17aab33d8a0af320086a0bf6fbe6f26947d90dcc205de0d04cb8a9125ea2db39"
+    }
+  }
+}

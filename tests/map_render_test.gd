@@ -521,7 +521,8 @@ func _test_terrain_dispatch() -> void:
 		{"terrain": "forest", "decoration": "forest", "badge": "木"},
 		{"terrain": "wood", "decoration": "forest", "badge": "木"},
 		{"terrain": "woods", "decoration": "forest", "badge": "木"},
-		{"terrain": "mountain", "decoration": "mountain", "badge": "石"},
+		# Canonical TerrainData: mountain mines iron; hill quarries stone.
+		{"terrain": "mountain", "decoration": "mountain", "badge": "铁"},
 		{"terrain": "stone", "decoration": "mountain", "badge": "石"},
 		{"terrain": "iron", "decoration": "mountain", "badge": "铁"},
 		{"terrain": "hill", "decoration": "mountain", "badge": "石"},

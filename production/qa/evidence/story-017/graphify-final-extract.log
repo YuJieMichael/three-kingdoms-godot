@@ -1,0 +1,10 @@
+[graphify extract] incremental scan of /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot
+[graphify extract] re-queuing 81 manifest-stamped code file(s) with no nodes in graph.json (prior failed extraction, #2543)
+[graphify extract] --code-only: skipping 326 non-code file(s) (69 docs, 0 papers, 257 images) — no LLM extraction
+[graphify extract] 88 code, 0 docs, 0 papers, 0 images changed; 194 unchanged; 0 deleted
+[graphify extract] 460 file(s) not classified (no supported extension or shebang), skipped: .dockerignore, .gdignore, .gitignore, Caddyfile, DialogueActionable2D.cs.uid, DialogueActionable3D.cs.uid (+454 more)
+[graphify extract] AST extraction on 88 code files...
+[graphify extract] wrote /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/graphify-out/graph.json: 1339 nodes, 3532 edges, 78 communities
+[graphify extract] wrote /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/graphify-out/.graphify_analysis.json
+[graphify extract] incremental summary: 194 files cached/unchanged, 88 re-extracted, 0 deleted
+[graphify extract] next: run `graphify cluster-only /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot` to generate GRAPH_REPORT.md and name communities

@@ -1,0 +1,13 @@
+✔ fresh visible cities use canonical administrative tiers without treating hall level as a capital rank (484.531208ms)
+✔ county, prefecture, province and capital silhouettes can all use canonical visible-city metadata (226.2015ms)
+✔ unopened named cities remain anonymous terrain and never trigger a tier lookup (107.491708ms)
+✔ wilderness and task landmarks receive no administrative city fields (159.179375ms)
+✔ map and target presentation do not write discovery, balances, city development or world coordinates (181.86175ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1665.787083

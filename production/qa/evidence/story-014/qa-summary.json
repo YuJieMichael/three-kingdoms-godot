@@ -1,0 +1,210 @@
+{
+  "version": "0.6.0-dev.8",
+  "recordedAtUtc": "2026-10-07T07:14:05.717693+00:00",
+  "scope": "12 art/layout/client suites baseline, plus affected client/construction dialogs rerun after localized phone wrap fix; not a full repository regression",
+  "headless": {
+    "entries": 12,
+    "checks": 5380,
+    "baselineChecks": 5361,
+    "failures": 0,
+    "tests": [
+      {
+        "test": "tests/commanding_city_art_test.gd",
+        "checks": 449,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "COMMANDING_CITY_ART_CHECKS=449 failures=0"
+        ],
+        "seconds": 47.337,
+        "log": ".local/commanding-art-0608-qa/commanding_city_art_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/historic_city_test.gd",
+        "checks": 2714,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "Commanding historical city: 2714 checks, 0 failures"
+        ],
+        "seconds": 16.169,
+        "log": ".local/commanding-art-0608-qa/historic_city_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/historic_suburb_test.gd",
+        "checks": 893,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "historic_suburb_test: 893 checks, 0 failures"
+        ],
+        "seconds": 11.728,
+        "log": ".local/commanding-art-0608-qa/historic_suburb_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/historic_structure_client_test.gd",
+        "checks": 82,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "HISTORIC_STRUCTURE_CLIENT_CHECKS=82 failures=0"
+        ],
+        "log": ".local/commanding-art-0608-qa/historic-client-phone-final.log",
+        "phase": "after phone cost wrap fix"
+      },
+      {
+        "test": "tests/battle_view_test.gd",
+        "checks": 70,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "City / battle presentation: 70 checks, 0 failures"
+        ],
+        "seconds": 6.87,
+        "log": ".local/commanding-art-0608-qa/battle_view_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/client_test.gd",
+        "checks": 236,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "Godot client checks: 236 passed, 0 failed"
+        ],
+        "log": ".local/commanding-art-0608-qa/client-after-wrap-test.log",
+        "phase": "after phone cost wrap fix"
+      },
+      {
+        "test": "tests/management_test.gd",
+        "checks": 85,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "MANAGEMENT_TEST_CHECKS=85 failures=0"
+        ],
+        "seconds": 31.996,
+        "log": ".local/commanding-art-0608-qa/management_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/input_test.gd",
+        "checks": 255,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "INPUT_TEST_CHECKS=255 failures=0"
+        ],
+        "seconds": 23.677,
+        "log": ".local/commanding-art-0608-qa/input_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/realm_management_test.gd",
+        "checks": 22,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "REALM_UI_TEST checks=22 failures=0"
+        ],
+        "seconds": 7.962,
+        "log": ".local/commanding-art-0608-qa/realm_management_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/playable_ui_test.gd",
+        "checks": 125,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "PLAYABLE_UI_TEST checks=125 failures=0"
+        ],
+        "seconds": 25.152,
+        "log": ".local/commanding-art-0608-qa/playable_ui_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/ui_polish_test.gd",
+        "checks": 351,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "UI_POLISH_TEST_CHECKS=351 failures=0"
+        ],
+        "seconds": 13.738,
+        "log": ".local/commanding-art-0608-qa/ui_polish_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      },
+      {
+        "test": "tests/war_interface_test.gd",
+        "checks": 98,
+        "exit_code": 0,
+        "errors": [],
+        "markers": [
+          "WAR_INTERFACE_CHECKS=98 failures=0"
+        ],
+        "seconds": 22.405,
+        "log": ".local/commanding-art-0608-qa/war_interface_test.log",
+        "phase": "art integration baseline; unchanged assertions after localized phone label fix"
+      }
+    ]
+  },
+  "native": {
+    "clientChecks": 88,
+    "failures": 0,
+    "preparedDevelopedFixture": true
+  },
+  "touch": {
+    "checks": 48,
+    "failures": 0,
+    "physicalPhone": false
+  },
+  "art": {
+    "cachedRegions": 18,
+    "canonicalBuildingTypes": 16,
+    "decorativeGate": true,
+    "unusedRegion": "recruit",
+    "mode": "built-in image_gen, unchanged PNG pixels",
+    "nativeMixedStateScreenshots": true
+  },
+  "web": {
+    "url": "http://127.0.0.1:17356",
+    "revision": 0,
+    "mutations": 0,
+    "saveUnchanged": true,
+    "observations": {
+      "url": "http://127.0.0.1:17356/",
+      "tabId": "76",
+      "finalReloadAt": "2026-10-07T07:10:48.244Z",
+      "finalWarningErrors": [],
+      "earlierWarningErrors": [
+        {
+          "level": "error",
+          "message": "TypeError: Failed to fetch\n    at Object.create (http://127.0.0.1:17356/index.js:1:187617)\n    at _godot_js_fetch_create (http://127.0.0.1:17356/index.js:1:188630)\n    at wasm://wasm/096bca0a:wasm-function[58612]:0x1e291b7\n    at wasm://wasm/096bca0a:wasm-function[24047]:0xf5fe7e\n    at wasm://wasm/096bca0a:wasm-function[65608]:0x1f172e7\n    at wasm://wasm/096bca0a:wasm-function[631]:0x70032\n    at wasm://wasm/096bca0a:wasm-function[23919]:0xf37ef3\n    at wasm://wasm/096bca0a:wasm-function[23922]:0xf38833\n    at wasm://wasm/096bca0a:wasm-function[65206]:0x1efa750\n    at wasm://wasm/096bca0a:wasm-function[18792]:0xb062cf",
+          "timestamp": "2026-10-07T07:09:58.254Z",
+          "url": "http://127.0.0.1:17356/index.js"
+        }
+      ],
+      "observations": [
+        "1280x1000 final city core atlas rendered with real hall at canonical site14 and no unbuilt sprites",
+        "390x844 final city roof/label visible",
+        "Phone hall click opened parcel15 with integer level and all four upgrade costs wrapped inside screen",
+        "Phone scroll reached south gate without opening a building dialog",
+        "Phone exact empty parcel36 opened actual construction options with wrapped cost and requirements"
+      ],
+      "preparedBrowserFixture": false,
+      "mutationsSubmitted": 0,
+      "physicalPhoneTested": false,
+      "viewportReset": true,
+      "browserInputNote": "Earlier background Emulation.setFocusEmulationEnabled timeouts; visible final tab input succeeded",
+      "firstPreviewAttempt": "Copied transient runtime lock caused connection refused; original save/service preserved; only copied lock moved aside"
+    }
+  },
+  "windowsExeExecuted": false,
+  "sourceCommitted": false,
+  "publicRelease": false,
+  "originalWebsiteChanged": false
+}

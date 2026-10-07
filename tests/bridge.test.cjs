@@ -55,6 +55,34 @@ test('bridge DTOs retain canonical costs and hide future task landmarks', async 
   const hidden = await f.request('/node?id=wood'); assert.equal(hidden.status, 403); assert.equal(hidden.body.error.code, 'NODE_HIDDEN');
 });
 
+test('empty-land choices quote each actual resource type and match committed fees and construction time', async t => {
+  const f = await fixture(t), initial = await f.read();
+  assert.deepEqual(initial.view.plotOptions.map(option => option.id), ['farm', 'lumber', 'quarry', 'mine']);
+  assert.equal(new Set(initial.view.plotOptions.map(option => JSON.stringify(option.cost))).size, 4);
+  for (const [index, id] of ['farm', 'lumber', 'quarry', 'mine'].entries()) {
+    const before = await f.read(), option = before.view.plotOptions.find(row => row.id === id);
+    assert.equal(before.state.plots[index].type, null);
+    assert.equal(option.requirement, ''); assert.equal(option.affordable, true);
+    const queued = await f.command('developPlot', [index, id]);
+    const job = queued.state.buildQueue.find(row => row.plot === index);
+    assert.deepEqual(job.paid, option.cost);
+    assert.ok(Math.abs((job.end - job.start) / 1000 - option.seconds) < 0.001);
+    for (const [resource, fee] of Object.entries(option.cost))
+      assert.equal(before.state.res[resource] - queued.state.res[resource], fee);
+    f.advance(Math.ceil(job.end - f.now) + 1);
+  }
+  const {gameView} = await import('../bridge/dto.mjs');
+  const runtime = f.runtime.createGameRuntime({snapshot: initial.state, now: f.now}), game = runtime.Game;
+  const unboosted = gameView(game, f.now, runtime).plotOptions;
+  game.state.tech.construction = 5;
+  for (const resource of Object.keys(game.state.res)) game.state.res[resource] = 0;
+  const poor = gameView(game, f.now, runtime).plotOptions;
+  assert.ok(poor.every(option => !option.affordable));
+  assert.ok(poor.every((option, index) => option.seconds < unboosted[index].seconds));
+  assert.deepEqual(poor.map(option => option.cost), unboosted.map(option => option.cost));
+  assert.equal((await f.read()).revision, 4, 'presentation quotations submit no extra commands');
+});
+
 test('real building completes with canonical timers and survives process-style restart', async t => {
   const f = await fixture(t);
   await f.command('onboarding.claimAvailable');

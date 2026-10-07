@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "version": "0.6.0-dev.7",
+  "archiveAudit": {
+    "version": "0.6.0-dev.7",
+    "checks": 174,
+    "failures": 0,
+    "packages": [
+      {
+        "file": "ThreeKingdoms-Godot-v0.6.0-dev.7-Windows-x64.zip",
+        "sha256": "9194c831121e8534f5ec49ca837d136ee32a8118d09b68bc0410aadbe5a9be0c",
+        "bytes": 87496657,
+        "kind": "windows",
+        "windowsExeExecuted": false
+      },
+      {
+        "file": "ThreeKingdoms-Godot-v0.6.0-dev.7-Web-preview.zip",
+        "sha256": "82798e0abdf8de327794ca42500dc5fc41fd49650cc7b4b153e94377fc0ff967",
+        "bytes": 59654183,
+        "kind": "web",
+        "windowsExeExecuted": false
+      }
+    ],
+    "boundary": "Archive/PE/WASM checks only; Windows EXE has not run on Windows."
+  },
+  "compiledPCK": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.7-Windows-x64.zip",
+      "sha256": "9194c831121e8534f5ec49ca837d136ee32a8118d09b68bc0410aadbe5a9be0c",
+      "compiledChecks": 26,
+      "exitCode": 0,
+      "seconds": 4.094,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/historic-0607-qa/compiled-windows.log",
+      "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+      "windowsExeExecuted": false,
+      "mutations": 0
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.7-Web-preview.zip",
+      "sha256": "82798e0abdf8de327794ca42500dc5fc41fd49650cc7b4b153e94377fc0ff967",
+      "compiledChecks": 26,
+      "exitCode": 0,
+      "seconds": 2.925,
+      "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/historic-0607-qa/compiled-web.log",
+      "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+      "windowsExeExecuted": false,
+      "mutations": 0
+    }
+  ],
+  "localHTTP": {
+    "url": "http://127.0.0.1:17355",
+    "checks": 15,
+    "failures": 0,
+    "revision": 0,
+    "mutations": 0,
+    "persistedSaveUnchanged": true,
+    "assetSource": "final exported local Web folder",
+    "assets": [
+      {
+        "file": "index.apple-touch-icon.png",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 11944,
+        "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5"
+      },
+      {
+        "file": "index.audio.position.worklet.js",
+        "status": 200,
+        "mime": "text/javascript",
+        "bytes": 2973,
+        "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
+      },
+      {
+        "file": "index.audio.worklet.js",
+        "status": 200,
+        "mime": "text/javascript",
+        "bytes": 7298,
+        "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+      },
+      {
+        "file": "index.html",
+        "status": 200,
+        "mime": "text/html",
+        "bytes": 5608,
+        "sha256": "c20a348bbad8d7d14049fe7f05959d15050b9c56231941829500b910b50b31be"
+      },
+      {
+        "file": "index.icon.png",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 5700,
+        "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5"
+      },
+      {
+        "file": "index.js",
+        "status": 200,
+        "mime": "text/javascript",
+        "bytes": 279815,
+        "sha256": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba"
+      },
+      {
+        "file": "index.pck",
+        "status": 200,
+        "mime": "application/octet-stream",
+        "bytes": 14034164,
+        "sha256": "73ad7bb4d129a33cb80f5c7e11d51d8624f6da08e46017d4ac85f0c5b7832737"
+      },
+      {
+        "file": "index.png",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 21443,
+        "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e"
+      },
+      {
+        "file": "index.wasm",
+        "status": 200,
+        "mime": "application/wasm",
+        "bytes": 39514754,
+        "sha256": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
+      }
+    ],
+    "boundary": "Localhost HTTP integrity, current DTO and read-only state; not physical-phone or public hosting verification"
+  },
+  "totalChecks": 241,
+  "windowsExeExecuted": false
+}

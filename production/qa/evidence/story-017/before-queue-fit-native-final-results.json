@@ -1,0 +1,18 @@
+[
+  {
+    "test": "native-city-render",
+    "exit": 0,
+    "seconds": 24.42,
+    "checks": 1324,
+    "host": "native macOS Godot Compatibility OpenGL",
+    "scope": "real production Control/Window and canonical prepared fixtures; no player save loaded; phone dimensions not physical device"
+  },
+  {
+    "test": "native-panel-render",
+    "exit": 0,
+    "seconds": 21.28,
+    "checks": 33,
+    "host": "native macOS Godot Compatibility OpenGL",
+    "scope": "real production Control/Window and canonical prepared fixtures; no player save loaded; phone dimensions not physical device"
+  }
+]

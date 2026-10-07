@@ -1,0 +1,20 @@
+[
+  {
+    "test": "city_construction_panel",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 36.85,
+    "summary": [
+      "CITY_CONSTRUCTION_PANEL_TEST checks=20 failures=0"
+    ]
+  },
+  {
+    "test": "historic_structure_client",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 42.45,
+    "summary": [
+      "HISTORIC_STRUCTURE_CLIENT_CHECKS=113 failures=0"
+    ]
+  }
+]

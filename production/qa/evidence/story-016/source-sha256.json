@@ -1,0 +1,9 @@
+{
+  "src/city_view.gd": "65fd83dc0c3e76957c66ddf8bff55f36d9a47aec0eec329ee31de2344f1d0e2f",
+  "src/main.gd": "aa0f81d9c8d9badc67040e21fb65cdc7f612e4197b72f46be90089a7ba3cf353",
+  "data/city-rts-art-atlas.json": "384d6cdc8f22bde6cdb520c550ee3d1ee965c82d43c6e89d224fa58c41323df1",
+  "src/world_map.gd": "a11600cd631ee663c6b1dc62857e86de15f5d67620b4f24bdaacd925df34a983",
+  "scripts/build.py": "b1a33b61e592df71da6c73a8c1c482e0e0d6765898005798b03df3f65767a6ef",
+  "project.godot": "bf506bd78963e9b9cc3452bd7df3b14436c5c221123ab5893df05f1945c38ce9",
+  "export_presets.cfg": "74b4c840a097692ed491bf348dac7f0a78392b4f0e7a77a218cb61c8bccab0d4"
+}

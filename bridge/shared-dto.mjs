@@ -2,6 +2,7 @@ import {copy, scopedRuntime, GameError} from '../vendor/shared/runtime.mjs';
 import {publicWorld} from '../vendor/shared/service.mjs';
 import {attackPermission} from '../vendor/shared/realm-systems.mjs';
 import {gameView, worldView, nodeView} from './dto.mjs';
+import {reportEconomy} from './report-economy.mjs';
 
 export const playerNodeId=(actor,city='capital')=>`player_city:${actor}:${city}`;
 const point=p=>({x:p.x,y:p.y});
@@ -65,7 +66,8 @@ export function sharedEnvelope(context,actor,authorityId,identity,result=undefin
   const runtime=scopedRuntime(row.state,context.serverTime,context.marches,actor),g=runtime.Game;
   const shared=sharedProjection(context,actor),view=gameView(g,context.serverTime,runtime,{shared:true});
   if(g.currentCityId()==='capital')view.city={...view.city,...point(row.home)};
-  view.marches=[...view.marches,...shared.marches];view.reports=[...shared.reports,...view.reports];
+  view.marches=[...view.marches,...shared.marches];
+  view.reports=[...shared.reports.map(report=>({...report,economy:reportEconomy(runtime,report,{shared:true,actor})})),...view.reports];
   return {ok:true,protocol:1,mode:'shared',revision:row.revision,state:copy(g.state),view,serverTime:context.serverTime,authorityId,
     actor:{id:identity.id,name:identity.name},shared,...(result===undefined?{}:{result:copy(result),replayed})};
 }

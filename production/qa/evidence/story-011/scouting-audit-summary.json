@@ -1,0 +1,21 @@
+{
+  "archiveChecks": 171,
+  "compiledChecks": 80,
+  "packagedRuleChecks": 122,
+  "failures": 0,
+  "windowsExecutableActuallyRun": false,
+  "compiledHost": "macOS Godot 4.7.2 headless",
+  "runtimeHost": "macOS Node24.19.0",
+  "artifacts": [
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.5-Windows-x64.zip",
+      "sha256": "a8dd07132c0620df34f50d11af7f84842266a39505c8cead15fc2f2682056032",
+      "bytes": 87423840
+    },
+    {
+      "file": "ThreeKingdoms-Godot-v0.6.0-dev.5-Web-preview.zip",
+      "sha256": "64e19b9d9d2ad0528240ff34cf5a17e162a37dd78801fad3eec6ab119f12e3ae",
+      "bytes": 59581366
+    }
+  ]
+}

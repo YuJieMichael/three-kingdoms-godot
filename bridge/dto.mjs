@@ -4,12 +4,25 @@ import {progressionView} from './progression-view.mjs';
 import {warView} from './war-view.mjs';
 import {realmView} from './realm-view.mjs';
 import {inventoryView} from './inventory-view.mjs';
+import {reportEconomy} from './report-economy.mjs';
+import {growthView} from './growth-view.mjs';
+import {intelView, scoutingView, scoutMarchesView} from './scouting-view.mjs';
+import {buildingComparisons} from './building-comparison.mjs';
 
 const point = source => ({x: source?.x ?? 32, y: source?.y ?? 32});
 const armyCount = army => Object.values(army || {}).reduce((sum, n) => sum + n, 0);
 
+// Administrative tiers come from the canonical NamedCityData definition via
+// Game's read-only profile. Building levels and map-region centres are not tiers.
+// This is called only after visibility is established; parent/children and
+// unopened cities are deliberately absent from the map presentation contract.
+function cityPresentation(game, node) {
+  const profile = game.namedCityProgress(node.id);
+  return {tier: profile?.tier || 'ordinary', tierName: profile?.tierName || '普通城池'};
+}
+
 /** These are presentation projections. All prices and eligibility come from Game. */
-export function nodeView(game, node) {
+export function nodeView(game, node, now = game.state.last, options = {}) {
   if (!node) return null;
   const visible = node.id === 'home' || game.landmarkVisible(node.id);
   if (!visible) return {
@@ -19,17 +32,18 @@ export function nodeView(game, node) {
   };
   const owned = node.id === 'home' || !!game.state.conquered[node.id] || !!node.ownCity;
   const home = node.id === 'home';
-  const intel = home ? null : game.intel(node.id);
-  const publicArmy = intel?.public || intel?.exact || intel?.precision === 'exact';
+  const city = home || !!node.ownCity || game.isCity(node);
+  const intel = home ? null : intelView(game, node, now, options);
   return {
     id: node.id, x: node.x, y: node.y, name: node.name,
     terrain: node.terrain || (home ? 'plain' : node.type), tileType: node.type || node.terrain,
-    kind: home || node.ownCity || game.isCity(node) ? 'city' : node.wild ? 'wild' : 'landmark',
+    kind: city ? 'city' : node.wild ? 'wild' : 'landmark',
     level: node.level || 0, owned, hidden: false, selectable: true,
     description: node.desc || '', reward: node.reward || '', faction: node.faction || '',
     chapter: node.chapter || null, namedCity: !!node.namedCity, openCity: !!node.openCity,
+    ...(city ? cityPresentation(game, node) : {}),
     cityId: home ? 'capital' : node.ownCity || game.cityList().find(city => city.node === node.id)?.id || null,
-    army: publicArmy ? copy(intel?.army || node.army || {}) : {},
+    army: copy(intel?.army || {}),
     intel: intel ? copy(intel) : null,
     // Hidden guards are not leaked into the rendering DTO. The canonical private save remains intact.
     dispatch: {raid: home ? '请选择城外目标' : game.attackBlocked(node.id, 'raid') || '',
@@ -37,7 +51,7 @@ export function nodeView(game, node) {
   };
 }
 
-export function marchesView(game, now) {
+export function marchesView(game, now, options = {}) {
   const result = [];
   for (const expedition of game.allExpeditions()) {
     const node = game.getNode(expedition.node), home = game.cityMeta(expedition.sourceCity) || game.home;
@@ -74,7 +88,7 @@ export function marchesView(game, now) {
       status: job.phase || 'march', sourceCity: job.sourceCity, general: job.general || '',
       army: copy(job.army || {}), count: armyCount(job.army), cargo: copy(job.cargo || {}), canStartBattle: false});
   }
-  return result;
+  return [...result, ...scoutMarchesView(game, now, options)];
 }
 
 export function worldView(game, now) {
@@ -84,11 +98,13 @@ export function worldView(game, now) {
     const node = game.getWorldTile(x, y);
     const visible = node.id === 'home' || node.wild || game.landmarkVisible(node.id);
     if (!visible) { tiles.push(nodeView(game, node)); continue; }
+    const city = node.id === 'home' || !!node.ownCity || game.isCity(node);
     tiles.push({id: node.id, x, y, name: node.name,
       terrain: node.terrain || (node.id === 'home' ? 'plain' : node.type), tileType: node.type || node.terrain,
-      kind: node.id === 'home' || node.ownCity || game.isCity(node) ? 'city' : node.wild ? 'wild' : 'landmark',
+      kind: city ? 'city' : node.wild ? 'wild' : 'landmark',
       level: node.level || 0, owned: node.id === 'home' || !!game.state.conquered[node.id] || !!node.ownCity,
-      hidden: false, selectable: true, faction: node.faction || '', namedCity: !!node.namedCity});
+      hidden: false, selectable: true, faction: node.faction || '', namedCity: !!node.namedCity,
+      ...(city ? cityPresentation(game, node) : {})});
   }
   return {width: game.WORLD_SIZE, height: game.WORLD_SIZE, home: point(game.currentHome()),
     tiles, marches: marchesView(game, now)};
@@ -125,6 +141,13 @@ export function gameView(game, now, runtime = null, options = {}) {
       unlocked: index < game.unlockedPlots(), cost: copy(record?.cost || {}),
       seconds: record ? game.plotTime(index, id) : 0, queue: queue ? copy(queue) : null,
       requirement: !record ? '已达最高等级' : game.buildingRequirements(id, next)};
+  });
+  // Empty land can become any resource type. Its existing farm-default projection
+  // is not the quotation for lumber, quarry or mine; use each first-tier rule.
+  const plotOptions = Object.keys(game.plotTypes).map(id => {
+    const cost = game.buildRecord(id, 1).cost;
+    return {id, name: game.buildings[id].name, cost: copy(cost), seconds: game.buildSeconds(id, 1),
+      requirement: game.buildingRequirements(id, 1), affordable: game.canPay(cost)};
   });
   const units = Object.entries(game.units).map(([id, unit]) => ({id, name: unit.name,
     available: state.army[id], cost: game.trainCost(id, 1), seconds: game.trainSeconds(id, 1),
@@ -180,22 +203,29 @@ export function gameView(game, now, runtime = null, options = {}) {
     warManagement: warView(runtime, {...options, now}), realmManagement: realmView(runtime, {...options, now}),
     inventoryManagement: inventoryView(runtime, {...options, now})} : {};
   if (runtime) {
+    management.growth = growthView(runtime, {...options, now, progression: management.progression});
     const selected = management.progression.missions.find(row => row.id === objective.id);
     if (selected) { objective.target = selected.target; objective.rewards = selected.rewards; }
   }
-  return {...management, res: copy(state.res), gold: state.res.gold, gems: state.gems,
+  // cityList/realmView previously copied the raw scoutQueue, including hidden enemy snapshots.
+  const scoutMarches = scoutMarchesView(game, now, options);
+  const safeCities = cities => cities.map(city => ({...copy(city),
+    scoutQueue: scoutMarches.filter(march => march.sourceCity === city.id).map(march => copy(march))}));
+  if (management.realmManagement) management.realmManagement.cities = safeCities(management.realmManagement.cities);
+  return {...management, scouting: scoutingView(game, now, options), res: copy(state.res), gold: state.res.gold, gems: state.gems,
     caps: Object.fromEntries(Object.keys(game.resources).map(id => [id, game.capacity(id)])),
-    rates: copy(rates), rateUnit: 'per-minute', city: copy(game.cityMeta()), cityList: copy(game.cityList()),
+    rates: copy(rates), rateUnit: 'per-minute', city: copy(game.cityMeta()), cityList: safeCities(game.cityList()),
     population: state.population, maxPopulation: game.maxPop(), freePopulation: game.freePopulation(),
     morale: state.morale, unrest: state.unrest, tax: state.tax,
     buildings, buildingSlots: state.cityLayout.map((id, site) => ({site, id, level: state.cityLevels[site], reserved: id === 'reserved'})),
-    buildOptions, plots, plotOptions: Object.keys(game.plotTypes).map(id => ({id, name: game.buildings[id].name})), units,
+    buildOptions, buildingComparisons: buildingComparisons(game), plots, plotOptions, units,
     techs, inventory, shop, market, governance, inn, queueMetadata, autoResearch: state.autoResearch,
     autoResearchStatus: game.autoResearchStatus(),
     queues: {build: copy(state.buildQueue), train: copy(state.trainQueue), research: state.researchQueue ? [copy(state.researchQueue)] : [], defense: copy(state.defenseQueue)},
     queueLimits: {build: game.buildLimit(), train: game.trainingLimit()},
-    objective, generals, nodes: game.nodes.filter(node => game.landmarkVisible(node.id)).map(node => nodeView(game, game.getNode(node.id))),
-    marches: marchesView(game, now), battle: copy(game.currentBattle()), reports: copy(state.reports),
+    objective, generals, nodes: game.nodes.filter(node => game.landmarkVisible(node.id)).map(node => nodeView(game, game.getNode(node.id), now, options)),
+    marches: marchesView(game, now, options), battle: copy(game.currentBattle()),
+    reports: runtime ? state.reports.map(report => ({...copy(report), economy: reportEconomy(runtime, report)})) : copy(state.reports),
     gifts: {available: game.onboarding.available(state), claimed: copy(state.onboarding.claims)},
   };
 }

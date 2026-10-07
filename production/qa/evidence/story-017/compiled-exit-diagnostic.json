@@ -1,0 +1,15 @@
+{
+  "scope": "Final package probe fixture teardown, not a game-source change",
+  "firstExitWarning": "Web PCK probe passed93 checks then reported4 ObjectDB instances at immediate exit.",
+  "verboseIdentified": [
+    "AudioStreamWAV:2",
+    "AudioStreamPlaybackWAV:2",
+    "Music/Sounds bus StringNames"
+  ],
+  "fix": "Probe stops looped music, receipt success cue and UI click through existing SoundManager stop APIs, waits250ms before freeing fixture. Production source and package hashes unchanged.",
+  "after": [
+    "Windows93 checks exit0, no ERROR/WARNING",
+    "Web93 checks exit0, no ERROR/WARNING"
+  ],
+  "counting": "Only final93 per package counted, diagnostic/repeated passes are not added."
+}

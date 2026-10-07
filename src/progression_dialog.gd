@@ -72,6 +72,13 @@ func update_view(view: Dictionary) -> void:
 	_update_status()
 
 
+func select_filter(index: int) -> void:
+	if not is_instance_valid(_filter) or index < 0 or index >= _filter.item_count: return
+	_filters[_section] = index
+	_filter.select(index)
+	update_view(_view)
+
+
 func set_command_state(connected: bool, pending: bool) -> void:
 	_connected = connected
 	_pending = pending
@@ -267,9 +274,10 @@ func _epic_records(progression: Dictionary, records: Array[Dictionary]) -> void:
 	records.append(_record("epic-summary", "黄巾史诗 · 进军县城", "\n".join(groups), [_navigate("查看官爵", "honors"), _navigate("前往舆图", "world", "fort", str(progression.get("reason", "")))]))
 	var filter_index: int = int(_filters.get("epic", 0))
 	if filter_index == 3:
-		records.append(_record("copper", "铜钱 " + str(int(epic.get("copper", 0))), "每日任务获得铜钱；在客栈兑换珍珠和当日宝物。"))
+		records.append(_record("copper", "铜钱 " + str(int(epic.get("copper", 0))), "每日任务获得铜钱；可兑换珍珠和当日宝物。县城筹备珊瑚共限5枚，不随每日刷新。"))
 		for offer: Dictionary in epic.get("exchanges", []):
-			records.append(_record("exchange-" + str(offer.id), str(offer.name), "费用：铜钱 %d · 今日已兑 %d\n%s" % [int(offer.get("cost", 0)), int(offer.get("claimed", 0)), str(offer.get("reason", ""))], [_action("兑换", offer.get("command", {}), str(offer.get("reason", "")))]))
+			var limit_text: String = "全存档已兑 %d / %d · 剩余 %d" % [int(offer.get("claimed", 0)), int(offer.get("limit", 0)), int(offer.get("remaining", 0))] if str(offer.get("period", "")) == "save" else "今日已兑 %d" % int(offer.get("claimed", 0))
+			records.append(_record("exchange-" + str(offer.id), str(offer.name), "费用：铜钱 %d · %s\n%s" % [int(offer.get("cost", 0)), limit_text, str(offer.get("reason", ""))], [_action("兑换", offer.get("command", {}), str(offer.get("reason", "")))]))
 		return
 	var kinds: Array[String] = ["resource", "troop", "jewel"]
 	for donation: Dictionary in epic.get("donations", []):

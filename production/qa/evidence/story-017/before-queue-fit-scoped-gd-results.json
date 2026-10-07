@@ -1,0 +1,101 @@
+[
+  {
+    "test": "city_district_polish",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 18.07,
+    "summary": [
+      "CITY_DISTRICT_POLISH_CHECKS=268 failures=0"
+    ]
+  },
+  {
+    "test": "rts_city_grid",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 36.03,
+    "summary": [
+      "RTS_CITY_GRID_CHECKS=1321 failures=0"
+    ]
+  },
+  {
+    "test": "historic_city",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 10.11,
+    "summary": [
+      "Commanding historical city: 2714 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "commanding_city_art",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 22.83,
+    "summary": [
+      "COMMANDING_CITY_ART_CHECKS=456 failures=0"
+    ]
+  },
+  {
+    "test": "playable_ui",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 27.85,
+    "summary": [
+      "PLAYABLE_UI_TEST checks=125 failures=0"
+    ]
+  },
+  {
+    "test": "ui_polish",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 22.65,
+    "summary": [
+      "UI_POLISH_TEST_CHECKS=351 failures=0"
+    ]
+  },
+  {
+    "test": "war_interface",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 7.78,
+    "summary": [
+      "WAR_INTERFACE_CHECKS=98 failures=0"
+    ]
+  },
+  {
+    "test": "input",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 21.68,
+    "summary": [
+      "INPUT_TEST_CHECKS=255 failures=0"
+    ]
+  },
+  {
+    "test": "historic_structure_client",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 19.82,
+    "summary": [
+      "HISTORIC_STRUCTURE_CLIENT_CHECKS=113 failures=0"
+    ]
+  },
+  {
+    "test": "city_construction_panel",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 15.57,
+    "summary": [
+      "CITY_CONSTRUCTION_PANEL_TEST checks=32 failures=0"
+    ]
+  },
+  {
+    "test": "client",
+    "exit": 0,
+    "errorsOrWarnings": false,
+    "seconds": 30.9,
+    "summary": [
+      "Godot client checks: 236 passed, 0 failed"
+    ]
+  }
+]

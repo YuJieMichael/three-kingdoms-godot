@@ -1,0 +1,415 @@
+{
+  "version": "0.6.0-dev.6",
+  "date": "2026-10-07",
+  "automaticChecks": 3166,
+  "node": {
+    "tests": 183,
+    "pass": 183,
+    "fail": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "seconds": 528.83
+  },
+  "sceneTreeChecks": 2964,
+  "htmlFixtureChecks": 19,
+  "gdEntries": 32,
+  "gdResults": [
+    {
+      "test": "tests/world_map_test.gd",
+      "checks": 24,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "World map mathematical checks: 24 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/world_map_test.log"
+    },
+    {
+      "test": "tests/battle_view_test.gd",
+      "checks": 70,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "City / battle presentation: 70 checks, 0 failures"
+      ],
+      "log": ".local/war-ui-0606-qa/battle_view_test.log"
+    },
+    {
+      "test": "tests/client_test.gd",
+      "checks": 236,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Godot client checks: 236 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/client_test.log"
+    },
+    {
+      "test": "tests/management_test.gd",
+      "checks": 79,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "MANAGEMENT_TEST_CHECKS=79 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/management_test.log"
+    },
+    {
+      "test": "tests/input_test.gd",
+      "checks": 255,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "INPUT_TEST_CHECKS=255 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/input_test.log"
+    },
+    {
+      "test": "tests/map_render_test.gd",
+      "checks": 215,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "MAP_RENDER_TEST_CHECKS=215 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/map_render_test.log"
+    },
+    {
+      "test": "tests/pvp_api_test.gd",
+      "checks": 91,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Godot PvP API checks: 91 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/pvp_api_test.log"
+    },
+    {
+      "test": "tests/pvp_ui_test.gd",
+      "checks": 52,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Godot PvP UI checks: 52 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/pvp_ui_test.log"
+    },
+    {
+      "test": "tests/lobby_api_test.gd",
+      "checks": 60,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Godot lobby API checks: 60 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/lobby_api_test.log"
+    },
+    {
+      "test": "tests/lobby_ui_test.gd",
+      "checks": 80,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Godot lobby UI checks: 80 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/lobby_ui_test.log"
+    },
+    {
+      "test": "tests/presentation_test.gd",
+      "checks": 40,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "PRESENTATION_TEST_CHECKS=40 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/presentation_test.log"
+    },
+    {
+      "test": "tests/ui_feedback_test.gd",
+      "checks": 60,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "UI_FEEDBACK_TEST_CHECKS=60 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/ui_feedback_test.log"
+    },
+    {
+      "test": "tests/ui_polish_test.gd",
+      "checks": 351,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "UI_POLISH_TEST_CHECKS=351 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/ui_polish_test.log"
+    },
+    {
+      "test": "tests/growth_route_test.gd",
+      "checks": 24,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "GROWTH_ROUTE_TEST_CHECKS=24 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/growth_route_test.log"
+    },
+    {
+      "test": "tests/report_economy_test.gd",
+      "checks": 174,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "REPORT_ECONOMY_TEST_CHECKS=174 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/report_economy_test.log"
+    },
+    {
+      "test": "tests/growth_economy_client_test.gd",
+      "checks": 102,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "GROWTH_ECONOMY_CLIENT_TEST_CHECKS=102 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/growth_economy_client_test.log"
+    },
+    {
+      "test": "tests/scouting_ui_test.gd",
+      "checks": 138,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "SCOUTING_UI_TEST_CHECKS=138 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/scouting_ui_test.log"
+    },
+    {
+      "test": "tests/scouting_client_test.gd",
+      "checks": 65,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "SCOUTING_CLIENT_TEST_CHECKS=65 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/scouting_client_test.log"
+    },
+    {
+      "test": "tests/dispatch_flow_test.gd",
+      "checks": 99,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Dispatch flow checks: 99; failures: 0"
+      ],
+      "log": ".local/war-ui-0606-qa/dispatch_flow_test.log"
+    },
+    {
+      "test": "tests/army_activity_test.gd",
+      "checks": 45,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Army activity checks: 45; failures: 0"
+      ],
+      "log": ".local/war-ui-0606-qa/army_activity_test.log"
+    },
+    {
+      "test": "tests/war_visual_test.gd",
+      "checks": 50,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "WAR_VISUAL_TEST_CHECKS=50 failures=0 native=false"
+      ],
+      "log": ".local/war-ui-0606-qa/war_visual_test.log"
+    },
+    {
+      "test": "tests/war_interface_test.gd",
+      "checks": 98,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "WAR_INTERFACE_CHECKS=98 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/war_interface_test.log"
+    },
+    {
+      "test": "tests/march_list_test.gd",
+      "checks": 53,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "MARCH_LIST_CHECKS=53 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/march_list_test.log"
+    },
+    {
+      "test": "tests/cloud_lobby_api_test.gd",
+      "checks": 64,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Godot cloud lobby API checks: 64 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/cloud_lobby_api_test.log"
+    },
+    {
+      "test": "tests/cloud_lobby_ui_test.gd",
+      "checks": 59,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "Godot cloud lobby UI checks: 59 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/cloud_lobby_ui_test.log"
+    },
+    {
+      "test": "tests/cloud_lobby_html_test.gd",
+      "checks": 19,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "{\"checks\":19,\"failures\":0,\"scope\":\"actual cloud-lobby script; isolated DOM/HTTP fixture; five shared-cookie windows\",\"mutationsAfterAccountChange\":0}",
+        "Cloud HTML script account checks: 19 passed, 0 failed"
+      ],
+      "log": ".local/war-ui-0606-qa/cloud_lobby_html_test.log"
+    },
+    {
+      "test": "tests/hero_management_test.gd",
+      "checks": 56,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "HERO_MANAGEMENT_TEST_CHECKS=56 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/hero_management_test.log"
+    },
+    {
+      "test": "tests/progression_management_test.gd",
+      "checks": 25,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "PROGRESSION_UI_TEST checks=25 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/progression_management_test.log"
+    },
+    {
+      "test": "tests/war_management_test.gd",
+      "checks": 108,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "WAR_MANAGEMENT_TEST_CHECKS=108 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/war_management_test.log"
+    },
+    {
+      "test": "tests/inventory_management_test.gd",
+      "checks": 45,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "INVENTORY_MANAGEMENT_TEST_CHECKS=45 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/inventory_management_test.log"
+    },
+    {
+      "test": "tests/realm_management_test.gd",
+      "checks": 21,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "REALM_UI_TEST checks=21 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/realm_management_test.log"
+    },
+    {
+      "test": "tests/playable_ui_test.gd",
+      "checks": 125,
+      "exit_code": 0,
+      "errors": [],
+      "markers": [
+        "PLAYABLE_UI_TEST checks=125 failures=0"
+      ],
+      "log": ".local/war-ui-0606-qa/playable_ui_test.log"
+    }
+  ],
+  "suiteSequence": "31 final sequential entries passed; final playable test initially interrupted by obsolete window handle and then passed after test-only adaptation (125 checks, exit 0, 14.570s).",
+  "nativeMain": {
+    "checks": 101,
+    "failures": 0,
+    "host": "macOS Godot Compatibility renderer",
+    "viewportFixtures": [
+      "1280",
+      "800",
+      "390"
+    ],
+    "log": ".local/war-ui-0606-qa/war-interface-native.log"
+  },
+  "packageChecks": 480,
+  "manifest": {
+    "version": "0.6.0-dev.6",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "nodeWindows": "24.21.0",
+    "legacyCommit": "c7674df45b9595405e57907524e737e633b0ff63",
+    "editionRules": {
+      "countyPreparation": {
+        "costCopper": 80,
+        "limitPerSave": 5,
+        "unlock": "camp",
+        "shared": false
+      }
+    },
+    "runtimeHash": "432f9fea6359c18a8d1e2655b09f97770718c3e676501c602c7897afd906a8b4",
+    "artifacts": [
+      {
+        "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Windows-x64.zip",
+        "bytes": 87457121,
+        "sha256": "43b0d8e77c466557488f7e0a924386e0b0ebd282d3f2336fdd8a67e0bd5ce5c7"
+      },
+      {
+        "file": "ThreeKingdoms-Godot-v0.6.0-dev.6-Web-preview.zip",
+        "bytes": 59614646,
+        "sha256": "70600202767795add2aceb756c046907d094f895151c887335535eb40c1c32b9"
+      }
+    ]
+  },
+  "browser": {
+    "url": "http://127.0.0.1:17351/",
+    "observedViewports": [
+      "1280x720",
+      "390x844"
+    ],
+    "observations": [
+      "exported game connected; task rail expand/collapse",
+      "drag moved camera (32,32) to (30,31); wheel zoom 80% to 90%",
+      "home restored camera (32,32)",
+      "resource popup showed actual amount/capacity/net rate",
+      "desktop target details only when selected; close keeps camera",
+      "scout and march tabs share one popup; fixed footer",
+      "phone map target directly opens preparation; bottom navigation",
+      "no scout or march with empty city army; confirm disabled"
+    ],
+    "consoleWarningsOrErrors": [],
+    "finalRevision": 0,
+    "mutationCommandsSent": 0,
+    "temporaryViewportReset": true,
+    "screenshots": [
+      "web-dispatch-1280.jpg",
+      "web-dispatch-390.jpg",
+      "web-resource-1280.jpg",
+      "web-war-interface-1280.jpg",
+      "web-war-interface-390.jpg"
+    ]
+  },
+  "boundaries": {
+    "windowsExeExecuted": false,
+    "actualPhoneHardwareTested": false,
+    "wholePrivateApiIntelIsolationClaimed": false,
+    "rawCityExpeditionSnapshotsRemain": true,
+    "preparedConditionsNotNaturalEconomicPacing": true,
+    "sourceCommittedOrPushed": false
+  }
+}

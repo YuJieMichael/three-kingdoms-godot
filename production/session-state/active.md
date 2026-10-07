@@ -1,41 +1,58 @@
 # 当前状态
 
-2026-10-06。用户优先完成游戏本体，Claude斜杠命令配置和真实Supabase联调暂缓。
+2026-10-07。用户要求城池与城外的历史感来自空间结构，继续优先游戏本体；Claude斜杠命令配置和真实Supabase联调暂缓。
 
 <!-- STATUS -->
-独立新版「山河策」当前为 **0.6.0-dev.2 本机玩法收尾**，故事008 Complete。任务/每日/史诗/官爵/俸禄、野将画像与招降、培养装备、伤兵俘虏/城防/黄巾来袭、多城/建城/运输、城外样板/领地采集、自动建设研究、宝物/商城入口完成。既有canonical规则和进度格式保留；技能及策略重做继续暂缓。
+2026-10-07：当前源版本0.6.0-dev.12，story018围墙城防完成。1级木栅栏，2级起石墙逐级升高；四周与南门点击原城防建造/升级面板，城务有替代入口。沿用真实site占位和canonical规则，城防营署是原地块外观。只用已完成等级，不提前显示排队结果。
 
-1814项本地自动检查通过：Node131、SceneTree1664、HTML脚本fixture19；最终包另192项检查通过。实际Web全部23个分区、桌面与390关键管理界面、礼包入库和任务推进已观察；最终编译PCK两包都读取实际状态与4096地图。生产源码cb2a4ef的Windows/Linux CI37540027451已success；Windows源码客户端smoke通过。本版本导出Windows EXE尚未执行，公网/Steam/真实手机/自然长局未验证。详见 `production/polish/playable-completion-report-2026-10-06.md`。
+六组GD3157项、native868项、Node77项通过，Web导出通过。本机17359沿用原存档，服务改用build/wall-0612/web，私有本地备份在.local/wall-preview。story009–017历史验证见各story报告；本次没有重新发布Windows安装包或实测Windows EXE、实体手机。
 
-新存档使用正常奖励和道具完成30弓首战；测试跳到队列结束时间且没用加速，累计800分钟未加速模拟时间不等于实际玩家耗时。后期用明确的合法高阶库存验证3次攻县城、第二章6关和第三章首节点开放，不冒充自然成长平衡。
-
-故事007仍 In Progress，按用户要求暂缓联调。独立Free组织「山河策工作室」和项目「山河策」已完成数据库/Auth基础配置；3个人工创建、已确认账号和私密启动配置保留。已有数据库密码尚未被实际读到；本轮不启动17345、不询问或重设凭据，不创建密码助手，不改其他业务项目。恢复联网工作后再验真实Auth/PG及公网托管，先不付费。
+用户明确要求全部开发更新上传GitHub；范围为独立three-kingdoms-godot仓库，原three-kingdoms/Pages不动。本机存档、缓存、环境配置、构建产物和Graphify图不入库。Graphify已按原code-only排除参数刷新；.gd及IIFE覆盖限制不变。
 <!-- /STATUS -->
 
 <!-- CHECKPOINT -->
-**Updated:** 2026-10-06
-**Branch:** `main`
-**Current task:** production/epics/godot-client/story-008-playable-completion.md — Complete，0.6.0-dev.2。
-**Next step:** 用户从17347试玩新版，重点反馈引导、加速道具使用和中后期资源节奏。后续若继续开发，先评估真实等待与长期成长，再扩展内容；技能/计谋和联网需遵守用户后续方向。
-**Blocked on:** 当前本机玩法收尾没有阻断。真实云联调仍等待用户恢复该范围；不以此阻止本机开发。
-**Files in progress:** 无剩余生产实现；源码、故事及QA报告保存本轮结果。本地包位于build/playable-0602，未公开Release。
-**Run result:** OBSERVED — 实际最终Web桌面及390宽度，production/qa/evidence/story-008/30–39；PASS — 1814项自动检查、192项最终包检查、实际原生/编译PCK状态与地图smoke。并未对玩家原生窗口操作。
-**Open questions:** 实际新手等待和长局平衡、Windows人工试玩、正式美术、各州扩容、联网与Steamworks。当前故事只完成本机规则入口/闭环，不能叫完整商业版。
+**Updated:** 2026-10-07
+**Branch:** main；本次同步story009–018及其素材、文档与验证。
+**Current task:** production/epics/godot-client/story-018-perimeter-defenses.md — Complete，0.6.0-dev.12。
+**Next step:** 17359试玩新的城景与建设决策；当前六项范围完成。
+**Blocked on:** 本轮无阻断；真实云联调仍暂缓。
+**Files in progress:** story017代码/资产/测试/报告/证据与build/city-polish-0611-final已收尾。
+**Run result:** PASS — GD5973、native1361、Node38、package205、PCK93×2、HTTP20；OBSERVED — 最终Web1280/390、0warning/error、0消费命令/revision0/持久化save unchanged。
+**Open questions:** Windows硬件/实体手机、动态居民、全国州郡规则、正式公网/Steam；prepared截图不是自然长局。
 <!-- /CHECKPOINT -->
 
 ## 当前可继续试玩
 
-- 新版本独立预览 `http://127.0.0.1:17347/`，数据 `.local/playable-0602-preview`，最终Web导出 `build/playable-0602/web`。真实UI领取官府1礼包及首个任务后停在安置百姓；这是独立测试新城，可继续玩。后台保留运行。
-- 原私人试玩17339使用 `.local/play`，不用于测试；原生私人客户端的userdata和窗口未改动。
-- 原共享四账号17342使用 `.local/pvp-play-040`，邀请页与角色密钥不输出到Git或答复。
-- 原0.5房间17343使用 `.local/room-play-050`；恢复密钥须用户自行保存。
-- 17345真实Supabase服务及17346密码助手均未启动。暂时原生QA进程已退出，不占用玩家原生窗口。
+- 最新六项更新`http://127.0.0.1:17359/`，exec55026/tab81、viewport恢复；来源17358保存只复制save.json，完整Windows/Web包在build/city-polish-0611-final。本轮全部验收通过，原进度与副本摘要不变。
+- 下文旧地址和tab记录为历史；旧服务仍留存，本任务创建的旧测试标签已关闭。
+
+- 内城36格新版`http://127.0.0.1:17358/`，数据`.local/city-grid-0610-preview`仅复制17357 save.json，Web`build/city-grid-0610-final/web`；最终1280/390实际观察、revision0/无mutation/source与copy存档不变，exec31250/tab78保留，viewport已恢复。
+
+- 大地图新版`http://127.0.0.1:17357/`，数据`.local/map-art-0609-preview`仅复制17356 save.json，Web`build/map-art-0609/web`；最终1280/390实际观察、revision0/无mutation/source与copy存档不变，exec78920/tab77保留，viewport已恢复。
+
+- 建筑贴图新版`http://127.0.0.1:17356/`，数据`.local/commanding-art-0608-preview`为17355副本，Web`build/commanding-art-0608-final/web`；实际最终1280/390已观察，revision0无消费、save不变；exec82143/tab76保留，viewport恢复。
+
+- 历史结构新版`http://127.0.0.1:17355/`，数据`.local/historic-0607-preview`为17351进度副本，Web`build/historic-0607/web`；实际最终1280/390已观察，revision0无消费；exec77975与tab73保留，viewport已恢复，旧预览保留。
+- 战争界面新版`http://127.0.0.1:17351/`，数据`.local/war-ui-0606-preview`，Web`build/war-ui-0606/web`；revision0，无消费/派兵指令。服务exec41307保留，交付tab71，临时viewport已重置。
+- 侦察新版`http://127.0.0.1:17350/`，数据`.local/scouting-0605-preview`，Web`build/scouting-0605/web`；revision0，无消费/派兵指令。服务exec90965保留，交付tab69。
+- 成长与收支新版`http://127.0.0.1:17349/`，数据`.local/growth-0604-preview`，Web为`build/growth-0604/web`；新城仍在奉诏立城，revision0，没有消费或派兵指令。服务exec33747保留运行，预览tab67为本轮交付。
+- 界面旧版17348数据`.local/ui-polish-0603-preview`、Web`build/ui-polish-0603/web`，服务4942保留，新城在奉诏立城。
+- 本机完整玩法旧版17347数据`.local/playable-0602-preview`、Web`build/playable-0602/web`，服务60634保留，停在安置百姓。
+- 原私人试玩17339用`.local/play`；原生私人客户端userdata和窗口未改动。
+- 原共享四账号17342用`.local/pvp-play-040`；0.5房间17343用`.local/room-play-050`，不输出角色/恢复密钥。
+- 17345真实Supabase及17346密码助手均未启动；本轮隔离QA Godot已退出。
 
 ## 构建、保存与图谱
 
-Windows/Web两包为0.6.0-dev.2，SHA256和字节数见QA报告与build-manifest.json。包内为完整资源、官方Node及规则服务；真实账号配置与存档不入包。Godot application/config/name继续「三国城志 · Godot」以保持user://兼容，实际窗口、页面及界面显示「山河策」。
+0.6.0-dev.10最终包build/city-grid-0610-final；原始生成prompt、7建筑PNG+地面与17区域源摘要、最终包SHA、QA/浏览器/存档核对见production/qa/evidence/story-016及production/polish/city-grid-art-report-2026-10-07.md。Graph最终本地同flags刷新1327节点/3508边/77社区。其后dev.9等计数与结果为历史记录。
 
-原three-kingdoms仍clean，HEAD c7674df45b9595405e57907524e737e633b0ff63，Pages不部署；vendor/legacy及vendor/shared无差异。Graphify按既有code-only/exclude标记本地更新1169节点、3097边、62社区；.gd和SQL提取限制保留，不启用watcher、hook、语义后端或图谱上传。
+0.6.0-dev.9最终包build/map-art-0609；资产prompt、当前source/包SHA、QA/浏览器/存档核对见production/qa/evidence/story-015及production/polish/world-map-art-report-2026-10-07.md。Graph最终本地同flags刷新1327节点/3508边/77社区。其后dev.8图谱计数为历史记录。
+
+0.6.0-dev.8最终包在`build/commanding-art-0608-final/`；SHA256/字节数、资产摘要、QA和包检查见production/qa/evidence/story-014，报告production/polish/commanding-city-art-report-2026-10-07.md。内置image_gen生成，两图源像素不改；最终图谱1320节点/3496边/78社区，no external backend/watchers/hooks/upload。
+
+0.6.0-dev.7最终包在`build/historic-0607/`，最终SHA256、字节数与验收聚合见production/qa/evidence/story-013/build-manifest.json、qa-summary.json和package-audit-summary.json；报告production/polish/historic-city-report-2026-10-07.md。历史0.6.0-dev.6包仍在`build/war-ui-0606/`，旧SHA256与字节数仅对应战争界面报告和story-012证据。包内完整资源、官方Windows Node与规则服务，真实账号配置与存档不入包。application/config/name继续「三国城志 · Godot」以保持user://兼容；实际窗口/页面/界面为「山河策」。
+
+原three-kingdoms仍clean，HEAD`c7674df45b9595405e57907524e737e633b0ff63`，Pages不部署；vendor/legacy与vendor/shared无差异。Graphify最终本地code-only/exclude刷新与无标签聚类完成，1320节点、3496边、78社区；.gd和SQL提取限制保留，不启用watcher/hook/外部语义后端或上传。010新增bridge存档可选计数兼容旧存档，严格验证限制，跨日/跨城/重启/并发回执已测。
 
 ## 历史验收
 

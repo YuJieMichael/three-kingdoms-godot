@@ -127,23 +127,36 @@ func _run() -> void:
 	_check(_client._dialog.visible and _client._dialog.title == "城内建筑", "Blueprint navigation must reach the building overview")
 	_client._dispatch_node("field")
 	await _settle()
-	var preview: Button = _button(_client._dialog, "预览出征")
-	var confirm: Button = _button(_client._dialog, "确认派遣部队")
-	_check(preview != null and confirm.disabled, "Dispatch must require a successful quotation first")
+	var dispatch: Variant = _client._scouting
+	var preview: Button = _button(dispatch, "预览出征") if is_instance_valid(dispatch) else null
+	var confirm: Button = _button(dispatch, "确认派遣") if is_instance_valid(dispatch) else null
+	_check(preview != null and confirm != null and confirm.disabled, "Dispatch must require a successful quotation first")
+	if preview == null or confirm == null:
+		quit(1)
+		return
 	preview.emit_signal("pressed")
+	_check(not _api.quotations.is_empty() and _api.quotations.back().kind == "march", "The unified dispatch window must request the current march quotation")
+	if _api.quotations.is_empty():
+		quit(1)
+		return
 	var quote: Dictionary = _api.quotations.back()
-	_api.quote_received.emit({"requestId": quote.requestId, "quote": {"reason": "", "seconds": 90, "returnSeconds": 45, "foodCost": 180, "carry": 1000, "command": {"type": "dispatch", "args": quote.args}}})
+	var source: String = str(_fixture.view.city.id)
+	_api.quote_received.emit({"requestId": quote.requestId, "kind": "march", "sourceCity": source, "serverTime": 1800000000000.0, "quote": {"reason": "", "seconds": 90, "returnSeconds": 45, "foodCost": 180, "carry": 1000, "command": {"type": "dispatch", "args": quote.args.duplicate(true), "sourceCity": source}}})
 	_check(not confirm.disabled, "A matching successful quotation must enable dispatch")
-	for child: Node in _client._dialog.find_children("*", "SpinBox", true, false):
-		child.get_line_edit().text = "0"
-		child.get_line_edit().emit_signal("text_changed", "0")
-		break
+	var soldier: SpinBox = dispatch._army_inputs.archer
+	soldier.get_line_edit().text = "29"
+	soldier.get_line_edit().emit_signal("text_changed", "29")
 	_check(confirm.disabled, "Unsubmitted soldier text must invalidate the former quotation")
+	var quotation_count: int = _api.quotations.size()
 	preview.emit_signal("pressed")
+	_check(_api.quotations.size() == quotation_count + 1, "Changed positive army must obtain a fresh quotation")
+	if _api.quotations.size() != quotation_count + 1:
+		quit(1)
+		return
 	quote = _api.quotations.back()
 	_api.quote_received.emit({"requestId": "older_quotation", "quote": {"reason": "", "command": {"type": "dispatch", "args": []}}})
 	_check(confirm.disabled, "An old quotation must not authorize a changed army")
-	_api.quote_received.emit({"requestId": quote.requestId, "quote": {"reason": "至少选择 1 名士兵"}})
+	_api.quote_received.emit({"requestId": quote.requestId, "kind": "march", "sourceCity": source, "quote": {"reason": "校场派遣队伍已满"}})
 	_check(confirm.disabled, "Canonical failed quotations must block dispatch")
 	_client._show_inventory("inventory")
 	_client._show_progression("missions")
@@ -151,8 +164,8 @@ func _run() -> void:
 	_client._connection_changed("断线", false)
 	_check(not _client._progression._connected and not _client._inventory._connected, "Connection changes must lock both visible and cached panels")
 	_client._mode_changed("shared")
-	_check(_client._heroes == null and _client._progression == null and _client._war_management == null and _client._realm == null and _client._inventory == null, "Identity change must destroy every private feature panel and its drafts")
-	_check(_client._dispatch_quote_id.is_empty() and not _client._dispatch_preview.is_valid(), "Identity change must clear any former quotation")
+	_check(_client._heroes == null and _client._progression == null and _client._war_management == null and _client._realm == null and _client._inventory == null and _client._scouting == null, "Identity change must destroy every private feature panel and its drafts")
+	_check(dispatch._march_quote_id.is_empty() and dispatch._march_command.is_empty(), "Identity change must clear any former quotation")
 	root.remove_child(_client)
 	_client.queue_free()
 	await process_frame

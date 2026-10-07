@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "story": "story-017",
+  "reviewer": "historic_qa_review",
+  "reviewedDate": "2026-10-07",
+  "method": "Independent read-only visual inspection of the three final native city captures and their dimensions/hashes. No Godot or browser process was run by this reviewer.",
+  "result": "No blocking city-scene visual defect found within the reviewed captures.",
+  "images": [
+    {
+      "file": "rts-city-grid-developed-desktop.png",
+      "size": [900, 1287],
+      "sha256": "36814b9d891ab6faf8d3840978177898d78730fab8fbdb983b0ecf93df012420"
+    },
+    {
+      "file": "rts-city-grid-fresh-phone.png",
+      "size": [390, 2064],
+      "sha256": "95fc46bd5998b76d09657c03a757939842b954169962fd381f7aa93ee32cf896"
+    },
+    {
+      "file": "rts-city-grid-mixed-phone.png",
+      "size": [390, 2064],
+      "sha256": "a32da93a4ae4bdaf2becf763a4c2fedf72a0b43a07e0220ac9d913ddd9aa6305"
+    }
+  ],
+  "observations": [
+    "The developed and mixed scenes show distinguishable silhouettes for the 16 canonical building types; no neighboring atlas sprite fragment or opaque dark background rectangle is visible.",
+    "Buildings remain within their own surveyed parcels. Their proportions look consistent with the source art; roofs, walls and shadows do not obscure adjacent site numbers or labels.",
+    "Desktop six-column and phone three-column layouts retain visible sites 01 through 36, including the final empty parcels 34 through 36.",
+    "Phone name/level strips and site numbers are readable. The mixed phone image shows site 01 house at level 0 as a bare foundation with a 59-second queue badge, and site 18 house at completed level 3 with upgrade scaffolding and a 29-second queue badge.",
+    "Displayed reserved sites 16, 21 and 22 remain courtyards; displayed site 15 remains the hall. Fresh-phone hall level 1 and developed/mixed hall level 10 visibly use different completed-tier appearances.",
+    "The widened main street aligns with the south gate in both column layouts. Northern and southern wall spans remain outside the building grid; the southern wall/gate does not cover parcels 34 through 36.",
+    "The ground and streets read as a common earth surface; stronger building label strips preserve readability without neighboring building overlap."
+  ],
+  "nonBlockingPolish": [
+    "Repeated northern and southern wall segment seams are still visible at native scale.",
+    "The full fresh city retains a strong surveyed-grid/planning-map appearance through straight streets and uniform empty parcels; this is compatible with this iteration's explicit readable-grid goal.",
+    "The straight side walls have less material detail than the building sprites and the horizontal wall/gate art."
+  ],
+  "scopeLimits": [
+    "The phone images are 390-by-2064 full-content captures, not a 390-by-844 application viewport. They do not verify real viewport scrolling, fixed HUD visibility, hall-focus scrolling or touch behavior.",
+    "No final Web capture was supplied for this review.",
+    "construction-panel-phone-compare.png is explicitly excluded: the parent reported its quote footer was not yet final and was being repaired. No final construction-panel or sticky-quote certification is made here.",
+    "Screenshot inspection supports visible site/level/queue presentation only; it is not a substitute for command identity and canonical rule tests."
+  ]
+}

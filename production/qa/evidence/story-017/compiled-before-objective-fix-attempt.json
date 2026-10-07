@@ -1,0 +1,14 @@
+{
+  "windows": {
+    "compiledChecks": 90,
+    "exitCode": 0,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled-windows.log",
+    "artifactSha256": "08eed38db4d6a46d1dcfd69abd8838654b3f4054a695a0cbf7b97fcf39d44f38"
+  },
+  "web": {
+    "host": "macOS",
+    "result": "subprocess timeout after80 seconds during concurrent Web UI observation",
+    "stdoutRetained": false
+  },
+  "scope": "Superseded packages before final objective rendering repair. Not counted in final verification."
+}

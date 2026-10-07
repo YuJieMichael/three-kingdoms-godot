@@ -233,10 +233,15 @@ func _test_layout() -> void:
 		_client._receive_snapshot({"view": _view, "state": {}})
 		_client._show_page("city")
 		await _settle()
-		_check(_client._body.size.x <= float(width - 32), "City management buttons must fit the %d px shell." % width)
+		_check(_client._body.size.x <= float(width - (16 if width == 390 else 24)), "City management buttons must fit the %d px shell." % width)
 		var city_buttons: PackedStringArray = _button_labels(_client._center)
+		for label: String in ["城内", "城外田庄", "城务"]:
+			_check(city_buttons.has(label), "The city scene must expose %s on the %d px layout." % [label, width])
+		_client._city_affairs_dialog()
+		await _settle()
+		var affairs: PackedStringArray = _button_labels(_client._dialog)
 		for label: String in ["市场交易", "城守税率", "客栈招募"]:
-			_check(city_buttons.has(label), "The city must expose %s on the %d px layout." % [label, width])
+			_check(affairs.has(label), "City affairs must expose %s on the %d px layout." % [label, width])
 		_client._tasks_dialog()
 		await _settle()
 		_check(_client._dialog.size.x <= width - 24, "A five-resource reward and long title must not widen the %d px tasks popup." % width)

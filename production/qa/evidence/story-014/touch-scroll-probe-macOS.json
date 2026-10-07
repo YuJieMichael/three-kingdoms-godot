@@ -1,0 +1,1305 @@
+{
+	"checks": 24,
+	"display": "macOS",
+	"engine": {
+		"build": "official",
+		"hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+		"hex": 263938,
+		"major": 4,
+		"minor": 7,
+		"patch": 2,
+		"status": "stable",
+		"string": "4.7.2-stable (official)",
+		"timestamp": 0
+	},
+	"failures": 0,
+	"method": "Input.parse_input_event raw touch routes through real viewport and ScrollContainer; desktop touch availability enabled only in this isolated process",
+	"rows": [
+		{
+			"case": "tap",
+			"events": [
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				}
+			],
+			"kind": "city",
+			"scroll": 0,
+			"selections": [
+				0
+			]
+		},
+		{
+			"case": "incremental-drag",
+			"events": [
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 280.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 280.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 277.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 277.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 274.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 274.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 271.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 271.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 268.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 268.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 265.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 265.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 262.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 262.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 259.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 259.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 256.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 256.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 253.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 253.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 250.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 250.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 247.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 247.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 244.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 244.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 241.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 241.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 238.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 238.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 235.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 235.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 232.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 232.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 229.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 229.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 226.125)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 283.125)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 226.125)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 226.125)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 226.125)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				}
+			],
+			"kind": "city",
+			"scroll": 66,
+			"selections": []
+		},
+		{
+			"case": "large-drag",
+			"kind": "city",
+			"scroll": 285,
+			"selections": []
+		},
+		{
+			"case": "cancel",
+			"kind": "city",
+			"scroll": 0,
+			"selections": []
+		},
+		{
+			"case": "tap",
+			"events": [
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.835, 286.125)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 331.0755)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 331.0755)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 331.0755)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				}
+			],
+			"kind": "suburb",
+			"scroll": 0,
+			"selections": [
+				24
+			]
+		},
+		{
+			"case": "incremental-drag",
+			"events": [
+				{
+					"device": -1,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 331.0755)",
+					"pressed": true,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 325.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 325.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 322.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 322.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 319.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 319.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 316.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 316.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 313.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 313.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 310.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 310.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 307.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 307.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 304.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 304.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 301.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 301.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 298.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 298.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 295.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 295.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 292.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 292.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 289.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 289.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 286.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 286.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 283.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 283.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 280.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 280.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 277.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 277.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 274.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 274.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 271.0755)",
+					"type": "InputEventMouseMotion",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 328.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 271.0755)",
+					"type": "InputEventScreenDrag",
+					"where": "parent"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 331.0755)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "child"
+				},
+				{
+					"device": -1,
+					"position": "(65.49828, 271.0755)",
+					"pressed": false,
+					"type": "InputEventMouseButton",
+					"where": "parent"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 331.0755)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "child"
+				},
+				{
+					"device": 0,
+					"position": "(65.49828, 271.0755)",
+					"pressed": false,
+					"type": "InputEventScreenTouch",
+					"where": "parent"
+				}
+			],
+			"kind": "suburb",
+			"scroll": 64,
+			"selections": []
+		},
+		{
+			"case": "large-drag",
+			"kind": "suburb",
+			"scroll": 401,
+			"selections": []
+		},
+		{
+			"case": "cancel",
+			"kind": "suburb",
+			"scroll": 0,
+			"selections": []
+		}
+	]
+}

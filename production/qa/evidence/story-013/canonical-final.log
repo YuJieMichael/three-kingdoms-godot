@@ -1,0 +1,41 @@
+✔ bridge DTOs retain canonical costs and hide future task landmarks (220.907625ms)
+✔ empty-land choices quote each actual resource type and match committed fees and construction time (584.36375ms)
+✔ real building completes with canonical timers and survives process-style restart (363.694458ms)
+✔ simultaneous commands commit once with CAS and retry receipts survive restart (340.612ms)
+✔ read projections never rewrite persisted revision, receipts or resource balances (180.355542ms)
+✔ read then command then restart settles construction, income and hourly wages exactly once (414.683917ms)
+✔ real research and inventory DTOs quote native rules; random speedup retry never rolls twice (412.300417ms)
+✔ management unlock requirements reject transactions without changing save or revision (90.129167ms)
+✔ real market quotes allow full-resource purchases, reject oversize, and replay one persisted settlement (304.233167ms)
+✔ market sale capacity and cash shortage remain authoritative rules (323.84575ms)
+✔ governor and tax commands change canonical production, construction and morale; marching governors are rejected (614.712625ms)
+✔ inn inquiry is free; recruitment charges once, consumes a room and persists real hero statistics (310.568458ms)
+✔ inn rooms include both captive pools, and recruit quotes expose cash shortage only when space exists (222.495875ms)
+✔ multi-city management uses the requested city treasury, tax and inn while rooms remain realm-wide (609.939375ms)
+✔ invalid imports leave save and revision intact; original browser export round trips (206.87875ms)
+✔ authority identity persists across commands, import and restart; older bridge headers migrate once (232.828875ms)
+✔ real training, mixed-army march duration and recall are governed by the original engine (437.354625ms)
+✔ canonical battle commands expose actual positions, events, orders and one settlement (698.958083ms)
+✔ arbitrary methods and snapshot injection cannot cross the command whitelist (93.839625ms)
+✔ private token and origin boundaries protect save data and process shutdown (78.050083ms)
+✔ directory lock prevents two authorities and corrupt existing files are preserved (31.422292ms)
+✔ same-origin web assets are isolated from saves, ready metadata and symlink escapes (60.125ms)
+✔ desktop CLI emits a ready file with assigned port and authenticated shutdown removes it (170.645583ms)
+✔ HTTP management previews enforce identity and shape, hide unreached nodes, and never persist fees/queues/receipts (356.615291ms)
+✔ found-city preview/commit and transport/redeploy scope, keys, returns and overflow obey canonical rules (1018.103333ms)
+✔ realm presentation retains own-city roles and separates each city wild holdings (50.048ms)
+✔ fill templates preserve existing high-level fields, replacements retain matches, and reserves pause automation (26.534334ms)
+✔ stationed gathering has a real wait and permits overflow; collection and troop recall settle once (1017.458209ms)
+✔ shared and room previews authenticate own source and reject local NPC/auto-defense capabilities without persistence (882.321041ms)
+✔ fresh-city playable route builds, researches and trains the 30-archer first battle using only normal rewards (14423.358125ms)
+ℹ Fresh save reached first battle and complete return after 800 simulated minutes, using earned hall gifts/missions and population items only.
+✔ prepared late-game route pays epic/rank gates, occupies county and every chapter-two node before revealing chapter three (21067.078875ms)
+ℹ Prepared late-game stock fixture completed legal epic/rank fees, 3 county attacks, and all 6 chapter-two occupations; this isolates rules, not natural long-game pacing.
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39027.939417

@@ -1,0 +1,304 @@
+[
+  {
+    "test": "tests/world_map_test.gd",
+    "checks": 24,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "World map mathematical checks: 24 passed, 0 failed"
+    ],
+    "seconds": 0.584,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/world_map_test.log"
+  },
+  {
+    "test": "tests/battle_view_test.gd",
+    "checks": 70,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "City / battle presentation: 70 checks, 0 failures"
+    ],
+    "seconds": 0.789,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/battle_view_test.log"
+  },
+  {
+    "test": "tests/client_test.gd",
+    "checks": 236,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot client checks: 236 passed, 0 failed"
+    ],
+    "seconds": 3.533,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/client_test.log"
+  },
+  {
+    "test": "tests/management_test.gd",
+    "checks": 79,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "MANAGEMENT_TEST_CHECKS=79 failures=0"
+    ],
+    "seconds": 1.472,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/management_test.log"
+  },
+  {
+    "test": "tests/input_test.gd",
+    "checks": 255,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "INPUT_TEST_CHECKS=255 failures=0"
+    ],
+    "seconds": 3.595,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/input_test.log"
+  },
+  {
+    "test": "tests/map_render_test.gd",
+    "checks": 215,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "MAP_RENDER_TEST_CHECKS=215 failures=0"
+    ],
+    "seconds": 3.701,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/map_render_test.log"
+  },
+  {
+    "test": "tests/pvp_api_test.gd",
+    "checks": 91,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot PvP API checks: 91 passed, 0 failed"
+    ],
+    "seconds": 0.691,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/pvp_api_test.log"
+  },
+  {
+    "test": "tests/pvp_ui_test.gd",
+    "checks": 52,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot PvP UI checks: 52 passed, 0 failed"
+    ],
+    "seconds": 0.874,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/pvp_ui_test.log"
+  },
+  {
+    "test": "tests/lobby_api_test.gd",
+    "checks": 60,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot lobby API checks: 60 passed, 0 failed"
+    ],
+    "seconds": 0.462,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/lobby_api_test.log"
+  },
+  {
+    "test": "tests/lobby_ui_test.gd",
+    "checks": 80,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot lobby UI checks: 80 passed, 0 failed"
+    ],
+    "seconds": 1.325,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/lobby_ui_test.log"
+  },
+  {
+    "test": "tests/presentation_test.gd",
+    "checks": 40,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "PRESENTATION_TEST_CHECKS=40 failures=0"
+    ],
+    "seconds": 1.97,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/presentation_test.log"
+  },
+  {
+    "test": "tests/ui_feedback_test.gd",
+    "checks": 60,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "UI_FEEDBACK_TEST_CHECKS=60 failures=0"
+    ],
+    "seconds": 1.083,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/ui_feedback_test.log"
+  },
+  {
+    "test": "tests/ui_polish_test.gd",
+    "checks": 351,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "UI_POLISH_TEST_CHECKS=351 failures=0"
+    ],
+    "seconds": 3.253,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/ui_polish_test.log"
+  },
+  {
+    "test": "tests/growth_route_test.gd",
+    "checks": 24,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "GROWTH_ROUTE_TEST_CHECKS=24 failures=0"
+    ],
+    "seconds": 0.578,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/growth_route_test.log"
+  },
+  {
+    "test": "tests/report_economy_test.gd",
+    "checks": 174,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "REPORT_ECONOMY_TEST_CHECKS=174 failures=0"
+    ],
+    "seconds": 0.886,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/report_economy_test.log"
+  },
+  {
+    "test": "tests/growth_economy_client_test.gd",
+    "checks": 102,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "GROWTH_ECONOMY_CLIENT_TEST_CHECKS=102 failures=0"
+    ],
+    "seconds": 7.858,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/growth_economy_client_test.log"
+  },
+  {
+    "test": "tests/scouting_ui_test.gd",
+    "checks": 138,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "SCOUTING_UI_TEST_CHECKS=138 failures=0"
+    ],
+    "seconds": 1.992,
+    "log": ".local/scouting-0605-qa/scouting_ui_test.log",
+    "finalFrozenRerun": true,
+    "warnings": []
+  },
+  {
+    "test": "tests/scouting_client_test.gd",
+    "checks": 65,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "SCOUTING_CLIENT_TEST_CHECKS=65 failures=0"
+    ],
+    "seconds": 5.05,
+    "log": ".local/scouting-0605-qa/scouting_client_test.log",
+    "finalFrozenRerun": true,
+    "warnings": []
+  },
+  {
+    "test": "tests/cloud_lobby_api_test.gd",
+    "checks": 64,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot cloud lobby API checks: 64 passed, 0 failed"
+    ],
+    "seconds": 0.911,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/cloud_lobby_api_test.log"
+  },
+  {
+    "test": "tests/cloud_lobby_ui_test.gd",
+    "checks": 59,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "Godot cloud lobby UI checks: 59 passed, 0 failed"
+    ],
+    "seconds": 1.383,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/cloud_lobby_ui_test.log"
+  },
+  {
+    "test": "tests/cloud_lobby_html_test.gd",
+    "checks": 19,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "{\"checks\":19,\"failures\":0,\"scope\":\"actual cloud-lobby script; isolated DOM/HTTP fixture; five shared-cookie windows\",\"mutationsAfterAccountChange\":0}",
+      "Cloud HTML script account checks: 19 passed, 0 failed"
+    ],
+    "seconds": 0.571,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/cloud_lobby_html_test.log"
+  },
+  {
+    "test": "tests/hero_management_test.gd",
+    "checks": 56,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "HERO_MANAGEMENT_TEST_CHECKS=56 failures=0"
+    ],
+    "seconds": 0.775,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/hero_management_test.log"
+  },
+  {
+    "test": "tests/progression_management_test.gd",
+    "checks": 25,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "PROGRESSION_UI_TEST checks=25 failures=0"
+    ],
+    "seconds": 0.6,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/progression_management_test.log"
+  },
+  {
+    "test": "tests/war_management_test.gd",
+    "checks": 108,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "WAR_MANAGEMENT_TEST_CHECKS=108 failures=0"
+    ],
+    "seconds": 0.794,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/war_management_test.log"
+  },
+  {
+    "test": "tests/inventory_management_test.gd",
+    "checks": 45,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "INVENTORY_MANAGEMENT_TEST_CHECKS=45 failures=0"
+    ],
+    "seconds": 0.877,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/inventory_management_test.log"
+  },
+  {
+    "test": "tests/realm_management_test.gd",
+    "checks": 21,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "REALM_UI_TEST checks=21 failures=0"
+    ],
+    "seconds": 0.681,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/realm_management_test.log"
+  },
+  {
+    "test": "tests/playable_ui_test.gd",
+    "checks": 123,
+    "exit_code": 0,
+    "errors": [],
+    "markers": [
+      "PLAYABLE_UI_TEST checks=123 failures=0"
+    ],
+    "seconds": 3.078,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/scouting-0605-qa/playable_ui_test.log"
+  }
+]

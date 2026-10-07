@@ -1,0 +1,27 @@
+{
+  "url": "http://127.0.0.1:17356/",
+  "tabId": "76",
+  "finalReloadAt": "2026-10-07T07:10:48.244Z",
+  "finalWarningErrors": [],
+  "earlierWarningErrors": [
+    {
+      "level": "error",
+      "message": "TypeError: Failed to fetch\n    at Object.create (http://127.0.0.1:17356/index.js:1:187617)\n    at _godot_js_fetch_create (http://127.0.0.1:17356/index.js:1:188630)\n    at wasm://wasm/096bca0a:wasm-function[58612]:0x1e291b7\n    at wasm://wasm/096bca0a:wasm-function[24047]:0xf5fe7e\n    at wasm://wasm/096bca0a:wasm-function[65608]:0x1f172e7\n    at wasm://wasm/096bca0a:wasm-function[631]:0x70032\n    at wasm://wasm/096bca0a:wasm-function[23919]:0xf37ef3\n    at wasm://wasm/096bca0a:wasm-function[23922]:0xf38833\n    at wasm://wasm/096bca0a:wasm-function[65206]:0x1efa750\n    at wasm://wasm/096bca0a:wasm-function[18792]:0xb062cf",
+      "timestamp": "2026-10-07T07:09:58.254Z",
+      "url": "http://127.0.0.1:17356/index.js"
+    }
+  ],
+  "observations": [
+    "1280x1000 final city core atlas rendered with real hall at canonical site14 and no unbuilt sprites",
+    "390x844 final city roof/label visible",
+    "Phone hall click opened parcel15 with integer level and all four upgrade costs wrapped inside screen",
+    "Phone scroll reached south gate without opening a building dialog",
+    "Phone exact empty parcel36 opened actual construction options with wrapped cost and requirements"
+  ],
+  "preparedBrowserFixture": false,
+  "mutationsSubmitted": 0,
+  "physicalPhoneTested": false,
+  "viewportReset": true,
+  "browserInputNote": "Earlier background Emulation.setFocusEmulationEnabled timeouts; visible final tab input succeeded",
+  "firstPreviewAttempt": "Copied transient runtime lock caused connection refused; original save/service preserved; only copied lock moved aside"
+}

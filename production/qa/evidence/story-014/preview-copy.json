@@ -1,0 +1,8 @@
+{
+  "source": ".local/historic-0607-preview",
+  "copy": ".local/commanding-art-0608-preview",
+  "saveSha256": "bf0d7befeaae395b50c74caaf85764a6b2f1e1469fc547f1bde8155cd7e83725",
+  "sourceUnchanged": true,
+  "copiedRuntimeLockMovedAside": true,
+  "firstPreviewLaunch": "SAVE_LOCKED due to copied transient owner lock; source lock and service untouched"
+}

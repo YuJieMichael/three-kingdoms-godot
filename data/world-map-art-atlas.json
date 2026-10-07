@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "texture": "res://assets/environment/world-map/world_map_relief_v1.png",
+  "size": [
+    1536,
+    1024
+  ],
+  "regions": {
+    "mountain_a": [
+      21,
+      83,
+      463,
+      381
+    ],
+    "mountain_b": [
+      509,
+      96,
+      507,
+      357
+    ],
+    "forest_a": [
+      1046,
+      96,
+      467,
+      389
+    ],
+    "forest_b": [
+      32,
+      567,
+      466,
+      355
+    ],
+    "county": [
+      520,
+      557,
+      483,
+      367
+    ],
+    "city": [
+      1006,
+      530,
+      516,
+      409
+    ]
+  },
+  "layout": "Six manually verified non-overlapping padded object bounds; source pixels/alpha preserved, not assumed equal grid cuts.",
+  "render": "preserve-alpha; contain; bottom-anchor; texture cache; no mipmaps",
+  "sourceSha256": "17aab33d8a0af320086a0bf6fbe6f26947d90dcc205de0d04cb8a9125ea2db39"
+}

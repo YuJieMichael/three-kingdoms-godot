@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "texture": "res://assets/environment/city/city_buildings_commanding_v1.png",
+  "size": [
+    1536,
+    1024
+  ],
+  "regions": {
+    "hall": [
+      39,
+      56,
+      491,
+      423
+    ],
+    "gateway": [
+      542,
+      62,
+      463,
+      373
+    ],
+    "barracks": [
+      1018,
+      108,
+      486,
+      335
+    ],
+    "warehouse": [
+      27,
+      560,
+      487,
+      357
+    ],
+    "market": [
+      524,
+      510,
+      480,
+      394
+    ],
+    "house": [
+      1011,
+      555,
+      505,
+      365
+    ]
+  },
+  "layout": "18 manually verified non-overlapping padded alpha bounds across two independently generated atlases; gutters are not assumed exact grid cells.",
+  "render": "preserve-alpha; contain; preserve-source-aspect; bottom-anchor",
+  "sourceSha256": "79aac8d80bf5ed2d5f295a0b938fd1e73764bbb079a4db6d30e151e14b833d0d",
+  "sprites": [
+    {
+      "id": "academy",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        20,
+        24,
+        354,
+        308
+      ]
+    },
+    {
+      "id": "embassy",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        400,
+        24,
+        358,
+        309
+      ]
+    },
+    {
+      "id": "inn",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        784,
+        22,
+        356,
+        310
+      ]
+    },
+    {
+      "id": "tavern",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        1170,
+        20,
+        349,
+        310
+      ]
+    },
+    {
+      "id": "stable",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        22,
+        389,
+        352,
+        255
+      ]
+    },
+    {
+      "id": "smith",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        406,
+        392,
+        357,
+        252
+      ]
+    },
+    {
+      "id": "workshop",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        787,
+        385,
+        359,
+        260
+      ]
+    },
+    {
+      "id": "beacon",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        1191,
+        347,
+        308,
+        306
+      ]
+    },
+    {
+      "id": "wall",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        18,
+        690,
+        361,
+        289
+      ]
+    },
+    {
+      "id": "drill",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        400,
+        681,
+        361,
+        292
+      ]
+    },
+    {
+      "id": "post",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        783,
+        694,
+        359,
+        284
+      ]
+    },
+    {
+      "id": "recruit",
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "region": [
+        1163,
+        706,
+        359,
+        274
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "texture": "res://assets/environment/city/city_buildings_commanding_v1.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "79aac8d80bf5ed2d5f295a0b938fd1e73764bbb079a4db6d30e151e14b833d0d"
+    },
+    {
+      "texture": "res://assets/environment/city/city_facilities_commanding_v1.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "068a3d669d571de96f3ad89946d7a796fda78614e1d6676a9e4631c934e1d458"
+    }
+  ]
+}

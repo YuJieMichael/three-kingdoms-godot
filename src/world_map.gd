@@ -13,18 +13,23 @@ const INERTIA_DECAY: float = 7.8
 const KEYBOARD_PIXELS_PER_SECOND: float = 480.0
 const GOLD: Color = Color("cfb579")
 const TEXT: Color = Color("eee4cd")
-const BORDER: Color = Color("444e48")
+const BORDER: Color = Color("756346")
 const CITY_KINDS: Dictionary = {"home": true, "city": true, "county": true, "prefecture": true, "province": true, "capital": true, "yellow_city": true, "named_city": true, "town": true}
 const TASK_KINDS: Dictionary = {"task": true, "quest": true, "mission": true, "chapter": true, "landmark": true}
 const DECORATION_CACHE_LIMIT: int = 2048
-const TREE_TRUNK: Color = Color("554b35")
-const TREE_SHADOW: Color = Color(0.09, 0.18, 0.15, 0.32)
-const TREE_CROWN: Color = Color("314c3a")
-const TREE_HIGHLIGHT: Color = Color("48604a")
-const MOUNTAIN_SHADOW: Color = Color(0.11, 0.13, 0.13, 0.25)
-const MOUNTAIN_FACE: Color = Color("696e62")
-const MOUNTAIN_SHADE: Color = Color("4d574e")
-const MOUNTAIN_EDGE: Color = Color(0.83, 0.81, 0.66, 0.42)
+const TREE_TRUNK: Color = Color("51432d")
+const TREE_SHADOW: Color = Color(0.09, 0.13, 0.10, 0.38)
+const TREE_CROWN: Color = Color("3d4a35")
+const TREE_HIGHLIGHT: Color = Color("667052")
+const MOUNTAIN_SHADOW: Color = Color(0.13, 0.12, 0.10, 0.28)
+const MOUNTAIN_FACE: Color = Color("958672")
+const MOUNTAIN_SHADE: Color = Color("665e53")
+const MOUNTAIN_EDGE: Color = Color(0.89, 0.82, 0.64, 0.62)
+const EARTH: Color = Color("92906b")
+const FOREST_EARTH: Color = Color("677450")
+const HILL_EARTH: Color = Color("85806b")
+const DRY_EARTH: Color = Color("b29a71")
+const WATER: Color = Color("4b6465")
 
 var world: Dictionary = {"width": 64, "height": 64, "home": {"x": 32, "y": 32}, "tiles": [], "marches": []}
 var camera_center: Vector2 = Vector2(32.5, 32.5)
@@ -37,6 +42,15 @@ var _feature_coordinates: Array[Vector2i] = []
 var _pending_arrival_marches: Array[Dictionary] = []
 var _forest_offset_cache: Dictionary = {}
 var _mountain_shift_cache: Dictionary = {}
+var _map_art_image: Image
+var _city_hit_regions: Array[Dictionary] = []
+var _server_clock_ms: float = 0.0
+var _server_clock_tick: int = 0
+var _map_art_texture: Texture2D
+var _map_art_sprites: Dictionary = {}
+var _map_label_rects: Array[Rect2] = []
+var _landscape_pass_complete: bool = false
+var _landform_mesh: ArrayMesh
 var _font: Font
 var _pointer_down: bool = false
 var _pointer_start: Vector2 = Vector2.ZERO
@@ -66,12 +80,103 @@ func _ready() -> void:
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if parsed is Dictionary and parsed.get("regions", []) is Array:
 			regions = parsed.get("regions", [])
+	_load_map_art()
 	resized.connect(_on_resized)
 	set_process(true)
 	queue_redraw()
 
 
+func _load_map_art(path: String = "res://data/world-map-art-atlas.json") -> void:
+	_map_art_sprites.clear()
+	_map_art_texture = null
+	_map_art_image = null
+	_city_hit_regions.clear()
+	if not FileAccess.file_exists(path):
+		return
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not parsed is Dictionary:
+		return
+	var texture_path: String = str(parsed.get("texture", ""))
+	if not ResourceLoader.exists(texture_path, "Texture2D"):
+		return
+	_map_art_texture = load(texture_path) as Texture2D
+	if _map_art_texture == null or not parsed.get("regions", {}) is Dictionary:
+		return
+	_map_art_image = _map_art_texture.get_image()
+	for id: Variant in parsed["regions"]:
+		var values: Variant = parsed["regions"][id]
+		if not values is Array or values.size() != 4:
+			continue
+		var region: Rect2 = Rect2(float(values[0]), float(values[1]), float(values[2]), float(values[3]))
+		if region.size.x <= 0 or region.size.y <= 0 or not Rect2(Vector2.ZERO, _map_art_texture.get_size()).encloses(region):
+			continue
+		var sprite: AtlasTexture = AtlasTexture.new()
+		sprite.atlas = _map_art_texture
+		sprite.region = region
+		sprite.filter_clip = true
+		_map_art_sprites[str(id)] = sprite
+
+
+func map_art_loaded() -> bool:
+	return _map_art_sprites.size() == 6
+
+
+func map_art_regions() -> Dictionary:
+	var result: Dictionary = {}
+	for id: Variant in _map_art_sprites:
+		result[id] = (_map_art_sprites[id] as AtlasTexture).region
+	return result
+
+
+func _map_sprite_rect(sprite: AtlasTexture, center: Vector2, extent: Vector2) -> Rect2:
+	var scale_factor: float = minf(extent.x / sprite.get_width(), extent.y / sprite.get_height())
+	var dimensions: Vector2 = sprite.get_size() * scale_factor
+	return Rect2(center + Vector2(-dimensions.x * 0.5, cell_pixels() * 0.31 - dimensions.y), dimensions)
+
+
+func _map_now_ms() -> float:
+	if _server_clock_ms > 0.0:
+		return _server_clock_ms + float(Time.get_ticks_usec() - _server_clock_tick) / 1000.0
+	return Time.get_unix_time_from_system() * 1000.0
+
+
+func _draw_map_sprite(id: String, center: Vector2, extent: Vector2) -> bool:
+	if not _map_art_sprites.has(id):
+		return false
+	var sprite: AtlasTexture = _map_art_sprites[id] as AtlasTexture
+	draw_texture_rect(sprite, _map_sprite_rect(sprite, center, extent), false)
+	return true
+
+
+static func city_tier_label(tile: Dictionary, is_home: bool = false) -> String:
+	if is_home:
+		return "主城"
+	match str(tile.get("tier", "ordinary")):
+		"county": return "县"
+		"prefecture": return "郡"
+		"province": return "州"
+		"capital": return "都"
+	return "城"
+
+
+static func city_art_id(tile: Dictionary, is_home: bool = false) -> String:
+	return "city" if is_home or str(tile.get("tier", "ordinary")) in ["prefecture", "province", "capital"] else "county"
+
+
+static func city_art_scale(tile: Dictionary, is_home: bool = false) -> float:
+	if is_home: return 1.35
+	match str(tile.get("tier", "ordinary")):
+		"capital": return 1.60
+		"province": return 1.45
+		"prefecture": return 1.30
+		"county": return 1.15
+	return 1.05
+
+
 func set_world(next_world: Dictionary) -> void:
+	var server_time: Variant = next_world.get("serverTime", null)
+	_server_clock_ms = float(server_time) if (server_time is int or server_time is float) and is_finite(float(server_time)) and float(server_time) > 0 else 0.0
+	_server_clock_tick = Time.get_ticks_usec()
 	world = next_world.duplicate(true)
 	world["width"] = maxi(1, int(world.get("width", 64)))
 	world["height"] = maxi(1, int(world.get("height", 64)))
@@ -91,7 +196,7 @@ func set_world(next_world: Dictionary) -> void:
 	_feature_coordinates.assign(features.keys())
 	_feature_coordinates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
 	_pending_arrival_marches.clear()
-	var now_ms: float = Time.get_unix_time_from_system() * 1000.0
+	var now_ms: float = _map_now_ms()
 	for item: Variant in world.get("marches", []):
 		if item is Dictionary and march_fraction(item, now_ms) < 1.0:
 			_pending_arrival_marches.append(item)
@@ -213,7 +318,7 @@ func _process(delta: float) -> void:
 	var moving_now: bool = false
 	var arrival_visible: bool = false
 	var show_marches: bool = filter_kind in ["all", "marches"]
-	var now_ms: float = Time.get_unix_time_from_system() * 1000.0
+	var now_ms: float = _map_now_ms()
 	var marker_bounds: Rect2 = Rect2(Vector2(-120, -35), size + Vector2(240, 70))
 	# A long frame can skip the entire visible portion of a short trip. Remember
 	# pending arrivals so the destination still appears without waiting for /world.
@@ -372,6 +477,20 @@ func _zoom_at(anchor: Vector2, next_zoom: float) -> void:
 func _select_at(position: Vector2) -> void:
 	var location: Vector2 = screen_to_world(position)
 	var coordinates: Vector2i = Vector2i(floori(location.x), floori(location.y))
+	# A raised roof may cross the tile edge. Hit only visible, opaque sprite
+	# pixels and return the current canonical tile, never a neighbouring plot.
+	if _map_art_image != null:
+		for index: int in range(_city_hit_regions.size() - 1, -1, -1):
+			var hit: Dictionary = _city_hit_regions[index]
+			var rect: Rect2 = hit["rect"]
+			if not rect.has_point(position): continue
+			var current: Dictionary = _tile_at(hit["coordinates"])
+			if str(current.get("id", "")) != str(hit["id"]) or bool(current.get("hidden", false)) or not bool(current.get("selectable", true)): continue
+			var region: Rect2 = hit["region"]
+			var sample: Vector2 = region.position + (position - rect.position) / rect.size * region.size
+			if _map_art_image.get_pixel(clampi(int(sample.x), 0, _map_art_image.get_width() - 1), clampi(int(sample.y), 0, _map_art_image.get_height() - 1)).a < 0.35: continue
+			coordinates = hit["coordinates"]
+			break
 	if coordinates.x < 0 or coordinates.y < 0 or coordinates.x >= int(world["width"]) or coordinates.y >= int(world["height"]):
 		return
 	var tile: Dictionary = _tile_at(coordinates)
@@ -403,19 +522,33 @@ func _terrain_at(coordinates: Vector2i) -> String:
 func _draw() -> void:
 	if _font == null:
 		_font = ThemeDB.fallback_font
-	draw_rect(Rect2(Vector2.ZERO, size), Color("171f20"))
+	draw_rect(Rect2(Vector2.ZERO, size), Color("202221"))
 	var map_rect: Rect2 = Rect2(world_to_screen(Vector2.ZERO), world_size() * cell_pixels())
-	draw_rect(map_rect, Color("6b7152"))
+	draw_rect(map_rect, EARTH)
 	var top_left: Vector2 = screen_to_world(Vector2.ZERO)
 	var bottom_right: Vector2 = screen_to_world(size)
 	var min_x: int = clampi(floori(top_left.x) - 2, 0, int(world["width"]) - 1)
 	var max_x: int = clampi(ceili(bottom_right.x) + 2, 0, int(world["width"]) - 1)
 	var min_y: int = clampi(floori(top_left.y) - 2, 0, int(world["height"]) - 1)
 	var max_y: int = clampi(ceili(bottom_right.y) + 2, 0, int(world["height"]) - 1)
+	_map_label_rects.clear()
+	_city_hit_regions.clear()
+	_landscape_pass_complete = false
 	_draw_landform(min_x, max_x, min_y, max_y)
 	_draw_rivers()
 	if zoom < 0.46:
 		_draw_regions()
+	if zoom >= 0.46:
+		for y: int in range(min_y, max_y + 1):
+			for x: int in range(min_x, max_x + 1):
+				var coordinate: Vector2i = Vector2i(x, y)
+				_draw_tile_landscape(_tile_at(coordinate), coordinate)
+	_landscape_pass_complete = true
+	if not selected_tile.is_empty() and not bool(selected_tile.get("hidden", false)):
+		var selected_position: Vector2 = Vector2(float(selected_tile.get("x", 0)), float(selected_tile.get("y", 0)))
+		var rectangle: Rect2 = Rect2(world_to_screen(selected_position) + Vector2(3, 3), Vector2.ONE * cell_pixels() - Vector2(6, 6))
+		draw_rect(rectangle, Color(GOLD, 0.12), true)
+		draw_rect(rectangle, GOLD, false, 2.0)
 	if zoom < 0.46:
 		# At overview scale wilderness decorations are already hidden. Visit only
 		# landmarks, retaining the same row order and current snapshot contents.
@@ -429,11 +562,7 @@ func _draw() -> void:
 				_draw_tile_features(_tile_at(coordinates), coordinates)
 	if zoom >= 1.05:
 		_draw_grid(min_x, max_x, min_y, max_y)
-	if not selected_tile.is_empty():
-		var selected_position: Vector2 = Vector2(float(selected_tile.get("x", 0)), float(selected_tile.get("y", 0)))
-		var rectangle: Rect2 = Rect2(world_to_screen(selected_position) + Vector2(3, 3), Vector2.ONE * cell_pixels() - Vector2(6, 6))
-		draw_rect(rectangle, Color(GOLD, 0.12), true)
-		draw_rect(rectangle, GOLD, false, 2.0)
+	_landscape_pass_complete = false
 	_draw_marches()
 	_draw_compass()
 	_draw_map_status()
@@ -442,33 +571,67 @@ func _draw() -> void:
 
 func _draw_landform(min_x: int, max_x: int, min_y: int, max_y: int) -> void:
 	var pixels: float = cell_pixels()
-	var tile_size: Vector2 = Vector2.ONE * (pixels + 1.0)
-	var half_viewport: Vector2 = size * 0.5
-	for y: int in range(min_y, max_y + 1):
-		for x: int in range(min_x, max_x + 1):
-			var position: Vector2 = (Vector2(x, y) - camera_center) * pixels + half_viewport
-			var terrain: String = _terrain_at(Vector2i(x, y))
-			var wave: float = sin(float(x) * 0.16 + float(y) * 0.10) * 0.026
-			var color: Color = Color(0.43 + wave, 0.46 + wave, 0.33 + wave)
-			var shadow_radius: float = 0.0
-			var shadow_color: Color
-			match terrain:
+	var columns: int = max_x - min_x + 1
+	var rows: int = max_y - min_y + 1
+	var terrain_columns: int = columns + 2
+	var terrain_colors: PackedColorArray = PackedColorArray()
+	# Sample each current terrain tile once, including the neighbour margin.
+	# Colors remain redraw-local so changed snapshots cannot leave stale art.
+	for y: int in range(min_y - 1, max_y + 2):
+		for x: int in range(min_x - 1, max_x + 2):
+			var coordinate: Vector2i = Vector2i(clampi(x, 0, int(world["width"]) - 1), clampi(y, 0, int(world["height"]) - 1))
+			var color: Color = EARTH
+			match _terrain_at(coordinate):
 				"forest", "wood", "woods":
-					color = Color(0.29 + wave, 0.38 + wave, 0.29 + wave)
-					shadow_radius = pixels * 0.72
-					shadow_color = Color(0.20, 0.30, 0.24, 0.16)
+					color = FOREST_EARTH
 				"mountain", "stone", "iron", "hill":
-					color = Color(0.43 + wave, 0.44 + wave, 0.39 + wave)
-					shadow_radius = pixels * 0.70
-					shadow_color = Color(0.27, 0.28, 0.27, 0.10)
+					color = HILL_EARTH
 				"water", "lake", "river":
-					color = Color("4f7173")
+					color = WATER
 				"desert", "wasteland":
-					color = Color(0.56 + wave, 0.49 + wave, 0.35 + wave)
-			draw_rect(Rect2(position, tile_size), color)
-			# Rounded overlapping shadows connect terrain across tile boundaries.
-			if shadow_radius > 0.0:
-				draw_circle(position + Vector2.ONE * pixels * 0.5, shadow_radius, shadow_color)
+					color = DRY_EARTH
+			terrain_colors.append(color)
+	var vertices: PackedVector2Array = PackedVector2Array()
+	var colors: PackedColorArray = PackedColorArray()
+	var vertex_columns: int = columns + 1
+	var vertex_count: int = vertex_columns * (rows + 1)
+	vertices.resize(vertex_count)
+	colors.resize(vertex_count)
+	var half_viewport: Vector2 = size * 0.5
+	for y: int in range(min_y, max_y + 2):
+		for x: int in range(min_x, max_x + 2):
+			var index: int = (y - min_y) * vertex_columns + x - min_x
+			var terrain_index: int = (y - min_y) * terrain_columns + x - min_x
+			var blended: Color = (terrain_colors[terrain_index] + terrain_colors[terrain_index + 1] + terrain_colors[terrain_index + terrain_columns] + terrain_colors[terrain_index + terrain_columns + 1]) * 0.25
+			var light: float = sin(float(x) * 0.16 + float(y) * 0.10) * 0.035 + cos(float(y) * 0.28 - float(x) * 0.07) * 0.018
+			vertices[index] = (Vector2(x, y) - camera_center) * pixels + half_viewport
+			colors[index] = Color(blended.r + light, blended.g + light, blended.b + light, 1.0)
+	# One colored mesh avoids triangulating a separate polygon for every cell.
+	# Shared vertices keep adjoining terrain edges continuous at every scale.
+	var indices: PackedInt32Array = PackedInt32Array()
+	indices.resize(columns * rows * 6)
+	for y: int in range(rows):
+		for x: int in range(columns):
+			var vertex: int = y * vertex_columns + x
+			var index: int = (y * columns + x) * 6
+			indices[index] = vertex
+			indices[index + 1] = vertex + 1
+			indices[index + 2] = vertex + vertex_columns + 1
+			indices[index + 3] = vertex
+			indices[index + 4] = vertex + vertex_columns + 1
+			indices[index + 5] = vertex + vertex_columns
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+	# The canvas command stores the RID, so retain the resource through rendering.
+	if _landform_mesh == null:
+		_landform_mesh = ArrayMesh.new()
+	else:
+		_landform_mesh.clear_surfaces()
+	_landform_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	draw_mesh(_landform_mesh, null)
 
 
 func _river_world_x(y: float) -> float:
@@ -497,11 +660,11 @@ func _draw_rivers() -> void:
 		var x: float = float(step) / float(last_step) * world_size().x
 		tributary.append(world_to_screen(Vector2(x, 41.0 + sin(x * 0.10) * 3.5)))
 	if river.size() >= 2:
-		draw_polyline(river, Color("566c60"), maxf(3.0, cell_pixels() * 0.56), true)
-		draw_polyline(river, Color("527b82"), maxf(2.0, cell_pixels() * 0.36), true)
-		draw_polyline(river, Color(0.58, 0.73, 0.72, 0.22), maxf(1.0, cell_pixels() * 0.07), true)
+		draw_polyline(river, Color("746e55"), maxf(3.0, cell_pixels() * 0.56), true)
+		draw_polyline(river, WATER, maxf(2.0, cell_pixels() * 0.36), true)
+		draw_polyline(river, Color(0.67, 0.76, 0.72, 0.26), maxf(1.0, cell_pixels() * 0.07), true)
 	if tributary.size() >= 2:
-		draw_polyline(tributary, Color("527477"), maxf(2.0, cell_pixels() * 0.24), true)
+		draw_polyline(tributary, WATER, maxf(2.0, cell_pixels() * 0.24), true)
 	# A dry road follows the principal valley; all routes remain visual overlays.
 	var road: PackedVector2Array = PackedVector2Array()
 	var first_road: int = clampi(floori(top_left.y - 1.0) - 1, 0, height)
@@ -533,6 +696,9 @@ func _draw_regions() -> void:
 
 
 func _draw_tile_features(tile: Dictionary, coordinates: Vector2i) -> void:
+	# A future task remains an unmarked landscape even if a DTO contains a name.
+	if bool(tile.get("hidden", false)):
+		return
 	var center: Vector2 = world_to_screen(Vector2(coordinates) + Vector2.ONE * 0.5)
 	var terrain: String = str(tile["terrain"]) if tile.has("terrain") else _terrain_at(coordinates)
 	var tile_kind: String = str(tile.get("kind", "wild"))
@@ -541,15 +707,8 @@ func _draw_tile_features(tile: Dictionary, coordinates: Vector2i) -> void:
 	var is_home: bool = coordinates.x == int(home.get("x", -1)) and coordinates.y == int(home.get("y", -1))
 	var is_city: bool = is_home or CITY_KINDS.has(tile_kind) or tile_id.begins_with("city-")
 	var is_task: bool = TASK_KINDS.has(tile_kind) or bool(tile.get("task", false))
-	if zoom >= 0.46 and not is_city:
-		match terrain:
-			"forest", "wood", "woods":
-				_draw_forest(center, coordinates)
-			"mountain", "stone", "iron", "hill":
-				_draw_mountain(center, coordinates)
-			"plain", "farm", "food", "grass":
-				if zoom >= 0.75:
-					_draw_fields(center, coordinates)
+	if not _landscape_pass_complete:
+		_draw_tile_landscape(tile, coordinates)
 	if is_city:
 		if filter_kind in ["all", "cities", "marches"] or is_home:
 			_draw_city(center, tile, is_home)
@@ -560,23 +719,43 @@ func _draw_tile_features(tile: Dictionary, coordinates: Vector2i) -> void:
 		match terrain:
 			"forest", "wood", "woods":
 				short_label = "木"
-			"mountain", "stone", "hill":
+			"stone", "hill":
 				short_label = "石"
-			"iron":
+			"mountain", "iron":
 				short_label = "铁"
-		_draw_badge(center + Vector2(0, -3), short_label, Color("394a40"))
+		_draw_badge(center + Vector2(0, -3), short_label, Color("514a39"))
+
+
+func _draw_tile_landscape(tile: Dictionary, coordinates: Vector2i) -> void:
+	if bool(tile.get("hidden", false)) or zoom < 0.46:
+		return
+	var home: Dictionary = world.get("home", {})
+	if CITY_KINDS.has(str(tile.get("kind", "wild"))) or str(tile.get("id", "")).begins_with("city-") or (coordinates.x == int(home.get("x", -1)) and coordinates.y == int(home.get("y", -1))):
+		return
+	var center: Vector2 = world_to_screen(Vector2(coordinates) + Vector2.ONE * 0.5)
+	var terrain: String = str(tile.get("terrain", _terrain_at(coordinates)))
+	match terrain:
+		"forest", "wood", "woods": _draw_forest(center, coordinates)
+		"mountain", "stone", "iron", "hill": _draw_mountain(center, coordinates)
+		"plain", "farm", "food", "grass":
+			if zoom >= 0.75: _draw_fields(center, coordinates)
 
 
 func _draw_forest(center: Vector2, coordinates: Vector2i) -> void:
 	var pixels: float = cell_pixels()
-	var radius: float = pixels * 0.075
+	var grove_offset: Vector2 = _forest_offsets(coordinates)[0] * pixels * 0.55
+	var variant_id: String = "forest_a" if (coordinates.x * 3 + coordinates.y * 7) % 2 == 0 else "forest_b"
+	var variation: float = 1.24 + sin(float(coordinates.x * 17 + coordinates.y * 31)) * 0.12
+	if _draw_map_sprite(variant_id, center + grove_offset, Vector2(pixels * variation, pixels * 1.24)):
+		return
 	for normalized_offset: Vector2 in _forest_offsets(coordinates):
+		var radius: float = pixels * (0.105 + normalized_offset.x * 0.055)
 		var offset: Vector2 = normalized_offset * pixels
 		var point: Vector2 = center + offset
-		draw_line(point + Vector2(0, radius), point + Vector2(0, radius * 2.0), TREE_TRUNK, maxf(1.0, zoom))
-		draw_circle(point + Vector2(1, 2), radius * 1.22, TREE_SHADOW)
+		draw_circle(point + Vector2(radius * 0.30, radius * 0.42), radius * 1.2, TREE_SHADOW)
+		draw_line(point + Vector2(0, radius * 0.4), point + Vector2(0, radius * 1.35), TREE_TRUNK, maxf(1.0, zoom))
 		draw_circle(point, radius, TREE_CROWN)
-		draw_circle(point + Vector2(-radius * 0.3, -radius * 0.3), radius * 0.62, TREE_HIGHLIGHT)
+		draw_circle(point + Vector2(-radius * 0.30, -radius * 0.32), radius * 0.60, Color(TREE_HIGHLIGHT, 0.75))
 
 
 func _forest_offsets(coordinates: Vector2i) -> PackedVector2Array:
@@ -605,15 +784,31 @@ func _mountain_shift(coordinates: Vector2i) -> float:
 
 
 func _draw_mountain(center: Vector2, coordinates: Vector2i) -> void:
-	var unit: float = cell_pixels() * 0.25
+	var variant_id: String = "mountain_a" if (coordinates.x * 7 + coordinates.y * 3) % 2 == 0 else "mountain_b"
+	var pixels: float = cell_pixels()
+	var variation: float = 1.30 + _mountain_shift(coordinates) * 0.26
+	var ridge_offset: Vector2 = Vector2(_mountain_shift(coordinates) * 0.32, sin(float(coordinates.x * 7 + coordinates.y * 13)) * 0.18) * pixels
+	if _draw_map_sprite(variant_id, center + ridge_offset, Vector2(pixels * variation, pixels * 1.30)):
+		return
+	var unit: float = cell_pixels() * 0.42
 	var shift: float = _mountain_shift(coordinates) * unit
-	var left: Vector2 = center + Vector2(-unit, unit * 0.45)
-	var peak: Vector2 = center + Vector2(shift, -unit * 0.70)
-	var right: Vector2 = center + Vector2(unit, unit * 0.45)
-	draw_colored_polygon(PackedVector2Array([left + Vector2(2, 2), peak + Vector2(2, 2), right + Vector2(2, 2)]), MOUNTAIN_SHADOW)
-	draw_colored_polygon(PackedVector2Array([left, peak, right]), MOUNTAIN_FACE)
-	draw_colored_polygon(PackedVector2Array([peak, center + Vector2(shift * 0.3, unit * 0.45), right]), MOUNTAIN_SHADE)
-	draw_line(left, peak, MOUNTAIN_EDGE, maxf(1.0, zoom))
+	var ridge_center: Vector2 = center + Vector2(shift * 0.65, sin(float(coordinates.x * 7 + coordinates.y * 13)) * unit * 0.15)
+	var height: float = 0.69 + cos(float(coordinates.x * 5 + coordinates.y * 11)) * 0.18
+	var left: Vector2 = ridge_center + Vector2(-unit, unit * 0.36)
+	var shoulder: Vector2 = ridge_center + Vector2(-unit * 0.58, -unit * 0.18)
+	var saddle: Vector2 = ridge_center + Vector2(-unit * 0.31, -unit * 0.03)
+	var peak: Vector2 = ridge_center + Vector2(shift * 0.65, -unit * height)
+	var right_shoulder: Vector2 = ridge_center + Vector2(unit * 0.62, -unit * 0.08)
+	var right: Vector2 = ridge_center + Vector2(unit, unit * 0.36)
+	var ridge: PackedVector2Array = PackedVector2Array([left, shoulder, saddle, peak, right_shoulder, right])
+	var shadow: PackedVector2Array = PackedVector2Array()
+	for point: Vector2 in ridge:
+		shadow.append(point + Vector2(unit * 0.15, unit * 0.16))
+	draw_colored_polygon(shadow, MOUNTAIN_SHADOW)
+	draw_colored_polygon(ridge, MOUNTAIN_FACE)
+	draw_colored_polygon(PackedVector2Array([peak, ridge_center + Vector2(shift * 0.65 - unit * 0.09, unit * 0.28), right, right_shoulder]), MOUNTAIN_SHADE)
+	draw_colored_polygon(PackedVector2Array([shoulder, saddle, ridge_center + Vector2(-unit * 0.35, unit * 0.32), left]), Color("7b735f"))
+	draw_polyline(PackedVector2Array([left, shoulder, saddle, peak]), MOUNTAIN_EDGE, maxf(1.0, zoom), true)
 
 
 func _draw_fields(center: Vector2, coordinates: Vector2i) -> void:
@@ -622,36 +817,79 @@ func _draw_fields(center: Vector2, coordinates: Vector2i) -> void:
 	var unit: float = cell_pixels() * 0.18
 	for row: int in range(3):
 		var offset: float = float(row - 1) * unit * 0.45
-		draw_line(center + Vector2(-unit, offset + unit * 0.30), center + Vector2(unit, offset - unit * 0.30), Color(0.79, 0.71, 0.43, 0.27), maxf(1.0, zoom))
+		draw_line(center + Vector2(-unit, offset + unit * 0.30), center + Vector2(unit, offset - unit * 0.30), Color(0.37, 0.29, 0.18, 0.26), maxf(1.0, zoom))
 
 
 func _draw_city(center: Vector2, tile: Dictionary, is_home: bool) -> void:
 	var marker_size: float = clampf(cell_pixels() * 0.30, 6.0, 19.0)
-	var flag_color: Color = Color("b78053")
-	if is_home or bool(tile.get("owned", false)):
-		flag_color = Color("e2c181")
-	elif str(tile.get("relation", "")) in ["allied", "friendly", "ally"]:
-		flag_color = Color("75afba")
-	elif str(tile.get("relation", "")) in ["enemy", "hostile"]:
-		flag_color = Color("c9715e")
-	elif str(tile.get("kind", "")) == "yellow_city":
-		flag_color = Color("d3b447")
-	draw_circle(center + Vector2(1, marker_size * 0.25), marker_size * 1.10, Color(0.08, 0.10, 0.09, 0.32))
-	var fort: Rect2 = Rect2(center + Vector2(-marker_size * 0.85, -marker_size * 0.25), Vector2(marker_size * 1.70, marker_size * 1.02))
-	draw_rect(fort, Color("777a69"))
-	draw_rect(fort, Color("c4bea0"), false, maxf(1.0, zoom))
-	for crenel: int in range(3):
-		var crenel_position: Vector2 = fort.position + Vector2(marker_size * 0.12 + float(crenel) * marker_size * 0.58, -marker_size * 0.20)
-		draw_rect(Rect2(crenel_position, Vector2(marker_size * 0.30, marker_size * 0.31)), Color("c0bda3"))
-	draw_rect(Rect2(center + Vector2(-marker_size * 0.18, marker_size * 0.18), Vector2(marker_size * 0.36, marker_size * 0.59)), Color("343e38"))
-	var pole_top: Vector2 = center + Vector2(marker_size * 0.57, -marker_size * 1.55)
-	draw_line(center + Vector2(marker_size * 0.57, -marker_size * 0.17), pole_top, GOLD, maxf(1.0, zoom))
+	var flag_color: Color = city_flag_color(tile, is_home)
+	var art_extent: Vector2 = Vector2.ONE * minf(116.0, cell_pixels() * city_art_scale(tile, is_home))
+	if zoom < 0.46 or not _draw_map_sprite(city_art_id(tile, is_home), center, art_extent):
+		draw_circle(center + Vector2(marker_size * 0.18, marker_size * 0.37), marker_size * 1.10, Color(0.13, 0.11, 0.09, 0.38))
+		var fort: Rect2 = Rect2(center + Vector2(-marker_size * 0.90, -marker_size * 0.25), Vector2(marker_size * 1.80, marker_size * 0.98))
+		draw_rect(fort, Color("82735d"))
+		draw_rect(Rect2(fort.position, Vector2(fort.size.x, marker_size * 0.14)), Color("d0b994"))
+		if zoom >= 0.46:
+			# Light falls from the upper left: shaded returns and a gatehouse make the
+			# same compact marker read as a walled settlement instead of a flat badge.
+			draw_colored_polygon(PackedVector2Array([fort.position + Vector2(fort.size.x, 0), fort.position + Vector2(fort.size.x + marker_size * 0.22, -marker_size * 0.16), fort.end + Vector2(marker_size * 0.22, -marker_size * 0.16), fort.end]), Color("5f5344"))
+			for side: float in [-1.0, 1.0]:
+				var tower: Rect2 = Rect2(center + Vector2(side * marker_size * 0.78 - marker_size * 0.20, -marker_size * 0.54), Vector2(marker_size * 0.40, marker_size * 1.26))
+				draw_rect(tower, Color("b39d7b") if side < 0 else Color("998464"))
+				draw_rect(Rect2(tower.position + Vector2(marker_size * 0.26, 0), Vector2(marker_size * 0.14, tower.size.y)), Color("766249"))
+				for crenel: int in range(2):
+					draw_rect(Rect2(tower.position + Vector2(float(crenel) * marker_size * 0.25, -marker_size * 0.12), Vector2(marker_size * 0.15, marker_size * 0.18)), Color("d0b994"))
+			var gatehouse: Rect2 = Rect2(center + Vector2(-marker_size * 0.37, -marker_size * 0.61), Vector2(marker_size * 0.74, marker_size * 1.35))
+			draw_rect(gatehouse, Color("b59b75"))
+			draw_colored_polygon(PackedVector2Array([center + Vector2(-marker_size * 0.54, -marker_size * 0.61), center + Vector2(-marker_size * 0.31, -marker_size * 0.88), center + Vector2(marker_size * 0.31, -marker_size * 0.88), center + Vector2(marker_size * 0.54, -marker_size * 0.61)]), Color("5e4432"))
+			draw_line(center + Vector2(-marker_size * 0.54, -marker_size * 0.61), center + Vector2(marker_size * 0.54, -marker_size * 0.61), Color("caac77"), maxf(1.0, zoom))
+			draw_circle(center + Vector2(0, marker_size * 0.29), marker_size * 0.22, Color("302d26"))
+			draw_rect(Rect2(center + Vector2(-marker_size * 0.22, marker_size * 0.29), Vector2(marker_size * 0.44, marker_size * 0.45)), Color("302d26"))
+		else:
+			draw_rect(Rect2(center + Vector2(-marker_size * 0.21, marker_size * 0.18), Vector2(marker_size * 0.42, marker_size * 0.56)), Color("302d26"))
+			for crenel: int in range(3):
+				draw_rect(Rect2(fort.position + Vector2(float(crenel) * marker_size * 0.70, -marker_size * 0.23), Vector2(marker_size * 0.33, marker_size * 0.31)), Color("c8b08b"))
+	if zoom >= 0.46 and _map_art_sprites.has(city_art_id(tile, is_home)):
+		var sprite: AtlasTexture = _map_art_sprites[city_art_id(tile, is_home)] as AtlasTexture
+		_city_hit_regions.append({"id": str(tile.get("id", "")), "coordinates": Vector2i(int(tile.get("x", 0)), int(tile.get("y", 0))), "rect": _map_sprite_rect(sprite, center, art_extent), "region": sprite.region})
+	var pole_top: Vector2 = center + Vector2(marker_size * 0.55, -marker_size * 1.55)
+	draw_line(center + Vector2(marker_size * 0.55, -marker_size * 0.17), pole_top, Color("3e3427"), maxf(1.0, zoom))
+	draw_line(center + Vector2(marker_size * 0.52, -marker_size * 0.17), pole_top - Vector2(marker_size * 0.03, 0), GOLD, 1.0)
 	draw_colored_polygon(PackedVector2Array([pole_top, pole_top + Vector2(marker_size * 0.93, marker_size * 0.08), pole_top + Vector2(marker_size * 0.70, marker_size * 0.53), pole_top + Vector2(0, marker_size * 0.46)]), flag_color)
-	if zoom >= 0.50 or is_home:
+	var faction_glyph: String = city_flag_glyph(tile, is_home)
+	if zoom >= 1.05 and not faction_glyph.is_empty():
+		_draw_centered_text(faction_glyph, pole_top + Vector2(marker_size * 0.35, marker_size * 0.40), 9, Color("302b22"))
+	if zoom >= 0.50 or is_home or str(tile.get("tier", "")) in ["province", "capital"]:
 		var name: String = str(tile.get("name", "主城" if is_home else "城池"))
-		_draw_label(name, center + Vector2(0, marker_size + 15), 14 if zoom >= 0.8 else 12, TEXT)
+		_draw_map_label(name, center + Vector2(0, marker_size + 15), 14 if zoom >= 0.8 else 12, TEXT, is_home or tile == selected_tile)
 	if zoom >= 1.00:
-		_draw_centered_text("Lv.%d" % int(tile.get("level", 1)), center + Vector2(0, marker_size + 31), 11, Color(TEXT, 0.70))
+		_draw_map_label("%s · Lv.%d" % [city_tier_label(tile, is_home), int(tile.get("level", 1))], center + Vector2(0, marker_size + 41), 11, Color(TEXT, 0.85))
+
+
+static func city_flag_glyph(tile: Dictionary, is_home: bool = false) -> String:
+	if is_home or bool(tile.get("owned", false)): return "我"
+	if str(tile.get("relation", "")) in ["allied", "friendly", "ally"]: return "盟"
+	if str(tile.get("relation", "")) in ["enemy", "hostile"]: return "敌"
+	match str(tile.get("faction", "")):
+		"yellow_turban": return "黄"
+		"local_warlord": return "军"
+	var glyph: String = str(tile.get("faction", "")).left(1)
+	if not glyph.is_empty() and glyph.unicode_at(0) >= 0x3400 and glyph.unicode_at(0) <= 0x9fff:
+		return glyph
+	return ""
+
+
+static func city_flag_color(tile: Dictionary, is_home: bool) -> Color:
+	# Keep the established ownership and relationship colors independent of art.
+	if is_home or bool(tile.get("owned", false)):
+		return Color("e2c181")
+	if str(tile.get("relation", "")) in ["allied", "friendly", "ally"]:
+		return Color("75afba")
+	if str(tile.get("relation", "")) in ["enemy", "hostile"]:
+		return Color("c9715e")
+	if str(tile.get("kind", "")) == "yellow_city" or str(tile.get("faction", "")) == "yellow_turban":
+		return Color("d3b447")
+	return Color("b78053")
 
 
 func _draw_task(center: Vector2, tile: Dictionary) -> void:
@@ -659,7 +897,7 @@ func _draw_task(center: Vector2, tile: Dictionary) -> void:
 	draw_colored_polygon(PackedVector2Array([center + Vector2(0, -radius), center + Vector2(radius, 0), center + Vector2(0, radius), center + Vector2(-radius, 0)]), Color("aa8452"))
 	draw_polyline(PackedVector2Array([center + Vector2(0, -radius), center + Vector2(radius, 0), center + Vector2(0, radius), center + Vector2(-radius, 0), center + Vector2(0, -radius)]), GOLD, 1.0, true)
 	if zoom >= 0.75:
-		_draw_label(str(tile.get("name", "任务据点")), center + Vector2(0, radius + 15), 12, TEXT)
+		_draw_map_label(str(tile.get("name", "任务据点")), center + Vector2(0, radius + 15), 12, TEXT, tile == selected_tile)
 
 
 func _draw_grid(min_x: int, max_x: int, min_y: int, max_y: int) -> void:
@@ -670,10 +908,17 @@ func _draw_grid(min_x: int, max_x: int, min_y: int, max_y: int) -> void:
 		draw_line(world_to_screen(Vector2(min_x, y)), world_to_screen(Vector2(max_x + 1, y)), grid_color, 1.0)
 
 
+static func march_route_color(march: Dictionary) -> Color:
+	if str(march.get("status", "")) in ["return", "returning"]: return Color("7bafb4")
+	if bool(march.get("incoming", false)) and str(march.get("type", march.get("kind", ""))) == "pvp": return Color("c9715e")
+	if str(march.get("type", march.get("kind", ""))) == "aid": return Color("75afba")
+	return Color("ccb37c")
+
+
 func _draw_marches() -> void:
 	if not filter_kind in ["all", "marches"]:
 		return
-	var now_ms: float = Time.get_unix_time_from_system() * 1000.0
+	var now_ms: float = _map_now_ms()
 	for item: Variant in world.get("marches", []):
 		if not item is Dictionary:
 			continue
@@ -683,14 +928,19 @@ func _draw_marches() -> void:
 		var start: Vector2 = world_to_screen(Vector2(float(from_data.get("x", 0)) + 0.5, float(from_data.get("y", 0)) + 0.5))
 		var target: Vector2 = world_to_screen(Vector2(float(to_data.get("x", 0)) + 0.5, float(to_data.get("y", 0)) + 0.5))
 		var position: Vector2 = world_to_screen(march_world_position(march, now_ms))
-		var route_color: Color = Color("7bafb4") if str(march.get("status", "")) in ["return", "returning"] else Color("ccb37c")
+		var route_color: Color = march_route_color(march)
 		if zoom >= 0.36:
-			_draw_dashed_line(start, target, Color(route_color, 0.65), 1.5)
+			_draw_dashed_line(start, target, Color(route_color, 0.90), 1.5)
 		if not Rect2(Vector2(-120, -35), size + Vector2(240, 70)).has_point(position):
 			continue
-		draw_circle(position, 7.0, Color("202b2b"))
+		draw_circle(position, 7.0, Color("292824"))
 		draw_arc(position, 7.0, 0.0, TAU, 16, route_color, 1.5, true)
-		draw_colored_polygon(PackedVector2Array([position + Vector2(0, -4), position + Vector2(4, 3), position + Vector2(-4, 3)]), route_color)
+		var direction: Vector2 = (target - start).normalized()
+		if str(march.get("status", "")) in ["stationed", "garrison", "gathering"] or direction.is_zero_approx():
+			draw_rect(Rect2(position - Vector2(3, 3), Vector2(6, 6)), route_color)
+		else:
+			var side: Vector2 = direction.orthogonal()
+			draw_colored_polygon(PackedVector2Array([position + direction * 5, position - direction * 3 + side * 3.5, position - direction * 3 - side * 3.5]), route_color)
 		if zoom >= 0.40:
 			var status: String = str(march.get("status", "moving"))
 			var arrive_value: Variant = march.get("arrive", null)
@@ -712,6 +962,7 @@ func _draw_dashed_line(start: Vector2, target: Vector2, color: Color, width: flo
 	var steps: Vector2i = visible_dash_range(start, target, bounds)
 	for step: int in range(steps.x, steps.y):
 		var point: Vector2 = start + direction * float(step) * 15.0
+		draw_line(point, start + direction * minf(length, float(step) * 15.0 + 8.0), Color("292824", 0.65), width + 2.5, true)
 		draw_line(point, start + direction * minf(length, float(step) * 15.0 + 8.0), color, width, true)
 
 
@@ -760,24 +1011,33 @@ static func visible_dash_range(start: Vector2, target: Vector2, bounds: Rect2) -
 
 func _draw_compass() -> void:
 	var center: Vector2 = Vector2(size.x - 31, 37)
-	draw_circle(center, 22.0, Color(0.07, 0.10, 0.10, 0.68))
+	draw_circle(center, 22.0, Color(0.10, 0.10, 0.09, 0.78))
 	draw_arc(center, 22.0, 0.0, TAU, 32, Color(GOLD, 0.60), 1.0, true)
 	draw_colored_polygon(PackedVector2Array([center + Vector2(0, -16), center + Vector2(5, 9), center, center + Vector2(-5, 9)]), GOLD)
 	_draw_centered_text("北", center + Vector2(0, -24), 11, TEXT)
 
 
 func _draw_map_status() -> void:
+	var district: String = ""
+	for value: Variant in regions:
+		if value is Dictionary:
+			var bounds: Array = value.get("bounds", [])
+			if bounds.size() == 4 and Rect2(float(bounds[0]), float(bounds[1]), float(bounds[2]), float(bounds[3])).has_point(camera_center):
+				district = str(value.get("name", ""))
+				break
+	if not district.is_empty():
+		_draw_label(district + " · 试玩分区", Vector2(83, 24), 12, Color(TEXT, 0.88))
 	var mode: String = "近景" if zoom >= 1.05 else ("区域" if zoom >= 0.46 else "分区")
 	var label: String = "%s · %.0f%% · (%d,%d)" % [mode, zoom * 100.0, floori(camera_center.x), floori(camera_center.y)]
 	var panel: Rect2 = Rect2(Vector2(12, size.y - 35), Vector2(235, 24))
-	draw_rect(panel, Color(0.07, 0.10, 0.10, 0.80))
+	draw_rect(panel, Color(0.10, 0.10, 0.09, 0.88))
 	draw_string(_font, panel.position + Vector2(8, 17), label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 12, Color(TEXT, 0.85))
 	if size.x > 650:
 		_draw_label("拖动浏览 · 滚轮缩放 · 双指缩放", Vector2(size.x - 144, size.y - 19), 12, Color(TEXT, 0.65))
 
 
 func _draw_badge(center: Vector2, label: String, color: Color) -> void:
-	draw_circle(center, 11.0, Color(0.10, 0.13, 0.12, 0.40))
+	draw_circle(center, 11.0, Color(0.13, 0.12, 0.10, 0.45))
 	draw_circle(center, 9.0, color)
 	_draw_centered_text(label, center + Vector2(0, 4), 12, TEXT)
 
@@ -787,8 +1047,19 @@ func _draw_centered_text(label: String, position: Vector2, font_size: int, color
 	draw_string(_font, position - Vector2(width * 0.5, 0), label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, color)
 
 
+func _draw_map_label(label: String, position: Vector2, font_size: int, color: Color, priority: bool = false) -> void:
+	var text_size: Vector2 = _font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size)
+	var rect: Rect2 = Rect2(position - Vector2(text_size.x * 0.5 + 6, font_size), Vector2(text_size.x + 12, font_size + 8))
+	if not priority:
+		for used: Rect2 in _map_label_rects:
+			if rect.intersects(used.grow(2.0)):
+				return
+	_map_label_rects.append(rect)
+	_draw_label(label, position, font_size, color)
+
+
 func _draw_label(label: String, position: Vector2, font_size: int, color: Color) -> void:
 	var text_size: Vector2 = _font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size)
 	var rectangle: Rect2 = Rect2(position - Vector2(text_size.x * 0.5 + 5, font_size - 2), Vector2(text_size.x + 10, font_size + 6))
-	draw_rect(rectangle, Color(0.07, 0.10, 0.10, 0.72))
+	draw_rect(rectangle, Color(0.10, 0.10, 0.09, 0.84))
 	_draw_centered_text(label, position, font_size, color)

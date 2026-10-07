@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {createGameRuntime, executeGame, validateInput, gameActions, GameError, copy, runtimeHash, seededRandom} from '../vendor/legacy/online/runtime.mjs';
 import {gameView, worldView, nodeView} from './dto.mjs';
 import {managementQuote} from './management-quotes.mjs';
+import {executeGrowthSupport, validGrowthSupport} from './growth-support.mjs';
 
 const MAX_BODY = 16 * 1024 * 1024;
 const RECEIPT_LIMIT = 32;
@@ -72,6 +73,7 @@ async function lockDirectory(dataDir) {
 }
 
 function runtimeFor(snapshot, now, seed = 1) {
+  if (!validGrowthSupport(snapshot)) throw new GameError('BAD_SAVE', '县城筹备兑换记录无效，原文件已保留');
   try { return createGameRuntime({snapshot, now, random: seededRandom(seed)}); }
   catch { throw new GameError('BAD_SAVE', '存档无法通过原游戏规则校验，原文件已保留', 400); }
 }
@@ -235,7 +237,8 @@ export async function startBridge({dataDir, port = 8139, host = '127.0.0.1', tok
             if (!Object.hasOwn(runtime.Game.state.realm.cities, sourceCity)) throw new GameError('CITY_NOT_OWNED', '城市不属于你');
             if (runtime.Game.currentCityId() !== sourceCity) runtime.Game.switchCity(sourceCity);
             if (['dispatch', 'scout', 'dispatchScout'].includes(input.type) && !runtime.Game.landmarkVisible(input.args[0])) throw new GameError('NODE_HIDDEN', '请先完成当前任务据点', 403);
-            const executed = executeGame(stored.state, input, now, null, runtime);
+            const executed = input.type === 'exchangeCopper' && input.args[0] === 'growth_coral' ?
+              executeGrowthSupport(runtime, input, now) : executeGame(stored.state, input, now, null, runtime);
             state = executed.state; actionResult = executed.result;
           }
           const revision = stored.revision + 1;

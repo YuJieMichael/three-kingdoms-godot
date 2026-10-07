@@ -1,0 +1,26 @@
+[
+  {
+    "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Windows-x64.zip",
+    "sha256": "237247d42e7ea9253a779589ea6b0a55394c21892ea19fd47e8942a51a275e15",
+    "compiledChecks": 93,
+    "exitCode": 0,
+    "seconds": 12.664,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled-windows.log",
+    "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+    "windowsExeExecuted": false,
+    "mutations": 1,
+    "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+  },
+  {
+    "file": "ThreeKingdoms-Godot-v0.6.0-dev.11-Web-preview.zip",
+    "sha256": "ea1ebd3d3b829ac9ea35f883607fd1231507c0b720cba7b008c000626896ff8c",
+    "compiledChecks": 93,
+    "exitCode": 0,
+    "seconds": 11.681,
+    "log": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled-web.log",
+    "host": "macOS Godot loading exported PCK and extracted-package localhost API",
+    "windowsExeExecuted": false,
+    "mutations": 1,
+    "mutationScope": "Fresh disposable extracted-package QA state; player preview unchanged"
+  }
+]

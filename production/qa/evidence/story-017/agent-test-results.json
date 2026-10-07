@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "story": "story-017",
+  "agent": "historic_qa_review",
+  "recordedDate": "2026-10-07",
+  "provenance": "Summary of completed tool executions reported by the responsible agent; original raw stdout was not retained as a file. No tests were rerun to create this record.",
+  "rawStdoutAvailable": false,
+  "workingDirectory": "/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot",
+  "nodeExecutable": "/Users/lihuazeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "executions": [
+    {
+      "command": "node --expose-gc --test tests/building-comparison.test.cjs",
+      "exitCode": 0,
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "durationMs": 77292.564459,
+      "coverage": [
+        "Canonical first-level house and barracks quotes and real queueBuilding-to-tick capacity changes",
+        "Every canonical level and mixed duplicate building levels",
+        "Pending foundations, active upgrades, and build queue capacity",
+        "Full city, reserved plots, missing requirements, unique restriction, affordability and maximum level",
+        "Unchanged live resources, time, queues, reports and independent nested quotation copies",
+        "Actor-scoped shared projection and absent comparison data on public enemy nodes",
+        "Actual canonical founding and switching of another owned city",
+        "Bounded high-frequency isolated projection and integrated gameView reads"
+      ]
+    },
+    {
+      "command": "node --test tests/bridge.test.cjs tests/report-economy.test.cjs",
+      "exitCode": 0,
+      "tests": 30,
+      "passed": 30,
+      "failed": 0,
+      "durationMs": 81533.617542,
+      "suiteCounts": {
+        "bridge": 23,
+        "reportEconomy": 7
+      }
+    }
+  ],
+  "performance": {
+    "fixture": "Dense isolated canonical city with 14 completed house/barracks entries and canonical prerequisite structures",
+    "gcEnabled": true,
+    "comparisonProjection": {
+      "iterations": 1000,
+      "elapsedMs": 709.39,
+      "msPerRead": 0.709,
+      "retainedHeapDeltaBytes": 48144
+    },
+    "integratedGameView": {
+      "iterations": 20,
+      "elapsedMs": 5513.28,
+      "msPerRead": 275.664,
+      "retainedHeapDeltaBytes": 522744
+    },
+    "limits": "Single-run observations on macOS while other team checks were running. Integrated gameView includes existing management and quotation work; its elapsed time is not the incremental comparison cost. Retained heap is measured after explicit GC, not peak memory."
+  },
+  "validation": {
+    "ownedFilesDiffCheck": "passed",
+    "godotExecutedByThisAgent": false,
+    "realPlayerDataMutated": false,
+    "vendorRulesChanged": false,
+    "saveSchemaChanged": false
+  }
+}

@@ -1,0 +1,185 @@
+WorkerThreadPool: 8 threads, 2 max low-priority.
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+SDL: Init OK!
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+CORE API HASH: 2004498165
+EDITOR API HASH: 1696660745
+Loading resource: /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled_structure_probe.gd remapped: /Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled_structure_probe.gd
+Completed load for: '/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled_structure_probe.gd' remapped '/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-polish-0611-qa/compiled_structure_probe.gd' at thread -1
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://addons/sound_manager/sound_manager.gdc remapped: res://addons/sound_manager/sound_manager.gdc
+Completed load for: 'res://addons/sound_manager/sound_manager.gd' remapped 'res://addons/sound_manager/sound_manager.gdc' at thread -1
+Loading resource: res://addons/dialogue_manager/dialogue_manager.gdc remapped: res://addons/dialogue_manager/dialogue_manager.gdc
+Loading resource: res://.godot/exported/133200997/export-74a175fe1e216df3bdf79c5c27a2ac2c-test_scene.scn remapped: res://.godot/exported/133200997/export-74a175fe1e216df3bdf79c5c27a2ac2c-test_scene.scn
+Loading resource: res://addons/dialogue_manager/test_scene.gdc remapped: res://addons/dialogue_manager/test_scene.gdc
+Completed load for: 'res://addons/dialogue_manager/test_scene.gd' remapped 'res://addons/dialogue_manager/test_scene.gdc' at thread -1
+Completed load for: 'res://addons/dialogue_manager/test_scene.tscn' remapped 'res://.godot/exported/133200997/export-74a175fe1e216df3bdf79c5c27a2ac2c-test_scene.scn' at thread -1
+Completed load for: 'res://addons/dialogue_manager/dialogue_manager.gd' remapped 'res://addons/dialogue_manager/dialogue_manager.gdc' at thread -1
+Loaded system CA certificates
+COMPILED_CHECK 1 Create isolated test journal directory before the first mutation => true
+COMPILED_ISOLATED_USER_DIR=/Users/lihuazeng/Library/Application Support/ShanheceHistoricCompiled-94930-1900902/
+COMPILED_CHECK 2 Compiled project version matches => true
+Loading resource: res://src/main.gdc remapped: res://src/main.gdc
+Loading resource: res://.godot/exported/133200997/export-43564a7e36b9eddae6cf98eeb83d5e25-UI.res remapped: res://.godot/exported/133200997/export-43564a7e36b9eddae6cf98eeb83d5e25-UI.res
+Loading resource: res://assets/fonts/NotoSansSC.ttf remapped: res://assets/fonts/NotoSansSC.ttf
+Loading resource: res://.godot/imported/NotoSansSC.ttf-53e7d2951cb723449d16fcecb813db38.fontdata remapped: res://.godot/imported/NotoSansSC.ttf-53e7d2951cb723449d16fcecb813db38.fontdata
+Completed load for: 'res://assets/fonts/NotoSansSC.ttf' remapped 'res://assets/fonts/NotoSansSC.ttf' at thread -1
+Completed load for: 'res://assets/fonts/UI.tres' remapped 'res://.godot/exported/133200997/export-43564a7e36b9eddae6cf98eeb83d5e25-UI.res' at thread -1
+Completed load for: 'res://src/main.gd' remapped 'res://src/main.gdc' at thread -1
+COMPILED_CHECK 3 Export contains executable main => true
+COMPILED_CHECK 4 Export contains compiled remap for main => true
+COMPILED_CHECK 5 Export contains executable world_map => true
+COMPILED_CHECK 6 Export contains compiled remap for world_map => true
+COMPILED_CHECK 7 Export contains executable city_view => true
+COMPILED_CHECK 8 Export contains compiled remap for city_view => true
+COMPILED_CHECK 9 Export contains executable suburb_view => true
+COMPILED_CHECK 10 Export contains compiled remap for suburb_view => true
+COMPILED_CHECK 11 Export contains executable realm_dialog => true
+COMPILED_CHECK 12 Export contains compiled remap for realm_dialog => true
+COMPILED_CHECK 13 Export contains executable city_construction_panel => true
+COMPILED_CHECK 14 Export contains compiled remap for city_construction_panel => true
+COMPILED_CHECK 15 Export contains executable city_capacity_compare => true
+COMPILED_CHECK 16 Export contains compiled remap for city_capacity_compare => true
+COMPILED_CHECK 17 City class is registered => true
+COMPILED_CHECK 18 Suburb class is registered => true
+Loading resource: res://.godot/exported/133200997/export-3ad5c15c4f3250da0cc7c1af1770d85f-main.scn remapped: res://.godot/exported/133200997/export-3ad5c15c4f3250da0cc7c1af1770d85f-main.scn
+Completed load for: 'res://scenes/main.tscn' remapped 'res://.godot/exported/133200997/export-3ad5c15c4f3250da0cc7c1af1770d85f-main.scn' at thread -1
+Loading resource: res://data/dialogue/intro.dialogue remapped: res://data/dialogue/intro.dialogue
+Loading resource: res://.godot/imported/intro.dialogue-4068491fcaed5486bb80f51d226de4d4.tres remapped: res://.godot/imported/intro.dialogue-4068491fcaed5486bb80f51d226de4d4.tres
+Completed load for: 'res://data/dialogue/intro.dialogue' remapped 'res://data/dialogue/intro.dialogue' at thread -1
+Loading resource: res://assets/environment/world-map/world_map_relief_v1.png remapped: res://assets/environment/world-map/world_map_relief_v1.png
+Loading resource: res://.godot/imported/world_map_relief_v1.png-0ee35a0738ff3056597f3cc03263b704.ctex remapped: res://.godot/imported/world_map_relief_v1.png-0ee35a0738ff3056597f3cc03263b704.ctex
+Completed load for: 'res://assets/environment/world-map/world_map_relief_v1.png' remapped 'res://assets/environment/world-map/world_map_relief_v1.png' at thread -1
+COMPILED_CHECK 19 Compiled client connects to extracted rule service => true
+COMPILED_CHECK 20 Fresh packaged progress has no mutations => true
+COMPILED_CHECK 21 Actual canonical world reaches compiled client => true
+COMPILED_CHECK 22 Extracted service supplies four real empty-land quotations => true
+Loading resource: res://assets/environment/city/city_rts_core_v1.png remapped: res://assets/environment/city/city_rts_core_v1.png
+Loading resource: res://.godot/imported/city_rts_core_v1.png-a2f4cb4ec0089eb580eed367fe4c58be.ctex remapped: res://.godot/imported/city_rts_core_v1.png-a2f4cb4ec0089eb580eed367fe4c58be.ctex
+Completed load for: 'res://assets/environment/city/city_rts_core_v1.png' remapped 'res://assets/environment/city/city_rts_core_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_civic_v1.png remapped: res://assets/environment/city/city_rts_civic_v1.png
+Loading resource: res://.godot/imported/city_rts_civic_v1.png-41b31ebfbbca761bbd1e6b7190254c92.ctex remapped: res://.godot/imported/city_rts_civic_v1.png-41b31ebfbbca761bbd1e6b7190254c92.ctex
+Completed load for: 'res://assets/environment/city/city_rts_civic_v1.png' remapped 'res://assets/environment/city/city_rts_civic_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_smith_v1.png remapped: res://assets/environment/city/city_rts_smith_v1.png
+Loading resource: res://.godot/imported/city_rts_smith_v1.png-b07d161ebfda83affe83097dc1c2ff62.ctex remapped: res://.godot/imported/city_rts_smith_v1.png-b07d161ebfda83affe83097dc1c2ff62.ctex
+Completed load for: 'res://assets/environment/city/city_rts_smith_v1.png' remapped 'res://assets/environment/city/city_rts_smith_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_workshop_v1.png remapped: res://assets/environment/city/city_rts_workshop_v1.png
+Loading resource: res://.godot/imported/city_rts_workshop_v1.png-5ab11140f8808b80ee50d1b4727621eb.ctex remapped: res://.godot/imported/city_rts_workshop_v1.png-5ab11140f8808b80ee50d1b4727621eb.ctex
+Completed load for: 'res://assets/environment/city/city_rts_workshop_v1.png' remapped 'res://assets/environment/city/city_rts_workshop_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_beacon_v1.png remapped: res://assets/environment/city/city_rts_beacon_v1.png
+Loading resource: res://.godot/imported/city_rts_beacon_v1.png-8cc9d3342860f80251b7ae26ccf9ec29.ctex remapped: res://.godot/imported/city_rts_beacon_v1.png-8cc9d3342860f80251b7ae26ccf9ec29.ctex
+Completed load for: 'res://assets/environment/city/city_rts_beacon_v1.png' remapped 'res://assets/environment/city/city_rts_beacon_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_wall_v1.png remapped: res://assets/environment/city/city_rts_wall_v1.png
+Loading resource: res://.godot/imported/city_rts_wall_v1.png-85f643476d52af551508128b67d84eec.ctex remapped: res://.godot/imported/city_rts_wall_v1.png-85f643476d52af551508128b67d84eec.ctex
+Completed load for: 'res://assets/environment/city/city_rts_wall_v1.png' remapped 'res://assets/environment/city/city_rts_wall_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_post_v1.png remapped: res://assets/environment/city/city_rts_post_v1.png
+Loading resource: res://.godot/imported/city_rts_post_v1.png-b51c4a025da87361926a3790de67d1f9.ctex remapped: res://.godot/imported/city_rts_post_v1.png-b51c4a025da87361926a3790de67d1f9.ctex
+Completed load for: 'res://assets/environment/city/city_rts_post_v1.png' remapped 'res://assets/environment/city/city_rts_post_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_ground_rts_v2.png remapped: res://assets/environment/city/city_ground_rts_v2.png
+Loading resource: res://.godot/imported/city_ground_rts_v2.png-38959a24e5c5e09d116b9a87b66e701a.ctex remapped: res://.godot/imported/city_ground_rts_v2.png-38959a24e5c5e09d116b9a87b66e701a.ctex
+Completed load for: 'res://assets/environment/city/city_ground_rts_v2.png' remapped 'res://assets/environment/city/city_ground_rts_v2.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_environment_v1.png remapped: res://assets/environment/city/city_rts_environment_v1.png
+Loading resource: res://.godot/imported/city_rts_environment_v1.png-f14ad4e22a53a6b9e1007dc1c30519ff.ctex remapped: res://.godot/imported/city_rts_environment_v1.png-f14ad4e22a53a6b9e1007dc1c30519ff.ctex
+Completed load for: 'res://assets/environment/city/city_rts_environment_v1.png' remapped 'res://assets/environment/city/city_rts_environment_v1.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_progression_v1.png remapped: res://assets/environment/city/city_rts_progression_v1.png
+Loading resource: res://.godot/imported/city_rts_progression_v1.png-320b5c5e50f521698e13977e241c8361.ctex remapped: res://.godot/imported/city_rts_progression_v1.png-320b5c5e50f521698e13977e241c8361.ctex
+Completed load for: 'res://assets/environment/city/city_rts_progression_v1.png' remapped 'res://assets/environment/city/city_rts_progression_v1.png' at thread -1
+COMPILED_CHECK 23 Compiled phone objective renders all expanded description and reward lines => true
+COMPILED_CHECK 24 Compiled objective uses readable Chinese controls and actual reward text => true
+COMPILED_CHECK 25 Compiled city permits touch-scroll propagation => true
+COMPILED_CHECK 26 Compiled city loads real core atlas => true
+COMPILED_CHECK 27 Compiled city caches all 17 artwork regions => true
+COMPILED_CHECK 28 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 29 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 30 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 31 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 32 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 33 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 34 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 35 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 36 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 37 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 38 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 39 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 40 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 41 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 42 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 43 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 44 Exported imported atlas resolves and keeps source size => true
+COMPILED_CHECK 45 Exported atlas preserves actual transparency => true
+COMPILED_CHECK 46 Compiled city caches new growth and environment regions => true
+COMPILED_CHECK 47 Compiled hall follows completed levels => true
+COMPILED_CHECK 48 Extracted API provides canonical new-house capacity gain => true
+COMPILED_CHECK 49 Compiled prepared fixture draws every canonical facility and gate => true
+COMPILED_CHECK 50 Cached unused art does not create a noncanonical building => true
+COMPILED_CHECK 51 Compiled sprite aspect ratio is preserved: house#0 => true
+COMPILED_CHECK 52 Compiled sprite aspect ratio is preserved: academy#1 => true
+COMPILED_CHECK 53 Compiled sprite aspect ratio is preserved: inn#2 => true
+COMPILED_CHECK 54 Compiled sprite aspect ratio is preserved: market#3 => true
+COMPILED_CHECK 55 Compiled sprite aspect ratio is preserved: warehouse#4 => true
+COMPILED_CHECK 56 Compiled sprite aspect ratio is preserved: drill#5 => true
+COMPILED_CHECK 57 Compiled sprite aspect ratio is preserved: barracks#6 => true
+COMPILED_CHECK 58 Compiled sprite aspect ratio is preserved: tavern#7 => true
+COMPILED_CHECK 59 Compiled sprite aspect ratio is preserved: embassy#8 => true
+COMPILED_CHECK 60 Compiled sprite aspect ratio is preserved: smith#9 => true
+COMPILED_CHECK 61 Compiled sprite aspect ratio is preserved: workshop#10 => true
+COMPILED_CHECK 62 Compiled sprite aspect ratio is preserved: stable#11 => true
+COMPILED_CHECK 63 Compiled sprite aspect ratio is preserved: post#12 => true
+COMPILED_CHECK 64 Compiled sprite aspect ratio is preserved: beacon#13 => true
+COMPILED_CHECK 65 Compiled sprite aspect ratio is preserved: hall#14 => true
+COMPILED_CHECK 66 Compiled sprite aspect ratio is preserved: wall#16 => true
+COMPILED_CHECK 67 Compiled sprite aspect ratio is preserved: gateway => true
+COMPILED_CHECK 68 Actual original hall is rendered at canonical site14 => true
+COMPILED_CHECK 69 Export draws no unbuilt ghost buildings => true
+COMPILED_CHECK 70 Reserved government land is noninteractive => true
+COMPILED_CHECK 71 Compiled empty click opens exact site => true
+COMPILED_CHECK 72 Compiled suburb permits touch-scroll propagation => true
+COMPILED_CHECK 73 Only actual unlocked ground is interactive => true
+COMPILED_CHECK 74 Locked plot is absent from selection => true
+COMPILED_CHECK 75 Compiled scene opens selected plot management => true
+COMPILED_CHECK 76 Management starts focused with optional details folded => true
+COMPILED_CHECK 77 Visual inspection consumes no resources => true
+Loading resource: res://assets/environment/world-map/world_map_relief_v1.png remapped: res://assets/environment/world-map/world_map_relief_v1.png
+Loading resource: res://.godot/imported/world_map_relief_v1.png-0ee35a0738ff3056597f3cc03263b704.ctex remapped: res://.godot/imported/world_map_relief_v1.png-0ee35a0738ff3056597f3cc03263b704.ctex
+Completed load for: 'res://assets/environment/world-map/world_map_relief_v1.png' remapped 'res://assets/environment/world-map/world_map_relief_v1.png' at thread -1
+COMPILED_CHECK 78 Compiled map resolves six relief atlas sprites => true
+COMPILED_CHECK 79 Compiled map preserves alpha for roof hit-testing => true
+COMPILED_CHECK 80 Compiled map consumes actual server clock => true
+COMPILED_CHECK 81 Compiled map toolbar exposes all five actual filters => true
+COMPILED_CHECK 82 Compiled toolbar reaches renderer without a mutation => true
+COMPILED_CHECK 83 Extracted bridge supplies truthful visible city hierarchy => true
+Loading resource: res://assets/environment/city/city_ground_rts_v2.png remapped: res://assets/environment/city/city_ground_rts_v2.png
+Loading resource: res://.godot/imported/city_ground_rts_v2.png-38959a24e5c5e09d116b9a87b66e701a.ctex remapped: res://.godot/imported/city_ground_rts_v2.png-38959a24e5c5e09d116b9a87b66e701a.ctex
+Completed load for: 'res://assets/environment/city/city_ground_rts_v2.png' remapped 'res://assets/environment/city/city_ground_rts_v2.png' at thread -1
+Loading resource: res://assets/environment/city/city_rts_environment_v1.png remapped: res://assets/environment/city/city_rts_environment_v1.png
+Loading resource: res://.godot/imported/city_rts_environment_v1.png-f14ad4e22a53a6b9e1007dc1c30519ff.ctex remapped: res://.godot/imported/city_rts_environment_v1.png-f14ad4e22a53a6b9e1007dc1c30519ff.ctex
+Completed load for: 'res://assets/environment/city/city_rts_environment_v1.png' remapped 'res://assets/environment/city/city_rts_environment_v1.png' at thread -1
+COMPILED_CHECK 84 Real package service provides affordable canonical house quote => true
+COMPILED_CHECK 85 Compiled catalog and preview reuse the same Window => true
+COMPILED_CHECK 86 Compiled panel retains chosen current quote => true
+COMPILED_CHECK 87 Final compiled construction Window fits the entire phone viewport => true
+COMPILED_CHECK 88 Production confirm button is wired without a prior mutation => true
+COMPILED_CONFIRM_STAGE connected=true revision=0 pending=true
+COMPILED_CHECK 89 Compiled comparison does not count unfinished house capacity => true
+COMPILED_CHECK 90 Actual exported confirmation creates a level-zero house at precisely the chosen final site => true
+COMPILED_CHECK 91 Canonical service records one real construction timer => true
+COMPILED_CHECK 92 Acknowledged exported UI shows the true foundation without completed building art => true
+COMPILED_CHECK 93 One confirm produces one authoritative receipt and closes the preview => true
+COMPILED_STRUCTURE_CHECKS=93
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Leaked instance: AudioStreamWAV:9223372089652676331 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372089703007982 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372150050654423 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372108946475347 - Reference count: 1
+Hint: Leaked instances typically happen when nodes are removed from the scene tree (with `remove_child()`) but not freed (with `free()` or `queue_free()`).
+Orphan StringName: Music (static: 0, total: 2)
+Orphan StringName: Sounds (static: 0, total: 2)
+StringName: 2 unclaimed string names at exit.
+WARNING: 4 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

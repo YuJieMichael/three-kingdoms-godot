@@ -118,6 +118,8 @@ func _run() -> void:
 		name_after = entry as LineEdit
 	_check(name_after.text == "尚未提交的新城", "A queue-completion rebuild must retain a drafted city name.")
 	_dialog.show_section("plots", _view)
+	_check(_button("确认替换布局") == null and _button("升级当前地块") != null, "Plots start with the selected site and folded templates.")
+	_button("展开城外样板").emit_signal("pressed")
 	_check(_button("确认替换布局").disabled, "Plot replacement must require an explicit level-reset acknowledgement.")
 	var consent: CheckBox
 	for entry: Node in _dialog._content.find_children("*", "CheckBox", true, false):

@@ -1,0 +1,20 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+COMPILED_CONFIRM_STAGE connected=true revision=0 pending=false
+ERROR: COMPILED_COMMAND_FAILED: 无法保存操作回执，操作未发送
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] <anonymous lambda> (/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled_structure_probe.gd:34)
+       [1] _save_pending (res://src/game_api.gd:235)
+       [2] _enqueue (res://src/game_api.gd:439)
+       [3] command (res://src/game_api.gd:140)
+       [4] _send_command (res://src/main.gd:1565)
+       [5] _command_close (res://src/main.gd:1579)
+       [6] _queue_city_building (res://src/main.gd:1253)
+       [7] _confirm_city_construction (res://src/main.gd:1404)
+       [8] _run (/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled_structure_probe.gd:137)
+       [9] _settle (/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled_structure_probe.gd:21)
+ERROR: COMPILED_STRUCTURE_TIMEOUT
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] <anonymous lambda> (/Users/lihuazeng/Documents/Codex/2026-10-05/e/work/three-kingdoms-godot/.local/city-grid-0610-qa/compiled_structure_probe.gd:10)
