@@ -4,6 +4,8 @@ Godot 4.7.2＋GDScript 的独立迁移试玩，当前开发版本为 **0.6.0-dev
 
 开发分支已接入声音管理、菜单分页和可编辑新手剧情，使用方式与验证见 [表现工具说明](docs/PRESENTATION-TOOLS.zh.md)。游戏内从“菜单”进入声音、按键、引导、存档和连接设置；当前音乐及音效为原创合成示范素材。
 
+后续界面打磨包含背包分类格子、城内／城外键盘选格、短暂操作提示与最近消息、战利品展示和完整成长建议。实施范围、玩法建议及检查边界见 [Godot 设计评估](docs/GAME-DESIGN-REVIEW-2026-10-07.zh.md)；源码修改不代表试玩包已重新发布。
+
 原 [three-kingdoms 仓库](https://github.com/YuJieMichael/three-kingdoms) 与 [网页版](https://yujiemichael.github.io/three-kingdoms/) 保持不变。本仓库从 `c7674df45b9595405e57907524e737e633b0ff63` 保存规则快照，不直接同步或部署原仓库。
 
 新版游戏名称为「山河策」，工作室为「山河策工作室」。界面、窗口、联机大厅与后续构建说明使用新名称；当前已公开和已归档的试玩包仍是改名前的版本。仓库路径、`ThreeKingdoms.exe`、存档文件名和服务标识继续沿用技术名。Godot 的 `application/config/name` 保留「三国城志 · Godot」，避免改名后切换桌面/Web 的 `user://` 目录而无法读取既有进度、按键、声音设置与待确认回执；实际窗口和 Web 页签独立显示「山河策」。

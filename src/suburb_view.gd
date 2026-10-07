@@ -23,6 +23,8 @@ var _capacity: int = 12
 var _mobile_slot_columns: int = 2
 var _wide_slot_columns: int = 3
 var _selected: int = -1
+var _focus_index: int = -1
+var _keyboard_focus: bool = false
 var _hover: int = -1
 var _city: String = ""
 var _touches: Dictionary = {}
@@ -36,8 +38,11 @@ var _touch_cancelled: bool = false
 func _ready() -> void:
 	# Unhandled presses and drags must reach the enclosing ScrollContainer.
 	mouse_filter = Control.MOUSE_FILTER_PASS
+	focus_mode = Control.FOCUS_ALL
+	focus_entered.connect(_on_focus_entered)
+	focus_exited.connect(queue_redraw)
 	clip_contents = true
-	tooltip_text = "点击实际地块，查看建设、等级与费用"
+	tooltip_text = "点击地块查看建设 · Tab 聚焦地块，方向键选择，Enter 查看"
 	mouse_exited.connect(func() -> void:
 		_hover = -1
 		queue_redraw())
@@ -50,6 +55,8 @@ func set_view(view: Dictionary) -> void:
 		_site_slots.clear()
 		_wide_site_slots.clear()
 		_selected = -1
+		_focus_index = -1
+		_keyboard_focus = false
 		_capacity = 12
 		_clear_touch_gesture()
 	_view = view.duplicate(true)
@@ -78,10 +85,15 @@ func set_view(view: Dictionary) -> void:
 	_hit_boxes.clear()
 	_hit_records.clear()
 	_update_minimum_height()
+	_rebuild_hit_boxes()
+	if has_focus() and _keyboard_focus:
+		call_deferred("_scroll_focus_into_view")
 	queue_redraw()
 
 func select_plot(index: int) -> void:
 	_selected = index if _plots_by_index.has(index) else -1
+	if _selected >= 0:
+		_focus_index = _selected
 	queue_redraw()
 
 func selected_plot() -> int:
@@ -90,6 +102,9 @@ func selected_plot() -> int:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
 		_update_minimum_height()
+		_rebuild_hit_boxes()
+		if has_focus() and _keyboard_focus:
+			call_deferred("_scroll_focus_into_view")
 		queue_redraw()
 	elif what == NOTIFICATION_VISIBILITY_CHANGED and not is_visible_in_tree():
 		_clear_touch_gesture()
@@ -132,9 +147,13 @@ func _assign_slots(rows: Array[Dictionary], slots: Dictionary, columns: int) -> 
 				break
 
 func _gui_input(event: InputEvent) -> void:
+	if _handle_focus_input(event):
+		return
 	# Native touch owns tap recognition. Its compatibility mouse events still bubble.
 	if (event is InputEventMouseMotion or event is InputEventMouseButton) and event.device == InputEvent.DEVICE_ID_EMULATION:
 		return
+	if (event is InputEventMouseButton and event.pressed) or event is InputEventScreenTouch or event is InputEventScreenDrag:
+		_keyboard_focus = false
 	if event is InputEventMouseMotion:
 		var next: int = _plot_at(event.position)
 		if next != _hover:
@@ -151,6 +170,98 @@ func _gui_input(event: InputEvent) -> void:
 			_touches[event.index] = event.position
 			if event.index == _touch_index:
 				_record_touch_motion(event.position)
+
+func _on_focus_entered() -> void:
+	_repair_focus_index()
+	queue_redraw()
+	if Input.is_action_pressed("ui_focus_next") or Input.is_action_pressed("ui_focus_prev"):
+		_keyboard_focus = true
+		call_deferred("_scroll_focus_into_view")
+
+func _repair_focus_index() -> void:
+	if _hit_boxes.has(_focus_index):
+		return
+	if _hit_boxes.has(_selected):
+		_focus_index = _selected
+		return
+	var indices: Array = _hit_boxes.keys()
+	indices.sort_custom(func(a: Variant, b: Variant) -> bool:
+		var first: Vector2 = (_hit_boxes[a] as Rect2).get_center()
+		var second: Vector2 = (_hit_boxes[b] as Rect2).get_center()
+		return first.x < second.x if absf(first.y - second.y) < 8.0 else first.y < second.y)
+	_focus_index = int(indices[0]) if not indices.is_empty() else -1
+
+func _handle_focus_input(event: InputEvent) -> bool:
+	if not has_focus() or not (event is InputEventKey or event is InputEventJoypadButton or event is InputEventJoypadMotion):
+		return false
+	# Leave Tab and Shift+Tab to Godot's normal control focus traversal.
+	if event.is_action("ui_focus_next") or event.is_action("ui_focus_prev"):
+		return false
+	_repair_focus_index()
+	if event.is_action_pressed("ui_accept"):
+		_keyboard_focus = true
+		# The existing signal opens the cost/level preview, never spends resources.
+		_activate(_focus_index)
+		accept_event()
+		return true
+	var direction: Vector2 = Vector2.ZERO
+	for binding: Array in [["ui_left", Vector2.LEFT], ["ui_right", Vector2.RIGHT], ["ui_up", Vector2.UP], ["ui_down", Vector2.DOWN]]:
+		if event.is_action_pressed(str(binding[0]), true):
+			direction = binding[1]
+			break
+	if direction == Vector2.ZERO:
+		return false
+	_keyboard_focus = true
+	if _hit_boxes.has(_focus_index):
+		var origin: Vector2 = (_hit_boxes[_focus_index] as Rect2).get_center()
+		var best_index: int = _focus_index
+		var best_score: float = INF
+		for index: int in _hit_boxes:
+			var offset: Vector2 = (_hit_boxes[index] as Rect2).get_center() - origin
+			var forward: float = offset.dot(direction)
+			if forward <= 8.0:
+				continue
+			var sideways: float = absf(offset.cross(direction))
+			var score: float = forward + sideways * 4.0
+			if score < best_score:
+				best_score = score
+				best_index = index
+		_focus_index = best_index
+		queue_redraw()
+		call_deferred("_scroll_focus_into_view")
+	# Edges stop movement; they do not leak arrow input into another panel.
+	accept_event()
+	return true
+
+func _scroll_focus_into_view() -> void:
+	if not has_focus() or not _keyboard_focus or not is_visible_in_tree() or not _hit_boxes.has(_focus_index):
+		return
+	var ancestor: Node = get_parent()
+	while ancestor != null and not ancestor is ScrollContainer:
+		ancestor = ancestor.get_parent()
+	if not ancestor is ScrollContainer:
+		return
+	var scroller: ScrollContainer = ancestor as ScrollContainer
+	var rect: Rect2 = _hit_boxes[_focus_index]
+	var transform: Transform2D = scroller.get_global_transform().affine_inverse() * get_global_transform()
+	var top: float = (transform * rect.position).y
+	var bottom: float = (transform * rect.end).y
+	var inset: float = 14.0
+	if top < inset:
+		scroller.scroll_vertical += floori(top - inset)
+	elif bottom > scroller.size.y - inset:
+		scroller.scroll_vertical += ceili(bottom - scroller.size.y + inset)
+
+func _draw_focus_cursor() -> void:
+	if not has_focus() or not _hit_boxes.has(_focus_index):
+		return
+	var rect: Rect2 = (_hit_boxes[_focus_index] as Rect2).grow(-2.0)
+	draw_rect(rect, Color("18271f"), false, 5.0)
+	draw_rect(rect, Color("f3edcb"), false, 2.0)
+	for corner: Vector2 in [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]:
+		var toward: Vector2 = (rect.get_center() - corner).sign()
+		draw_line(corner, corner + Vector2(toward.x * 10.0, 0.0), GOLD, 4.0)
+		draw_line(corner, corner + Vector2(0.0, toward.y * 10.0), GOLD, 4.0)
 
 func _handle_touch(touch: InputEventScreenTouch) -> void:
 	if touch.pressed:
@@ -201,6 +312,7 @@ func _activate(index: int) -> void:
 	if index < 0 or not _plots_by_index.has(index):
 		return
 	_selected = index
+	_focus_index = index
 	plot_selected.emit(index)
 	accept_event()
 	queue_redraw()
@@ -211,7 +323,7 @@ func _plot_at(point: Vector2) -> int:
 			return index
 	return -1
 
-func _draw() -> void:
+func _rebuild_hit_boxes() -> void:
 	if size.x < 30.0 or size.y < 30.0:
 		return
 	_hit_boxes.clear()
@@ -222,7 +334,6 @@ func _draw() -> void:
 	var columns: int = _wide_slot_columns if w >= 530.0 else _mobile_slot_columns
 	var row_count: int = int(ceil(float(_capacity) / float(columns)))
 	var map: Rect2 = Rect2(9.0, 72.0, w - 18.0, h - 140.0)
-	_draw_landscape(w, h, map)
 	var slots: Dictionary = _wide_site_slots if w >= 530.0 else _site_slots
 	for index: int in _plots_by_index:
 		var slot: int = int(slots.get(index, 0))
@@ -235,6 +346,16 @@ func _draw() -> void:
 		_hit_boxes[index] = rect
 		_hit_records[index] = _plots_by_index[index].duplicate(true)
 		_site_positions[index] = rect.get_center()
+	_repair_focus_index()
+
+func _draw() -> void:
+	if size.x < 30.0 or size.y < 30.0:
+		return
+	_rebuild_hit_boxes()
+	var w: float = size.x
+	var h: float = size.y
+	var map: Rect2 = Rect2(9.0, 72.0, w - 18.0, h - 140.0)
+	_draw_landscape(w, h, map)
 	# Paths connect visible actual parcels to the gate; they grant no rule effects.
 	for index: int in _hit_boxes:
 		var rect: Rect2 = _hit_boxes[index]
@@ -256,6 +377,7 @@ func _draw() -> void:
 		_draw_site(index, _plots_by_index[index], _hit_boxes[index])
 	_draw_gate(Vector2(w * 0.50, h - 27.0), minf(w * 0.14, 66.0))
 	_draw_headings(w, h)
+	_draw_focus_cursor()
 
 func _draw_landscape(w: float, h: float, map: Rect2) -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), EARTH)
@@ -480,6 +602,9 @@ func _draw_headings(w: float, h: float) -> void:
 	var hint: String = "点击地块查看建设 · 可用 %d 块" % _plots_by_index.size()
 	if _plots_by_index.is_empty():
 		hint = "暂无已解锁地块"
+	elif has_focus() and _plots_by_index.has(_focus_index):
+		var row: Dictionary = _plots_by_index[_focus_index]
+		hint = "地块 %d · %s · 方向键选择 / Enter 查看" % [_focus_index + 1, str(row.get("name", "空地"))]
 	_text(Vector2(12, h - 4), _elide(hint, w - 24.0, 12), 12, TEXT)
 
 func _elide(value: String, width: float, font_size: int) -> String:

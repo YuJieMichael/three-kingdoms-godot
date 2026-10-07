@@ -4,6 +4,10 @@ extends PanelContainer
 ## A stable, read-only route card. The host owns its modal and all navigation.
 signal navigate_requested(route: String, target: String)
 
+# Immediate supplies and resource recovery are useful before spending on a gap.
+# This only orders the service's advice; it never derives a reward or a rule.
+const ADVICE_PRIORITY: Array[String] = ["unclaimed-gifts", "earned-rewards", "resource-recovery", "county-preparation"]
+
 var _view: Dictionary = {}
 var _connected: bool = true
 var _pending: bool = false
@@ -16,6 +20,8 @@ var _more: Button
 var _current: Button
 var _speedup: Label
 var _speedup_action: Button
+var _advice_content: VBoxContainer
+var _advice_heading: Label
 var _advice: Array[Label] = []
 var _advice_actions: Array[Button] = []
 var _status: Label
@@ -41,12 +47,10 @@ func _ready() -> void:
 	_speedup = _label(content, "", "MutedLabel")
 	_speedup_action = _button(content, "查看已入库加速")
 	_speedup_action.pressed.connect(_navigate.bind(_speedup_action))
-	for index: int in range(2):
-		var label: Label = _label(content, "", "MutedLabel")
-		_advice.append(label)
-		var action: Button = _button(content, "查看建议")
-		action.pressed.connect(_navigate.bind(action))
-		_advice_actions.append(action)
+	_advice_content = VBoxContainer.new()
+	_advice_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(_advice_content)
+	_advice_heading = _label(_advice_content, "", "SectionLabel")
 	_status = _label(content, "", "MutedLabel")
 	_render()
 
@@ -96,15 +100,37 @@ func _render() -> void:
 	_more.disabled = false
 	_set_navigation(_current, step.get("navigate", {}), not shared and not step.is_empty())
 	_render_speedup(growth.get("speedup", {}), shared)
-	var advice: Array = growth.get("advice", [])
-	for index: int in range(_advice.size()):
-		var record: Dictionary = advice[index] if index < advice.size() and not shared else {}
-		_advice[index].text = str(record.get("text", ""))
-		_advice[index].visible = not record.is_empty()
-		_set_navigation(_advice_actions[index], record.get("navigate", {}), not record.is_empty())
+	_render_advice(growth.get("advice", []), shared)
 	_status.text = "正在确认操作，路线在确认后更新。" if _pending else "连接后可前往当前一步。" if not _connected else "此页只提供路线与预览，费用在办理页面确认。"
 	_status.visible = not shared
 	_wire_focus()
+
+
+func _render_advice(source: Array, shared: bool) -> void:
+	var records: Array[Dictionary] = []
+	if not shared:
+		# Keep all advice discoverable. Priority is presentation only and ties retain
+		# the canonical projection's order; new advice IDs remain visible as well.
+		for id: String in ADVICE_PRIORITY:
+			for value: Variant in source:
+				if value is Dictionary and str(value.get("id", "")) == id:
+					records.append(value)
+		for value: Variant in source:
+			if value is Dictionary and not ADVICE_PRIORITY.has(str(value.get("id", ""))):
+				records.append(value)
+	# Reuse controls on refresh so polling does not discard focus or scroll state.
+	while _advice.size() < records.size():
+		_advice.append(_label(_advice_content, "", "MutedLabel"))
+		var action: Button = _button(_advice_content, "查看建议")
+		action.pressed.connect(_navigate.bind(action))
+		_advice_actions.append(action)
+	_advice_content.visible = not records.is_empty()
+	_advice_heading.text = "可用建议 · %d 项" % records.size()
+	for index: int in range(_advice.size()):
+		var record: Dictionary = records[index] if index < records.size() else {}
+		_advice[index].text = str(record.get("text", ""))
+		_advice[index].visible = not record.is_empty()
+		_set_navigation(_advice_actions[index], record.get("navigate", {}), not record.is_empty())
 
 
 func _render_speedup(speedup: Dictionary, shared: bool) -> void:
@@ -146,7 +172,9 @@ func _navigate(button: Button) -> void:
 
 func _wire_focus() -> void:
 	var buttons: Array[Button] = []
-	for button: Button in [_more, _current, _speedup_action, _advice_actions[0], _advice_actions[1]]:
+	var candidates: Array[Button] = [_more, _current, _speedup_action]
+	candidates.append_array(_advice_actions)
+	for button: Button in candidates:
 		if button.visible and not button.disabled:
 			buttons.append(button)
 	for index: int in range(buttons.size()):
@@ -171,7 +199,7 @@ func _button(parent: Node, text: String, primary: bool = false) -> Button:
 	var button: Button = Button.new()
 	button.text = text
 	button.theme_type_variation = "PrimaryButton" if primary else "UtilityButton"
-	button.custom_minimum_size = Vector2(0, 40)
+	button.custom_minimum_size = Vector2(0, 44)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	parent.add_child(button)

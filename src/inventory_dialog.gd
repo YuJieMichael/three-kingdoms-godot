@@ -16,6 +16,10 @@ var _category: OptionButton
 var _search: LineEdit
 var _available: CheckBox
 var _items: OptionButton
+var _grid_scroll: ScrollContainer
+var _item_grid: GridContainer
+var _empty_notice: Label
+var _item_buttons: Dictionary = {}
 var _detail: VBoxContainer
 var _description: Label
 var _quote: Label
@@ -38,6 +42,7 @@ func _ready() -> void:
 	get_ok_button().text = "关闭"
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.follow_focus = true
 	add_child(_scroll)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -129,7 +134,7 @@ func _button(text: String, callback: Callable) -> Button:
 	button.text = text
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.custom_minimum_size.y = 38
+	button.custom_minimum_size.y = 44
 	button.pressed.connect(callback)
 	return button
 
@@ -143,6 +148,7 @@ func _fit_window() -> void:
 	min_size = Vector2i(width, height)
 	size = min_size
 	position = Vector2i((available - Vector2(size)) / 2.0)
+	call_deferred("_fit_item_grid")
 
 
 func _build() -> void:
@@ -150,6 +156,7 @@ func _build() -> void:
 	for child: Node in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
+	_item_buttons.clear()
 	title = "宝物背包" if _section == "inventory" else "商城"
 	var tabs: GridContainer = GridContainer.new()
 	tabs.columns = 2
@@ -187,12 +194,31 @@ func _build() -> void:
 	_items = OptionButton.new()
 	_items.clip_text = true
 	_items.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_items.custom_minimum_size.y = 38
+	_items.custom_minimum_size.y = 44
+	# Keep one selection model for both sections. The backpack presents the
+	# same IDs as tiles; the shop retains its existing purchase selector.
+	_items.visible = _section == "shop"
+	_items.focus_mode = Control.FOCUS_ALL if _section == "shop" else Control.FOCUS_NONE
 	_content.add_child(_items)
 	_items.item_selected.connect(func(index: int) -> void:
-		_remember()
-		_selected_item = str(_items.get_item_metadata(index))
-		_build_detail())
+		_choose_item(str(_items.get_item_metadata(index))))
+	_empty_notice = _label("暂无已持有宝物；领取礼包或战斗缴获后会出现在这里。", 14)
+	_empty_notice.visible = false
+	_content.add_child(_empty_notice)
+	_grid_scroll = ScrollContainer.new()
+	_grid_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_grid_scroll.follow_focus = true
+	_grid_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grid_scroll.visible = _section == "inventory"
+	_content.add_child(_grid_scroll)
+	_item_grid = GridContainer.new()
+	_item_grid.columns = 2
+	_item_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_item_grid.visible = _section == "inventory"
+	_item_grid.add_theme_constant_override("h_separation", 8)
+	_item_grid.add_theme_constant_override("v_separation", 8)
+	_grid_scroll.add_child(_item_grid)
+	_item_grid.resized.connect(_fit_item_grid)
 	_detail = VBoxContainer.new()
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_child(_detail)
@@ -208,12 +234,14 @@ func _sync_items(filter_changed: bool = false) -> void:
 		if not _selected_category.is_empty() and str(item.get("category", "")) != _selected_category: continue
 		if not _search.text.strip_edges().is_empty() and not str(item.name).to_lower().contains(_search.text.strip_edges().to_lower()): continue
 		if _section == "shop" and _available.button_pressed and (not item.get("supported", false) or item.get("rewardOnly", false)): continue
-		if _section == "inventory" and int(item.get("count", 0)) < 1 and (filter_changed or str(item.id) != _selected_item): continue
+		if _section == "inventory" and int(item.get("count", 0)) < 1: continue
 		rows.append(item)
 	var ids: Array = []
 	for item: Dictionary in rows: ids.append(item.id)
 	var signature: String = JSON.stringify(ids)
-	if signature == _item_signature and not filter_changed: return
+	if signature == _item_signature and not filter_changed:
+		_refresh_item_tiles()
+		return
 	_remember()
 	_item_signature = signature
 	_items.clear()
@@ -227,7 +255,109 @@ func _sync_items(filter_changed: bool = false) -> void:
 	if not found:
 		_selected_item = str(_items.get_item_metadata(0)) if _items.item_count > 0 else ""
 		_build_detail()
+	_rebuild_item_tiles(rows)
 	_refresh()
+
+
+func _choose_item(item_id: String) -> void:
+	if item_id == _selected_item:
+		_refresh_item_tiles()
+		return
+	var selected_index: int = -1
+	for index: int in range(_items.item_count):
+		if str(_items.get_item_metadata(index)) == item_id:
+			selected_index = index
+			break
+	# A snapshot can remove an item before a queued click is delivered.
+	if selected_index < 0: return
+	_remember()
+	_selected_item = item_id
+	_items.select(selected_index)
+	_build_detail()
+	_refresh_item_tiles()
+
+
+func _rebuild_item_tiles(rows: Array[Dictionary]) -> void:
+	if not is_instance_valid(_item_grid): return
+	var focus_id: String = ""
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	for item_id: String in _item_buttons:
+		if focus == _item_buttons[item_id]:
+			focus_id = item_id
+			break
+	var scroll_position: int = _scroll.scroll_vertical
+	var grid_position: int = _grid_scroll.scroll_vertical
+	for child: Node in _item_grid.get_children():
+		_item_grid.remove_child(child)
+		child.queue_free()
+	_item_buttons.clear()
+	if _section == "inventory":
+		for item: Dictionary in rows:
+			var item_id: String = str(item.id)
+			var button: Button = _button("", _choose_item.bind(item_id))
+			button.custom_minimum_size = Vector2(112, 80)
+			button.toggle_mode = true
+			button.clip_text = true
+			button.focus_mode = Control.FOCUS_ALL
+			_item_grid.add_child(button)
+			_item_buttons[item_id] = button
+	_empty_notice.visible = _section == "inventory" and rows.is_empty()
+	_grid_scroll.visible = _section == "inventory" and not rows.is_empty()
+	if _empty_notice.visible:
+		_empty_notice.text = "没有符合筛选的已持有宝物。" if not _search.text.strip_edges().is_empty() or not _selected_category.is_empty() else "暂无已持有宝物；领取礼包或战斗缴获后会出现在这里。"
+	_refresh_item_tiles()
+	_fit_item_grid()
+	_scroll.set_deferred("scroll_vertical", scroll_position)
+	_grid_scroll.set_deferred("scroll_vertical", grid_position)
+	if not focus_id.is_empty():
+		var target: Control = _item_buttons.get(focus_id, _item_buttons.get(_selected_item, _category))
+		target.call_deferred("grab_focus")
+
+
+func _refresh_item_tiles() -> void:
+	if _section != "inventory": return
+	for item: Dictionary in _data().get("items", []):
+		var item_id: String = str(item.get("id", ""))
+		if not _item_buttons.has(item_id): continue
+		var button: Button = _item_buttons[item_id]
+		var selected: bool = item_id == _selected_item
+		button.text = ("已选 · " if selected else "") + str(item.get("name", item_id)) + "\n持有 %d" % int(item.get("count", 0))
+		button.tooltip_text = "%s · 持有 %d\n%s\n选择只查看详情；使用须在下方确认。" % [str(item.get("name", item_id)), int(item.get("count", 0)), str(item.get("description", ""))]
+		button.theme_type_variation = "PrimaryButton" if selected else "UtilityButton"
+		button.set_pressed_no_signal(selected)
+	_wire_item_focus()
+
+
+func _fit_item_grid() -> void:
+	if not is_instance_valid(_item_grid): return
+	var width: float = _item_grid.size.x if _item_grid.size.x > 0 else _scroll.custom_minimum_size.x
+	_item_grid.columns = 3 if width >= 460.0 else 2
+	# A large collection must not push the selected item's confirmation below
+	# dozens of rows. The grid has its own scroll area and follows keyboard focus.
+	var row_count: int = ceili(float(_item_buttons.size()) / float(_item_grid.columns))
+	_grid_scroll.custom_minimum_size.y = minf(float(row_count * 88 - 8), 256.0 if _item_grid.columns == 3 else 168.0) if row_count > 0 else 0.0
+	_wire_item_focus()
+
+
+func _wire_item_focus() -> void:
+	if not is_instance_valid(_item_grid) or _item_buttons.is_empty(): return
+	var buttons: Array[Node] = _item_grid.get_children()
+	var columns: int = _item_grid.columns
+	var detail_focus: Control = get_ok_button()
+	for candidate: Control in [_target, _text, _apply, _route]:
+		if is_instance_valid(candidate) and candidate.visible and candidate.focus_mode != Control.FOCUS_NONE and not (candidate is BaseButton and (candidate as BaseButton).disabled):
+			detail_focus = candidate
+			break
+	_category.focus_next = buttons[0].get_path()
+	_category.focus_neighbor_bottom = buttons[0].get_path()
+	for index: int in range(buttons.size()):
+		var button: Button = buttons[index] as Button
+		button.focus_previous = _category.get_path() if index == 0 else buttons[index - 1].get_path()
+		button.focus_next = detail_focus.get_path() if index == buttons.size() - 1 else buttons[index + 1].get_path()
+		button.focus_neighbor_left = buttons[index - 1].get_path() if index % columns > 0 else button.get_path()
+		button.focus_neighbor_right = buttons[index + 1].get_path() if index % columns < columns - 1 and index + 1 < buttons.size() else button.get_path()
+		button.focus_neighbor_top = buttons[index - columns].get_path() if index >= columns else _category.get_path()
+		button.focus_neighbor_bottom = buttons[index + columns].get_path() if index + columns < buttons.size() else detail_focus.get_path()
 
 
 func _remember() -> void:
@@ -272,7 +402,7 @@ func _build_detail() -> void:
 			_detail.add_child(_label("选择将领" if kind == "hero" else "选择加速队列" if kind == "speedup" else "选择装备部位", 14))
 			_target = OptionButton.new()
 			_target.clip_text = true
-			_target.custom_minimum_size.y = 38
+			_target.custom_minimum_size.y = 44
 			_target.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			_detail.add_child(_target)
 			_target_id = str(draft.get("target", ""))
@@ -395,6 +525,7 @@ func _refresh() -> void:
 		_route.text = str(route.get("label", "前往对应功能"))
 		_route.disabled = _pending
 	_updating = false
+	_refresh_item_tiles()
 
 
 func _submit() -> void:

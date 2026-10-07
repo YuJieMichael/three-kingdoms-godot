@@ -28,6 +28,8 @@ const DispatchDialogScript: Script = preload("res://src/dispatch_dialog.gd")
 const ActivityBarScript: Script = preload("res://src/army_activity_bar.gd")
 const ConstructionPanelScript: Script = preload("res://src/city_construction_panel.gd")
 const CapacityCompareScript: Script = preload("res://src/city_capacity_compare.gd")
+const NotificationScript: Script = preload("res://src/notification_center.gd")
+const ReportLootScript: Script = preload("res://src/report_loot_view.gd")
 const FONT: Font = preload("res://assets/fonts/UI.tres")
 const RES_NAMES: Dictionary = {"food": "粮草", "wood": "木材", "stone": "石料", "iron": "铁锭", "gold": "黄金"}
 const RES_SHORT_NAMES: Dictionary = {"food": "粮", "wood": "木", "stone": "石", "iron": "铁", "gold": "金"}
@@ -59,6 +61,8 @@ var _detail: VBoxContainer
 var _nav: HBoxContainer
 var _status: Label
 var _toast: Label
+var _notifications: KingdomNotificationCenter
+var _messages_button: Button
 var _objective_title: Label
 var _objective_text: Label
 var _objective_button: Button
@@ -113,6 +117,7 @@ var _popup_return_focus: WeakRef
 var _growth_button: Button
 var _growth_route: KingdomGrowthRouteView
 var _report_economy: KingdomReportEconomyView
+var _report_loot: KingdomReportLootView
 var _report_key: String = ""
 var _economy_signature: String = ""
 var _scouting: KingdomScoutingDialog
@@ -414,6 +419,8 @@ func _update_shortcut_help() -> void:
 		var text: String = "按键设置 %s · Tab 切换控件 · Enter 操作所选按钮 · Esc 关闭弹窗" % input_settings.binding_text("tk_settings")
 		if _page == "world":
 			text = "地图 %s / %s / %s / %s · 缩放 %s / %s · 回城 %s\n" % [input_settings.binding_text("tk_map_up"), input_settings.binding_text("tk_map_left"), input_settings.binding_text("tk_map_down"), input_settings.binding_text("tk_map_right"), input_settings.binding_text("tk_map_zoom_in"), input_settings.binding_text("tk_map_zoom_out"), input_settings.binding_text("tk_map_home")] + text
+		elif _page == "city":
+			text = "Tab 聚焦地块 · 方向键选格 · Enter 查看建设 · Shift+Tab 返回工具栏\n" + text
 		_shortcut_hint.text = text
 
 func _make_theme() -> Theme:
@@ -611,8 +618,16 @@ func _build_shell() -> void:
 	root.add_child(footer)
 	_toast.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(_toast)
+	_messages_button = _button("消息", _messages_dialog)
+	_messages_button.theme_type_variation = "UtilityButton"
+	_messages_button.tooltip_text = "本次打开客户端的最近30条操作提示；切换进度后清空"
+	footer.add_child(_messages_button)
 	_connection_indicator = _label("未连接", 12, Color("afb8ad"))
 	footer.add_child(_connection_indicator)
+	_notifications = NotificationScript.new() as KingdomNotificationCenter
+	add_child(_notifications)
+	_notifications.history_changed.connect(func(count: int) -> void:
+		_messages_button.text = "消息 %d" % count if count > 0 else "消息")
 	resized.connect(_adapt_layout)
 	call_deferred("_adapt_layout")
 
@@ -962,7 +977,7 @@ func _focus_city_hall() -> void:
 		var center_y: float = _city.position.y + rect.get_center().y
 		scroller.scroll_vertical = maxi(0, roundi(center_y - scroller.size.y * 0.5))
 		_city.select_building("hall", int(parcel.get("site", -1)))
-		_show_toast("已定位官府 · 地块 %d" % (int(parcel.get("site", -1)) + 1))
+		_show_toast("已定位官府 · 地块 %d" % (int(parcel.get("site", -1)) + 1), false, false)
 		return
 	_show_toast("正在读取本城官府位置，请稍后再试")
 
@@ -1084,6 +1099,8 @@ func _check_smoke() -> void:
 func _connection_changed(message: String, _connected: bool) -> void:
 	if is_instance_valid(_activity_bar):
 		_activity_bar.set_connected(_connected)
+	if is_instance_valid(_report_loot):
+		_report_loot.set_navigation_state(_connected, api._has_mutation())
 	_sync_resource_details()
 	_refresh_scout_marches()
 	_status.text = message
@@ -1121,12 +1138,28 @@ func _request_failed(message: String) -> void:
 			popup.set_command_state(api.connected, api._has_mutation())
 			popup.show_error(message)
 
-func _show_toast(message: String, error: bool = false) -> void:
+func _show_toast(message: String, error: bool = false, announce: bool = true) -> void:
 	_toast.text = message
 	_toast.tooltip_text = message
 	_toast.add_theme_color_override("font_color", Color("edb68f") if error else Color("c9d2be"))
 	if is_instance_valid(_ui_feedback):
 		_ui_feedback.notice(_toast)
+	if announce and is_instance_valid(_notifications):
+		_notifications.push_notice(message, error)
+
+func _messages_dialog() -> void:
+	var content: VBoxContainer = _open_dialog("最近操作消息", 600)
+	var note: Label = _label("仅保留当前进度、本次打开客户端的最近30条提示。最新消息在上方。", 14, Color("c3bcaa"))
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(note)
+	var records: Array[Dictionary] = _notifications.records() if is_instance_valid(_notifications) else []
+	if records.is_empty():
+		content.add_child(_label("还没有操作消息。", 16))
+	for record: Dictionary in records:
+		var text: Label = _label(str(record.get("time", "")) + " · " + ("请核对操作状态" if record.get("error", false) else "操作提示") + "\n" + str(record.get("message", "")), 16, Color("edb68f") if record.get("error", false) else Color("f1ead9"))
+		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(text)
+		content.add_child(HSeparator.new())
 
 func _current_objective() -> Dictionary:
 	if api != null and api.mode == "shared":
@@ -1248,7 +1281,7 @@ func _refresh_clock() -> void:
 func _select_tile(tile: Dictionary) -> void:
 	_selected = tile.duplicate(true)
 	_render_detail()
-	_show_toast(str(tile.get("name", "目标")) + " · 坐标 " + str(tile.get("x", 0)) + "," + str(tile.get("y", 0)))
+	_show_toast(str(tile.get("name", "目标")) + " · 坐标 " + str(tile.get("x", 0)) + "," + str(tile.get("y", 0)), false, false)
 	if size.x < 1000.0:
 		_dispatch_dialog(tile)
 
@@ -1298,6 +1331,7 @@ func _open_dialog(title: String, width: int = 600, managed_scroll: bool = true) 
 	_march_empty = null
 	_growth_route = null
 	_report_economy = null
+	_report_loot = null
 	_report_key = ""
 	_economy_signature = ""
 	_remember_keyboard_focus()
@@ -1682,7 +1716,19 @@ func _command_completed(type: String, _payload: Dictionary) -> void:
 		_send_command("startBattle")
 		_show_page("army")
 	else:
-		var messages: Dictionary = {"queueBuilding": "已加入建设队列", "queueResearch": "已加入研究队列", "queueTraining": "已加入训练队列", "onboarding.claimAvailable": "已领取全部可领取礼包", "setBattleOrders": "全军军令已更新", "setBattleOrder": "兵队军令已更新", "battleRound": "本回合已结算", "recall": "部队已开始返程"}
+		var messages: Dictionary = {
+			"queueBuilding": "建设操作已结算", "upgrade": "升级操作已结算", "developPlot": "田庄建设操作已结算",
+			"research": "研究操作已结算", "train": "练兵操作已结算", "buildDefense": "城防建设操作已结算",
+			"claimStarterGift": "新手礼包领取已结算", "onboarding.claimAvailable": "已领取全部可领取礼包",
+			"onboarding.claim": "成长礼包领取已结算", "onboarding.openItem": "开箱操作已结算，请在背包查看结果",
+			"claimMission": "任务奖励领取已结算", "claimDaily": "日常奖励领取已结算", "claimReadyMissions": "主线奖励领取已结算",
+			"buyItem": "购买操作已结算，请在背包查看", "useItem": "道具使用已结算", "useSpeedup": "加速操作已结算",
+			"dispatch": "出征操作已结算，请查看行军", "dispatchScout": "侦察派遣已结算，请查看行军",
+			"healWounded": "伤兵治疗已结算", "recruitCaptives": "士兵招降已结算", "recruitAllCaptives": "士兵招降已结算",
+			"wild.recruit": "俘将招降已结算", "hero.equip": "装备穿戴已结算", "hero.forge": "装备打造已结算",
+			"setBattleOrders": "全军军令已更新", "setBattleOrder": "兵队军令已更新", "battleRound": "本回合已结算",
+			"recall": "部队已开始返程"
+		}
 		_show_toast(str(messages.get(type, "操作已完成")) + " · 进度已保存")
 	_sync_objective_actions()
 
@@ -1825,6 +1871,8 @@ func _report_identity(report: Dictionary) -> String:
 func _sync_report_economy() -> void:
 	if not is_instance_valid(_report_economy) or not is_instance_valid(_dialog) or not _dialog.visible:
 		return
+	if is_instance_valid(_report_loot):
+		_report_loot.set_navigation_state(api.connected, api._has_mutation())
 	for report: Dictionary in _view.get("reports", []):
 		if _report_identity(report) == _report_key:
 			var economy: Dictionary = report.get("economy", {})
@@ -1848,6 +1896,19 @@ func _report_dialog(report: Dictionary) -> void:
 	_economy_signature = JSON.stringify(report.get("economy", {}))
 	_report_economy.set_economy(report.get("economy", {}))
 	content.add_child(_report_economy)
+	_report_loot = ReportLootScript.new() as KingdomReportLootView
+	content.add_child(_report_loot)
+	_report_loot.set_report(report, _view)
+	_report_loot.set_navigation_state(api.connected, api._has_mutation())
+	_report_loot.navigate_requested.connect(func(section: String) -> void:
+		if section == "inventory":
+			_show_inventory("inventory")
+		elif section == "equipment":
+			_show_heroes("equipment")
+		elif section == "hero_captives":
+			_show_heroes("captives")
+		elif section == "soldier_captives":
+			_show_war_management("captives"))
 	if report.get("shared", false):
 		_render_shared_report(content, report)
 		return
@@ -1988,6 +2049,8 @@ func _scrub_retiring_window(node: Node) -> void:
 	node.set_block_signals(signals_were_blocked)
 
 func _mode_changed(_mode: String) -> void:
+	if is_instance_valid(_notifications):
+		_notifications.clear_context()
 	_city_construction_panel = null
 	_city_construction_site = -1
 	_city_construction_source = ""
@@ -2030,6 +2093,7 @@ func _mode_changed(_mode: String) -> void:
 	_popup_return_focus = null
 	_growth_route = null
 	_report_economy = null
+	_report_loot = null
 	_report_key = ""
 	_economy_signature = ""
 	_detail_intel = null
